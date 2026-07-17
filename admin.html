@@ -327,7 +327,7 @@
                             <label class="admin-label">Foto del Caballo</label>
                             <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: -4px; margin-bottom: 6px;">Puedes seleccionar un archivo, arrastrarlo al cuadro de la izquierda o pegar una imagen copiada (Cmd+V / Ctrl+V).</span>
                             <input type="file" id="form-foto-file" class="admin-input" accept="image/*" style="margin-bottom: 8px;">
-                            <input type="text" id="form-foto" class="admin-input" placeholder="Nombre de archivo (ej. carpacho.png) o base64...">
+                            <input type="text" id="form-foto" class="admin-input" placeholder="URL de internet (https://...), nombre de archivo o base64...">
                         </div>
                     </div>
 
@@ -1033,6 +1033,23 @@
 
         document.getElementById('form-foto-file').addEventListener('change', function(e) {
             processImageFile(e.target.files[0]);
+        });
+
+        // Detectar cambios en la caja de texto (para URLs o nombres de archivos)
+        document.getElementById('form-foto').addEventListener('input', function(e) {
+            const val = e.target.value.trim();
+            const previewImg = document.getElementById('preview-img');
+            const previewText = document.getElementById('preview-text');
+            
+            if (val !== '') {
+                previewImg.src = val;
+                previewImg.style.display = 'block';
+                previewText.style.display = 'none';
+            } else {
+                previewImg.src = '';
+                previewImg.style.display = 'none';
+                previewText.style.display = 'block';
+            }
         });
 
         // Configurar Arrastrar y Soltar (Drag and Drop)
