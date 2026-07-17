@@ -999,7 +999,15 @@
 
             filteredGenealogias.forEach(g => {
                 const tr = document.createElement('tr');
-                const photoText = g.foto ? `<span style="color:#a5d6a7;">Sí</span>` : `<span style="color:var(--text-muted);">No</span>`;
+                
+                let photoHtml = `<span style="font-size: 0.72rem; color: var(--text-muted); font-style: italic;">Sin Foto</span>`;
+                if (g.foto && g.foto.trim() !== '') {
+                    const parts = g.foto.split(',');
+                    const firstPhoto = parts[0].trim();
+                    const photoPos = g.photoPosition !== undefined ? g.photoPosition : 50;
+                    const photoFit = g.photoFit || 'cover';
+                    photoHtml = `<img src="${firstPhoto}" alt="${g.nombre}" style="width: 50px; height: 36px; object-fit: ${photoFit}; object-position: center ${photoPos}%; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15); display: block; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">`;
+                }
                 
                 tr.innerHTML = `
                     <td><strong>${g.nombre}</strong></td>
@@ -1007,7 +1015,7 @@
                     <td>${g.nacional}</td>
                     <td>${g.fn}</td>
                     <td>${g.alzada} / ${g.cincha} / ${g.cana}</td>
-                    <td>${photoText}</td>
+                    <td>${photoHtml}</td>
                     <td>
                         <div class="admin-row-actions">
                             <button class="admin-btn admin-btn-secondary" style="padding:0.4rem 0.8rem; font-size:0.75rem; background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.15); color: #5d4037;" onclick="editGenealogia('${g.id}')">Editar</button>
