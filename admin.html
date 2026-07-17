@@ -552,6 +552,13 @@
                         loginErrorMsg.style.display = 'block';
                         loginPasswordInput.value = '';
                     } else {
+                        // Guardar sesión de usuario administrador localmente
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            email: email,
+                            active: true,
+                            nombre: "ADMINISTRADOR",
+                            apellido: "PRINCIPAL"
+                        }));
                         loginErrorMsg.style.display = 'none';
                         loginScreen.style.display = 'none';
                         dashboard.style.display = 'block';

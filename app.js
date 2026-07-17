@@ -924,8 +924,30 @@ async function checkPageAccess() {
         return;
     }
 
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    let currentUser = null;
+    try {
+        currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    } catch(e) {}
+    
     let isSocioActivo = false;
+
+    // Si no hay sesión local pero hay sesión activa de administrador en Supabase, la sincronizamos
+    if (!currentUser && supabaseClient) {
+        try {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session && session.user && session.user.email === 'admin@corralabierto.cl') {
+                currentUser = {
+                    email: session.user.email,
+                    active: true,
+                    nombre: "ADMINISTRADOR",
+                    apellido: "PRINCIPAL"
+                };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+        } catch(err) {
+            console.error(err);
+        }
+    }
 
     // Si el usuario es el administrador principal, tiene acceso total e ilimitado
     if (currentUser && currentUser.email === 'admin@corralabierto.cl') {
