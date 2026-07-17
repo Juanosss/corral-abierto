@@ -714,18 +714,27 @@ function renderChart(data, stage = 4) {
 }
 
 async function initRodeoData() {
-    // Cargar colleras desde localStorage o los datos por defecto
-    let localData = null;
-    try {
-        localData = JSON.parse(localStorage.getItem('rodeoData'));
-    } catch(e) {
-        console.error("Error al parsear localStorage:", e);
+    if (supabaseClient) {
+        try {
+            // Leer colleras desde Supabase en tiempo real
+            const { data, error } = await supabaseClient.from('colleras').select('*').order('n');
+            if (!error && data && data.length > 0) {
+                rodeoData = data;
+                try {
+                    localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
+                } catch(e) {
+                    console.error(e);
+                }
+            } else {
+                loadBackupLocalRodeoData();
+            }
+        } catch(err) {
+            console.error("Error al cargar colleras de Supabase:", err);
+            loadBackupLocalRodeoData();
+        }
+    } else {
+        loadBackupLocalRodeoData();
     }
-    if (!localData || localData.length === 0) {
-        localData = defaultRodeoData;
-        localStorage.setItem('rodeoData', JSON.stringify(localData));
-    }
-    rodeoData = localData;
 
     // Renderizar una vez cargados los datos
     const isToroPage = document.body.getAttribute('data-toro');
@@ -738,6 +747,24 @@ async function initRodeoData() {
         renderChart(rodeoData, "total");
         renderTable(rodeoData, "total");
     }
+}
+
+function loadBackupLocalRodeoData() {
+    let localData = null;
+    try {
+        localData = JSON.parse(localStorage.getItem('rodeoData'));
+    } catch(e) {
+        console.error("Error al parsear localStorage:", e);
+    }
+    if (!localData || localData.length === 0) {
+        localData = defaultRodeoData;
+        try {
+            localStorage.setItem('rodeoData', JSON.stringify(localData));
+        } catch(e) {
+            console.error(e);
+        }
+    }
+    rodeoData = localData;
 }
 
     // Custom Smooth Scroll para el menú (un poco más lento)
