@@ -694,15 +694,17 @@ async function initRodeoData() {
                 rodeoData = data;
                 localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
             } else {
-                // Si la tabla en Supabase está vacía, la sembramos automáticamente
-                console.log("Tabla de colleras vacía en Supabase, sembrando datos por defecto...");
-                const { error: insertError } = await supabaseClient.from('colleras').insert(defaultRodeoData);
+                // Si la tabla en Supabase está vacía, la sembramos usando localStorage o los datos por defecto
+                const localData = localStorage.getItem('rodeoData');
+                const dataToSeed = localData ? JSON.parse(localData) : defaultRodeoData;
+                console.log("Tabla de colleras vacía en Supabase, sembrando datos...");
+                const { error: insertError } = await supabaseClient.from('colleras').insert(dataToSeed);
                 if (insertError) {
                     console.error("Error al sembrar colleras en Supabase:", insertError);
                 } else {
                     console.log("Sembrado exitoso.");
                 }
-                rodeoData = defaultRodeoData;
+                rodeoData = dataToSeed;
             }
         } catch (err) {
             console.error("Error inesperado en Supabase:", err);
