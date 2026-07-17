@@ -324,20 +324,24 @@
                         </div>
                     </div>
 
-                    <!-- Foto del Ejemplar (Arriba) -->
-                    <div class="admin-photo-upload-container" style="margin-bottom: 2rem;">
-                        <div id="photo-preview-box" class="admin-photo-preview" style="cursor: pointer; transition: all 0.2s; border: 2px dashed rgba(255,255,255,0.15); width: 140px; height: 100px; display: flex; align-items: center; justify-content: center; position: relative;">
-                            <img id="preview-img" src="" alt="Vista Previa" style="display: none; width: 100%; height: 100%; object-fit: cover; object-position: center 50%;">
-                            <span id="preview-text" style="text-align: center; padding: 6px; font-size: 0.72rem;">Arrastra o pega una foto aquí</span>
+                    <!-- Foto del Ejemplar (Arriba) con Galería de Cuadrados -->
+                    <div class="admin-photo-gallery-container" style="margin-bottom: 2rem; background: rgba(255,255,255,0.02); padding: 16px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <label class="admin-label" style="display: block; margin-bottom: 8px;">Fotos del Caballo (Máximo 4 fotos - Carrusel rotativo de 10s)</label>
+                        <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: -4px; margin-bottom: 12px;">Arrastra una imagen sobre cualquier recuadro vacío, haz clic para subir, o pega usando Cmd+V / Ctrl+V.</span>
+                        
+                        <!-- Contenedor de Cuadrados -->
+                        <div id="photo-squares-container" style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;">
+                            <!-- Cuadrados generados dinámicamente -->
                         </div>
-                        <div class="admin-input-group" style="flex: 1; margin-bottom: 0;">
-                            <label class="admin-label">Foto del Caballo (Soporta múltiples separadas por comas)</label>
-                            <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: -4px; margin-bottom: 6px;">Para subir varias fotos, arrastra o pega una tras otra. Se acumularán automáticamente.</span>
-                            <input type="file" id="form-foto-file" class="admin-input" accept="image/*" style="margin-bottom: 8px;">
-                            <input type="text" id="form-foto" class="admin-input" placeholder="URLs separadas por comas, nombre de archivo o base64..." style="margin-bottom: 8px;">
+                        
+                        <input type="file" id="form-foto-file-temp" style="display: none;" accept="image/*">
+                        
+                        <div class="admin-input-group" style="margin-bottom: 0;">
+                            <label class="admin-label" style="font-size: 0.72rem;">Enlaces directos / Base64 (Separados por comas)</label>
+                            <input type="text" id="form-foto" class="admin-input" placeholder="URLs separadas por comas, nombre de archivo o base64..." style="margin-bottom: 8px; font-size: 0.75rem;">
                             
                             <!-- Controles de Ajuste de Foto -->
-                            <div style="display: flex; gap: 15px; align-items: center; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-top: 6px;">
+                            <div style="display: flex; gap: 15px; align-items: center; background: rgba(255,255,255,0.03); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-top: 6px;">
                                 <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
                                     <span style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">Posición V:</span>
                                     <input type="range" id="form-foto-position" min="0" max="100" value="50" style="flex: 1; accent-color: #ff5722; height: 4px; cursor: pointer;">
@@ -1097,102 +1101,164 @@
             renderGenealogiasTable();
         }
 
-        // Procesar archivo de imagen seleccionado, arrastrado o pegado
-        function processImageFile(file) {
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    const currentVal = document.getElementById('form-foto').value.trim();
-                    if (currentVal === '') {
-                        document.getElementById('form-foto').value = evt.target.result;
-                    } else {
-                        // Acumular múltiples fotos separadas por coma
-                        document.getElementById('form-foto').value = currentVal + ', ' + evt.target.result;
-                    }
+        // GESTIÓN DE MINIATURAS (CUADRADOS) PARA MÚLTIPLES FOTOS
+        let activeSlotIndex = null;
+
+        function renderPhotoSquares() {
+            const container = document.getElementById('photo-squares-container');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const currentVal = document.getElementById('form-foto').value.trim();
+            // Separar fotos por comas y limpiar espacios
+            const photos = currentVal ? currentVal.split(',').map(p => p.trim()).filter(p => p !== '') : [];
+            const photoPos = parseInt(document.getElementById('form-foto-position').value) || 50;
+            const photoFit = document.getElementById('form-foto-fit').value || 'cover';
+
+            // Crear 4 cuadrados siempre
+            for (let i = 0; i < 4; i++) {
+                const square = document.createElement('div');
+                square.style.width = '100px';
+                square.style.height = '75px';
+                square.style.border = '2px dashed rgba(255,255,255,0.15)';
+                square.style.borderRadius = '8px';
+                square.style.position = 'relative';
+                square.style.display = 'flex';
+                square.style.alignItems = 'center';
+                square.style.justifyContent = 'center';
+                square.style.cursor = 'pointer';
+                square.style.transition = 'all 0.2s';
+                square.style.background = 'rgba(0,0,0,0.3)';
+                square.style.overflow = 'hidden';
+                square.style.boxSizing = 'border-box';
+                square.className = 'photo-square-slot';
+                square.dataset.index = i;
+
+                if (i < photos.length) {
+                    // Hay una foto cargada en este slot
+                    const imgSrc = photos[i];
                     
-                    // Mostrar la primera foto en la vista previa
-                    const firstPhoto = evt.target.result;
-                    const previewImg = document.getElementById('preview-img');
-                    previewImg.src = firstPhoto;
-                    previewImg.style.display = 'block';
-                    document.getElementById('preview-text').style.display = 'none';
-                };
-                reader.readAsDataURL(file);
+                    const img = document.createElement('img');
+                    img.src = imgSrc;
+                    img.style.width = '100%';
+                    img.style.height = '100%';
+                    img.style.objectFit = photoFit;
+                    img.style.objectPosition = `center ${photoPos}%`;
+                    square.appendChild(img);
+
+                    // Botón para eliminar esta foto
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.innerHTML = '&times;';
+                    deleteBtn.style.position = 'absolute';
+                    deleteBtn.style.top = '2px';
+                    deleteBtn.style.right = '2px';
+                    deleteBtn.style.background = 'rgba(211,47,47,0.85)';
+                    deleteBtn.style.color = '#fff';
+                    deleteBtn.style.border = 'none';
+                    deleteBtn.style.borderRadius = '50%';
+                    deleteBtn.style.width = '18px';
+                    deleteBtn.style.height = '18px';
+                    deleteBtn.style.fontSize = '12px';
+                    deleteBtn.style.lineHeight = '18px';
+                    deleteBtn.style.textAlign = 'center';
+                    deleteBtn.style.cursor = 'pointer';
+                    deleteBtn.style.zIndex = '10';
+                    deleteBtn.style.padding = '0';
+                    deleteBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        // Remover foto
+                        photos.splice(i, 1);
+                        document.getElementById('form-foto').value = photos.join(', ');
+                        renderPhotoSquares();
+                    };
+                    square.appendChild(deleteBtn);
+                } else {
+                    // Slot vacío
+                    const span = document.createElement('span');
+                    span.innerHTML = '+<br>Foto ' + (i + 1);
+                    span.style.fontSize = '0.68rem';
+                    span.style.color = 'var(--text-muted)';
+                    span.style.textAlign = 'center';
+                    span.style.lineHeight = '1.2';
+                    square.appendChild(span);
+
+                    // Evento Click para abrir selector de archivo
+                    square.onclick = function() {
+                        activeSlotIndex = i;
+                        document.getElementById('form-foto-file-temp').click();
+                    };
+
+                    // Eventos Drag and Drop en slots vacíos
+                    ['dragenter', 'dragover'].forEach(eventName => {
+                        square.addEventListener(eventName, (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            square.style.borderColor = '#ff5722';
+                            square.style.background = 'rgba(255, 87, 34, 0.1)';
+                        }, false);
+                    });
+
+                    ['dragleave', 'drop'].forEach(eventName => {
+                        square.addEventListener(eventName, (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            square.style.borderColor = 'rgba(255,255,255,0.15)';
+                            square.style.background = 'rgba(0,0,0,0.3)';
+                        }, false);
+                    });
+
+                    square.addEventListener('drop', (e) => {
+                        const files = e.dataTransfer.files;
+                        if (files && files.length > 0 && files[0].type.startsWith('image/')) {
+                            const reader = new FileReader();
+                            reader.onload = function(evt) {
+                                photos[i] = evt.target.result;
+                                document.getElementById('form-foto').value = photos.join(', ');
+                                renderPhotoSquares();
+                            };
+                            reader.readAsDataURL(files[0]);
+                        }
+                    }, false);
+                }
+
+                container.appendChild(square);
             }
         }
 
-        document.getElementById('form-foto-file').addEventListener('change', function(e) {
-            processImageFile(e.target.files[0]);
+        // Listener para el input file oculto
+        document.getElementById('form-foto-file-temp').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && activeSlotIndex !== null) {
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const currentVal = document.getElementById('form-foto').value.trim();
+                    const photos = currentVal ? currentVal.split(',').map(p => p.trim()).filter(p => p !== '') : [];
+                    
+                    photos[activeSlotIndex] = evt.target.result;
+                    document.getElementById('form-foto').value = photos.join(', ');
+                    renderPhotoSquares();
+                };
+                reader.readAsDataURL(file);
+            }
         });
 
-        // Detectar cambios en la caja de texto (para URLs o nombres de archivos)
-        document.getElementById('form-foto').addEventListener('input', function(e) {
-            const val = e.target.value.trim();
-            const previewImg = document.getElementById('preview-img');
-            const previewText = document.getElementById('preview-text');
-            
-            if (val !== '') {
-                // Si hay múltiples fotos separadas por coma, previsualizar la primera
-                const parts = val.split(',');
-                previewImg.src = parts[0].trim();
-                previewImg.style.display = 'block';
-                previewText.style.display = 'none';
-            } else {
-                previewImg.src = '';
-                previewImg.style.display = 'none';
-                previewText.style.display = 'block';
-            }
+        // Sincronizar campo de texto manual con los cuadrados
+        document.getElementById('form-foto').addEventListener('input', function() {
+            renderPhotoSquares();
         });
 
         // Controles de Ajuste de Foto (Slider y Fit)
         document.getElementById('form-foto-position').addEventListener('input', function(e) {
             const val = e.target.value;
             document.getElementById('form-foto-position-val').innerText = val + '%';
-            
-            const previewImg = document.getElementById('preview-img');
-            previewImg.style.objectPosition = `center ${val}%`;
+            renderPhotoSquares();
         });
 
-        document.getElementById('form-foto-fit').addEventListener('change', function(e) {
-            const val = e.target.value;
-            const previewImg = document.getElementById('preview-img');
-            previewImg.style.objectFit = val;
+        document.getElementById('form-foto-fit').addEventListener('change', function() {
+            renderPhotoSquares();
         });
 
-        // Configurar Arrastrar y Soltar (Drag and Drop)
-        const photoPreviewBox = document.getElementById('photo-preview-box');
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            photoPreviewBox.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-            }, false);
-        });
-
-        ['dragenter', 'dragover'].forEach(eventName => {
-            photoPreviewBox.addEventListener(eventName, () => {
-                photoPreviewBox.classList.add('drag-over');
-            }, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            photoPreviewBox.addEventListener(eventName, () => {
-                photoPreviewBox.classList.remove('drag-over');
-            }, false);
-        });
-
-        photoPreviewBox.addEventListener('drop', (e) => {
-            const files = e.dataTransfer.files;
-            if (files && files.length > 0) {
-                processImageFile(files[0]);
-            }
-        }, false);
-
-        photoPreviewBox.addEventListener('click', () => {
-            document.getElementById('form-foto-file').click();
-        });
-
-        // Configurar Copiar y Pegar (Paste)
+        // Configurar Copiar y Pegar (Paste) global en el modal
         window.addEventListener('paste', function(e) {
             const modalGenealogia = document.getElementById('modal-genealogia-overlay');
             if (modalGenealogia && modalGenealogia.classList.contains('active')) {
@@ -1200,8 +1266,20 @@
                 for (let i = 0; i < items.length; i++) {
                     if (items[i].type.indexOf('image') === 0) {
                         const file = items[i].getAsFile();
-                        processImageFile(file);
-                        showToast("Imagen pegada con éxito.");
+                        
+                        // Buscar el primer slot vacío
+                        const currentVal = document.getElementById('form-foto').value.trim();
+                        const photos = currentVal ? currentVal.split(',').map(p => p.trim()).filter(p => p !== '') : [];
+                        const emptyIndex = photos.length < 4 ? photos.length : 0;
+                        
+                        const reader = new FileReader();
+                        reader.onload = function(evt) {
+                            photos[emptyIndex] = evt.target.result;
+                            document.getElementById('form-foto').value = photos.join(', ');
+                            renderPhotoSquares();
+                            showToast("Imagen pegada en Slot " + (emptyIndex + 1));
+                        };
+                        reader.readAsDataURL(file);
                         break;
                     }
                 }
@@ -1212,16 +1290,11 @@
             const overlay = document.getElementById('modal-genealogia-overlay');
             const title = document.getElementById('modal-genealogia-title');
             const form = document.getElementById('form-genealogia');
-
-            document.getElementById('preview-img').src = '';
-            document.getElementById('preview-img').style.display = 'none';
-            document.getElementById('preview-img').style.objectPosition = 'center 50%';
-            document.getElementById('preview-img').style.objectFit = 'cover';
-            document.getElementById('preview-text').style.display = 'block';
             
             document.getElementById('form-foto-position').value = 50;
             document.getElementById('form-foto-position-val').innerText = '50%';
             document.getElementById('form-foto-fit').value = 'cover';
+            document.getElementById('form-foto').value = '';
             
             form.reset();
 
@@ -1246,16 +1319,6 @@
                     document.getElementById('form-foto-position-val').innerText = photoPos + '%';
                     document.getElementById('form-foto-fit').value = photoFit;
 
-                    if (horse.foto && horse.foto.trim() !== '') {
-                        // Si hay múltiples fotos separadas por coma, previsualizar la primera
-                        const parts = horse.foto.split(',');
-                        document.getElementById('preview-img').src = parts[0].trim();
-                        document.getElementById('preview-img').style.display = 'block';
-                        document.getElementById('preview-img').style.objectPosition = `center ${photoPos}%`;
-                        document.getElementById('preview-img').style.objectFit = photoFit;
-                        document.getElementById('preview-text').style.display = 'none';
-                    }
-
                     document.getElementById('form-padre').value = horse.padre || '';
                     document.getElementById('form-madre').value = horse.madre || '';
                     document.getElementById('form-abueloP').value = horse.abueloP || '';
@@ -1276,6 +1339,7 @@
                 document.getElementById('form-genealogia-index').value = '';
             }
 
+            renderPhotoSquares();
             overlay.classList.add('active');
         }
 
