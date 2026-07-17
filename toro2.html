@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corral Abierto x Champion de Chile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Playfair Display for rustic headers, Inter for clean data -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=3.1">
+</head>
+<body data-toro="2">
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-container">
+                <a href="index.html" class="header-logo-link">
+                    <span class="brand-title-main">Corral Abierto</span>
+                    <span class="brand-partner-divider">✕</span>
+                    <div class="brand-partner-group">
+                        <img src="https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png" alt="Federación del Rodeo Chileno" class="header-logo" style="margin-right: 0; width: 38px; height: auto;">
+                        <div class="header-branding" style="line-height: 1.1;">
+                            <span class="brand-title" style="font-size: 1.1rem; letter-spacing: 0;">Champion de Chile</span>
+                            <span class="brand-subtitle" style="font-size: 0.55rem; letter-spacing: 0.02em;">77° Campeonato Nacional</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <nav class="header-nav">
+                    <a href="index.html#envivo" class="nav-btn btn-live">En Vivo</a>
+                    <a href="index.html#analisis" class="nav-btn">Análisis</a>
+                    <a href="anuario.html" class="nav-btn">Anuario</a>
+                    <a href="genealogia.html" class="nav-btn">Genealogía</a>
+                    <div class="nav-divider"></div>
+                    <a href="toro1.html" class="nav-btn">1er Animal</a>
+                    <a href="toro2.html" class="nav-btn active">2do Animal</a>
+                    <a href="toro3.html" class="nav-btn">3er Animal</a>
+                    <a href="toro4.html" class="nav-btn">4to Animal</a>
+                                    <div class="nav-divider"></div>
+                    <a href="https://www.flow.cl/btn.php?token=t72149f43e71af43c82f6f67fdf40c375fa191cb" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; font-weight: 700; box-shadow: 0 4px 10px rgba(230,81,0,0.3); white-space: nowrap; flex-shrink: 0;">Hacerse Socio 🐴</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            
+            <!-- Secciones ocultas en modo dedicado -->
+
+            <!-- SECTION 2: Resultados -->
+            <section id="resultados" class="section-resultados">
+                <h2 class="section-title">Resultados - 2do Animal</h2>
+
+                <div class="table-container">
+                    <table class="rodeo-table" id="rodeo-table">
+                        <thead id="table-head">
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Data populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="chart-container" style="margin-top: 3rem; background: var(--card-bg); padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
+                    <h3 style="text-align: center; font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 1.5rem; font-size: 1.5rem;">Comparativa de Puntajes</h3>
+                    <div style="position: relative; height: 60vh; width: 100%;">
+                        <canvas id="scoreChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="app-footer">
+            <p>&copy; 2026 Caballo y Rodeo - Tradición y Deporte</p>
+        </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js?v=3.2"></script>
+</body>
+</html>

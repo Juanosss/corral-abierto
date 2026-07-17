@@ -1,0 +1,1820 @@
+:root {
+    /* Corralero Theme Colors */
+    --bg-color: #f6efe8; /* Warm beige */
+    --card-bg: #ffffff;
+    --text-main: #3e2723; /* Dark brown */
+    --text-muted: #795548; /* Lighter brown */
+    
+    --primary-color: #d84315; /* Rust Red */
+    --primary-dark: #bf360c; /* Deep rust red */
+    --primary-light: #ff7043;
+    
+    --secondary: #1b2733; /* Dark slate for contrast */
+    
+    --border-color: #d7ccc8; /* Light warm brown */
+    --row-hover: #fcf9f5;
+    
+    --accent-oro: #d4af37; /* Gold */
+    --accent-plata: #c0c0c0;
+    --accent-bronce: #cd7f32;
+    
+    --radius-lg: 12px;
+    --radius-md: 8px;
+    --shadow-sm: 0 2px 4px rgba(62, 39, 35, 0.08);
+    --shadow-md: 0 4px 12px rgba(62, 39, 35, 0.12);
+    --shadow-hover: 0 10px 20px rgba(62, 39, 35, 0.15);
+    
+    --font-heading: 'Playfair Display', serif;
+    --font-body: 'Inter', system-ui, sans-serif;
+}
+
+/* Reset & Global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+}
+
+/* Layout */
+.app-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Sticky Header - Premium & Modern */
+.app-header {
+    position: sticky;
+    top: 0;
+    z-index: 1500;
+    background: rgba(26, 15, 13, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+    padding: 0.85rem 2rem; /* Aumentado un 10% para darle un poco más de presencia */
+    transition: all 0.3s ease;
+}
+
+.header-container {
+    max-width: 100%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Pseudo-elemento no requerido en modo flexbox */
+.header-container::after {
+    content: none;
+}
+
+.header-logo-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: white;
+    transition: transform 0.2s ease;
+    justify-self: start; /* Alinear a la izquierda en su columna */
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.header-logo-link:hover {
+    transform: scale(1.02);
+}
+
+.app-header .header-logo {
+    width: 38px; 
+    height: auto;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.brand-title-main {
+    font-family: var(--font-heading);
+    font-size: 1.45rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 0%, #e0d5c1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    white-space: nowrap;
+}
+.brand-partner-divider {
+    color: #ff5722;
+    font-weight: 700;
+    font-size: 0.95rem;
+    opacity: 0.8;
+    margin: 0 2px;
+}
+.brand-partner-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.header-branding {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1; /* Ajustado para mantener compacto el texto */
+}
+
+.brand-title {
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 0%, #e0d5c1 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.brand-subtitle {
+    font-size: 0.52rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+/* Nav Pill Menu */
+.header-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+}
+
+.nav-divider {
+    width: 1px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 0 0.3rem;
+}
+
+.nav-btn {
+    text-decoration: none;
+    color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 0.45rem 0.85rem; /* Reducido para compactar */
+    border-radius: 22px; /* Aumentado de 20px */
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+    font-size: 0.8rem; /* Reducido de 0.9rem */
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    white-space: nowrap;
+    backdrop-filter: blur(5px);
+}
+
+.nav-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.nav-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(216, 67, 21, 0.3);
+}
+
+/* Pulse animation for the Live button */
+@keyframes pulse-live {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+.btn-live {
+    background: rgba(216, 67, 21, 0.12);
+    border-color: rgba(216, 67, 21, 0.25);
+    color: #ff7043 !important;
+}
+
+.btn-live:hover {
+    background: var(--primary-color);
+    color: white !important;
+    border-color: var(--primary-color);
+}
+
+.btn-live::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #ff3d00;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+    animation: pulse-live 1.5s infinite;
+}
+
+/* Responsive navigation for Tablet (iPads) */
+@media (min-width: 768px) and (max-width: 1150px) {
+    .header-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        padding: 0.5rem 0;
+        align-items: center;
+    }
+    
+    .header-container::after {
+        display: none;
+    }
+    
+    .header-nav {
+        display: flex;
+        flex-wrap: wrap; /* Permitir envoltura en dos filas */
+        justify-content: center;
+        gap: 0.5rem;
+        row-gap: 0.75rem; /* Separación vertical entre las dos filas */
+        width: 100%;
+    }
+
+    .nav-divider {
+        flex-basis: 100%; /* Forzar salto de línea */
+        width: 100%;
+        height: 0;
+        margin: 0;
+        background: transparent;
+        border: none;
+    }
+}
+
+/* Responsive navigation for Mobile (Phones) */
+@media (max-width: 767px) {
+    .app-header {
+        padding: 0.5rem 1rem; /* Cabecera bastante más delgada y compacta */
+    }
+
+    .header-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        padding: 0.3rem 0;
+        align-items: center;
+    }
+    
+    .header-container::after {
+        display: none;
+    }
+
+    .app-header .header-logo {
+        width: 36px; /* Logo más pequeño en iPhone */
+    }
+
+    .brand-title {
+        font-size: 1.15rem; /* Título de marca más compacto */
+    }
+
+    .brand-subtitle {
+        font-size: 0.62rem;
+    }
+    
+    .header-nav {
+        display: flex;
+        flex-wrap: wrap; 
+        justify-content: center;
+        gap: 0.28rem;
+        row-gap: 0.45rem;
+        width: 100%;
+    }
+
+    .nav-divider {
+        flex-basis: 100%; /* Forzar salto de línea para mantener 2 filas exactas */
+        width: 100%;
+        height: 0;
+        margin: 0;
+        background: transparent;
+        border: none;
+    }
+    
+    .nav-btn {
+        padding: 0.35rem 0.65rem; /* Botones ultra compactos para que el 4to Animal quepa en la misma línea */
+        font-size: 0.72rem;
+        border-radius: 14px;
+    }
+
+    /* Redimensionado de textos, títulos y análisis para celular */
+    .main-content {
+        padding: 1.5rem 0.8rem; /* Contenido más pegado a los bordes */
+    }
+
+    .section-analisis, .section-resultados, .section-envivo {
+        margin-bottom: 2rem; /* Espaciado más corto entre bloques */
+    }
+
+    .section-title {
+        font-size: 1.45rem; /* Títulos de sección más pequeños */
+        margin-bottom: 1.2rem;
+    }
+
+    .section-title::after {
+        width: 40px;
+        height: 2px;
+        margin: 6px auto 0;
+    }
+
+    /* Tarjetas de Análisis compactas */
+    .analisis-grid {
+        gap: 0.8rem; /* Menor separación entre tarjetas */
+    }
+
+    .analisis-card {
+        padding: 1rem; /* Menos padding interno en la tarjeta */
+    }
+
+    .analisis-card h3 {
+        font-size: 1.05rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .analisis-card .card-icon-wrapper {
+        width: 30px;
+        height: 30px;
+        font-size: 0.95rem;
+    }
+
+    .analisis-card p {
+        font-size: 0.78rem;
+    }
+
+    .analisis-card .sub-detail {
+        font-size: 0.78rem;
+    }
+
+    .colleras-list-container {
+        margin-top: 0.6rem;
+        padding-top: 0.5rem;
+    }
+
+    .collera-badge {
+        padding: 0.2rem 0.45rem;
+        font-size: 0.7rem;
+    }
+}
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 3rem 1rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Sections */
+.section-analisis, .section-resultados {
+    margin-bottom: 4rem;
+}
+
+.section-title {
+    font-size: 2.8rem; /* Aumentado de 2.2rem para que sea más imponente */
+    color: var(--primary-dark);
+    text-align: center;
+    margin-bottom: 2.5rem;
+    position: relative;
+    padding-bottom: 12px; /* Espacio para la línea absoluta */
+}
+
+.section-title::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%); /* Centrado absoluto perfecto */
+    width: 80px; /* Aumentado de 60px para acompañar el tamaño del texto */
+    height: 3px;
+    background-color: var(--primary-dark);
+    border-radius: 2px;
+}
+
+/* Analysis Grid - Premium Redesign */
+.analisis-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+/* Premium Card Base */
+.analisis-card {
+    position: relative;
+    background: linear-gradient(145deg, #ffffff, #fdfbf7);
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 
+        0 10px 30px rgba(62, 39, 35, 0.04),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(215, 204, 200, 0.3);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.analisis-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 6px;
+    background: var(--primary-color);
+}
+
+/* Specific Card Themes */
+.card-champion::before { background: linear-gradient(90deg, #d4af37, #f3e5ab); }
+.card-vice::before { background: linear-gradient(90deg, #c0c0c0, #e8e8e8); }
+.card-third::before { background: linear-gradient(90deg, #cd7f32, #ffdab9); }
+.card-fourth::before { background: linear-gradient(90deg, var(--primary-color), var(--primary-light)); }
+
+.analisis-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 
+        0 15px 35px rgba(62, 39, 35, 0.1),
+        inset 0 0 0 1px rgba(255, 255, 255, 1);
+}
+
+.card-icon-wrapper {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(216, 67, 21, 0.08);
+    margin-bottom: 1rem;
+    font-size: 1.4rem;
+}
+
+.analisis-card h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 0.8rem;
+    border: none;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.analisis-card p {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--secondary);
+    margin-bottom: 0.4rem;
+    line-height: 1.3;
+}
+
+.analisis-card .sub-detail {
+    font-size: 0.85rem;
+    font-weight: 400;
+    color: #8d6e63;
+    margin-bottom: 1rem;
+}
+
+.analisis-card .highlight {
+    font-size: 3rem;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    margin-top: auto;
+    display: block;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+}
+
+.analisis-card .sub-detail {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Colleras List in Analysis */
+.colleras-list-container {
+    margin-top: 1rem;
+    padding-top: 0.8rem;
+    border-top: 1px dashed rgba(0,0,0,0.1);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.collera-badge {
+    background: rgba(216, 67, 21, 0.05);
+    border: 1px solid rgba(216, 67, 21, 0.1);
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+/* Tabs for Toros */
+.toro-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.toro-tab {
+    background-color: var(--card-bg);
+    color: var(--text-main);
+    border: 2px solid var(--border-color);
+    padding: 0.8rem 1.5rem;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-body);
+    box-shadow: var(--shadow-sm);
+}
+
+.toro-tab:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-dark);
+}
+
+.toro-tab.active {
+    background-color: var(--primary-dark);
+    color: white;
+    border-color: var(--primary-dark);
+    box-shadow: 0 4px 10px rgba(191, 54, 12, 0.4);
+}
+
+/* Table Container */
+.table-container {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    overflow-x: auto; 
+}
+
+/* Table Design for PC */
+.rodeo-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    white-space: nowrap;
+}
+
+.rodeo-table th, 
+.rodeo-table td {
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.rodeo-table th {
+    background-color: #3e2723; /* Very dark brown */
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-family: var(--font-heading);
+}
+
+.rodeo-table tbody tr {
+    transition: background-color 0.2s ease;
+}
+
+.rodeo-table tbody tr:hover {
+    background-color: var(--row-hover);
+}
+
+/* Specific Column Styling */
+.td-jinetes {
+    font-weight: 700;
+    color: var(--secondary);
+}
+.td-caballos {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-style: italic;
+}
+.jinetes-list, .caballos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.jinete-item, .caballo-item {
+    font-size: 0.95rem;
+}
+.caballo-link {
+    color: var(--primary-light);
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    border-bottom: 1px dashed rgba(216, 67, 21, 0.4);
+    display: inline-block;
+}
+.caballo-link:hover {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+    transform: translateY(-1px);
+}
+.td-lugar {
+    font-weight: 800;
+    color: var(--primary-color);
+    font-family: var(--font-heading);
+    font-size: 1.2rem;
+}
+.td-resultado {
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: var(--text-main);
+    font-family: var(--font-heading);
+}
+
+.td-score-val {
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.val-x { color: #bcaaa4; }
+.val-num { color: var(--secondary); }
+.val-text {
+    font-size: 0.8rem;
+    color: var(--primary-dark);
+    white-space: normal;
+    max-width: 150px;
+}
+
+/* Footer */
+.app-footer {
+    text-align: center;
+    padding: 2rem;
+    background: var(--secondary);
+    color: #e0d5c1;
+    font-size: 0.9rem;
+    border-top: 4px solid var(--primary-dark);
+}
+
+/* Responsive Table -> Card View for Mobile */
+@media screen and (max-width: 1024px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 1.5rem;
+    }
+    .header-nav {
+        justify-content: center;
+    }
+    .header-content h1 {
+        font-size: 2.5rem;
+    }
+    
+    .rodeo-table thead {
+        display: none;
+    }
+
+    .rodeo-table, .rodeo-table tbody, .rodeo-table tr, .rodeo-table td {
+        display: block;
+        width: 100%;
+        white-space: normal;
+    }
+    
+    .table-container {
+        background: transparent;
+        box-shadow: none;
+        overflow-x: visible;
+    }
+
+    .rodeo-table tbody tr {
+        background: var(--card-bg);
+        margin-bottom: 1.5rem; /* Reducido de 3rem para hacer la lista más compacta y eficiente */
+        border-radius: var(--radius-lg);
+        box-shadow: 0 8px 20px rgba(62, 39, 35, 0.2);
+        border: 2px solid var(--border-color);
+        padding: 0;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        overflow: hidden;
+    }
+    
+    .rodeo-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem 1.2rem;
+        border-bottom: 1px solid var(--border-color);
+        text-align: right;
+        min-height: 3rem;
+    }
+
+    .rodeo-table td:last-child {
+        border-bottom: none;
+    }
+
+    .rodeo-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        font-family: var(--font-heading);
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-align: left;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+    
+    .jinetes-list, .caballos-list {
+        align-items: flex-end;
+    }
+    
+    .rodeo-table td:first-child {
+        background-color: var(--secondary);
+        color: white;
+        border-radius: 0;
+        justify-content: center;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 1rem;
+    }
+    .rodeo-table td:first-child > div {
+        color: white !important;
+    }
+    .rodeo-table td:first-child::before {
+        display: none;
+    }
+}
+
+/* Live Indicator Animation */
+.live-dot {
+    display: inline-block;
+    animation: blink-red 1.5s ease-in-out infinite;
+}
+
+@keyframes blink-red {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.85); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* --- Genealogía Premium Layout --- */
+.genealogia-card {
+    background: linear-gradient(145deg, rgba(38, 24, 21, 0.8) 0%, rgba(20, 12, 10, 0.95) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 2.2rem;
+    margin-bottom: 3rem;
+    scroll-margin-top: 130px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+}
+
+/* Decoración de fondo premium */
+.genealogia-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(218, 67, 21, 0.06) 0%, transparent 70%);
+    pointer-events: none;
+    border-radius: 50%;
+}
+
+.genealogia-card:target {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 30px rgba(218, 67, 21, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: scale(1.01) translateY(-3px);
+}
+
+.genealogia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 1rem;
+    margin-bottom: 1.8rem;
+}
+
+.genealogia-header h3 {
+    font-family: var(--font-heading);
+    font-size: 1.8rem;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.genealogia-meta {
+    font-size: 0.8rem;
+    color: var(--primary-light);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    background: rgba(218, 67, 21, 0.12);
+    padding: 0.4rem 1rem;
+    border-radius: 30px;
+    border: 1px solid rgba(218, 67, 21, 0.25);
+}
+
+.genealogia-tree-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr 1.2fr;
+    gap: 1.2rem;
+    align-items: stretch;
+    position: relative;
+}
+
+.tree-level {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    height: 100%;
+    justify-content: center;
+}
+
+.tree-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 1.1rem;
+    border-radius: 14px;
+    text-align: left;
+    font-size: 0.95rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 60px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    position: relative;
+}
+
+.tree-box:hover {
+    transform: translateY(-2px) scale(1.02);
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+}
+
+.tree-box.root-box {
+    background: linear-gradient(135deg, #e65100 0%, #b23c00 100%);
+    border-color: rgba(255, 255, 255, 0.15);
+    font-weight: 800;
+    font-size: 1.3rem;
+    color: #ffffff;
+    min-height: 90px;
+    box-shadow: 0 8px 25px rgba(230, 81, 0, 0.25);
+    text-align: center;
+}
+
+.tree-box.root-box:hover {
+    background: linear-gradient(135deg, #ff5722 0%, #d84315 100%);
+    box-shadow: 0 10px 30px rgba(230, 81, 0, 0.35);
+}
+
+.tree-box.parent-box {
+    background: rgba(141, 110, 99, 0.15);
+    border-color: rgba(141, 110, 99, 0.3);
+    font-weight: 700;
+    min-height: 75px;
+}
+
+.tree-box.parent-box:hover {
+    background: rgba(141, 110, 99, 0.25);
+    border-color: var(--primary-light);
+}
+
+.tree-box.grandparent-box {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.65);
+    min-height: 52px;
+}
+
+.tree-box.grandparent-box:hover {
+    color: #ffffff;
+}
+
+.tree-box .role-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    color: var(--primary-light);
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    margin-bottom: 5px;
+    opacity: 0.9;
+}
+
+.tree-box.root-box .role-label {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.tree-box .name-label {
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #ffffff; /* Letras de los nombres en blanco para máxima visibilidad */
+}
+
+/* Símbolos de Género */
+.gender-m {
+    color: #90caf9;
+    font-weight: 800;
+}
+.gender-f {
+    color: #f48fb1;
+    font-weight: 800;
+}
+
+@media (max-width: 767px) {
+    .genealogia-card {
+        padding: 1.5rem 1.1rem;
+    }
+    .genealogia-header h3 {
+        font-size: 1.45rem;
+    }
+    .genealogia-meta {
+        font-size: 0.72rem;
+        padding: 0.3rem 0.7rem;
+    }
+    .genealogia-tree-grid {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+    }
+    .tree-level {
+        gap: 0.8rem;
+    }
+    .tree-box {
+        min-height: auto;
+        padding: 0.9rem;
+    }
+    .tree-box.root-box {
+        min-height: auto;
+        font-size: 1.15rem;
+    }
+}
+
+/* --- Nuevo Diseño del Bloque de Genealogía (Inspirado en el Catálogo de Remates) --- */
+.genealogia-header-details {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+}
+.genealogia-header-left {
+    display: flex;
+    flex-direction: column;
+}
+.genealogia-header-left h3 {
+    font-family: var(--font-heading);
+    font-size: 2.2rem;
+    color: white;
+    margin: 0;
+    line-height: 1.1;
+}
+.genealogia-header-left .criadero-sub {
+    font-size: 0.9rem;
+    color: var(--primary-light);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+}
+.genealogia-header-right {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-end;
+}
+.genealogia-pill {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #e0d5c1;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.35rem 0.9rem;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+}
+
+/* Contenedor de la Foto Principal */
+.genealogia-photo-frame {
+    width: 100%;
+    height: 280px; /* Reducido de 380px para que sea un poco más compacto */
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.2);
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
+}
+.genealogia-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+    gap: 12px;
+}
+.genealogia-photo-placeholder svg {
+    width: 48px;
+    height: 48px;
+    stroke: currentColor;
+    stroke-width: 1.2;
+    fill: none;
+    opacity: 0.5;
+}
+
+/* Barra de Medidas Estilo Catálogo */
+.genealogia-measurements-bar {
+    background: var(--primary-color);
+    color: white;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    text-align: center;
+    padding: 0.8rem 1rem;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    border-radius: 0 0 16px 16px; /* Se acopla abajo de la foto */
+    margin-top: -16px; /* Superpone levemente para que parezca una sola pieza */
+    position: relative;
+    z-index: 10;
+    box-shadow: 0 4px 15px rgba(216, 67, 21, 0.2);
+}
+.measurement-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+.measurement-item:last-child {
+    border-right: none;
+}
+
+/* Árbol Genealógico Avanzado de 3 Generaciones (Padres -> Abuelos -> Bisabuelos) */
+.genealogia-tree-container {
+    margin-top: 3rem;
+    padding: 1rem 0;
+    width: 100%;
+}
+
+.tree-parents-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+    position: relative;
+    padding-left: 2.5rem; /* Espacio para el bracket principal */
+}
+
+/* Bracket principal que une la Rama Paterna y Materna */
+.tree-parents-wrapper::before {
+    content: '';
+    position: absolute;
+    left: 1.25rem;
+    top: 18%;
+    bottom: 18%;
+    width: 1.25rem;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+}
+.tree-parents-wrapper::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.tree-parent-branch {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    position: relative;
+}
+
+.tree-grandparents-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2.2rem;
+    position: relative;
+    padding-left: 2.5rem;
+}
+
+/* Bracket del Padre/Madre a sus Abuelos */
+.tree-grandparents-group::before {
+    content: '';
+    position: absolute;
+    left: 1.25rem;
+    top: 18%;
+    bottom: 18%;
+    width: 1.25rem;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+}
+.tree-grandparents-group::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.tree-grandparent-branch {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    position: relative;
+}
+
+.tree-bisabuelos-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    position: relative;
+    padding-left: 2.5rem;
+}
+
+/* Bracket del Abuelo a sus Bisabuelos */
+.tree-bisabuelos-group::before {
+    content: '';
+    position: absolute;
+    left: 1.25rem;
+    top: 22%;
+    bottom: 22%;
+    width: 1.25rem;
+    border: 2px solid rgba(255, 255, 255, 0.15);
+    border-right: none;
+    border-radius: 8px 0 0 8px;
+}
+.tree-bisabuelos-group::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 1.25rem;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.tree-box.parent-box {
+    background: rgba(141, 110, 99, 0.15);
+    border-color: rgba(141, 110, 99, 0.3);
+    font-weight: 700;
+    min-height: 75px;
+    width: 190px;
+    flex-shrink: 0;
+}
+
+.tree-box.grandparent-box {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.65);
+    min-height: 52px;
+    width: 190px;
+    flex-shrink: 0;
+}
+
+.tree-box.bisabuelo-box {
+    background: rgba(255, 255, 255, 0.01);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    font-size: 0.82rem;
+    color: rgba(255, 255, 255, 0.6);
+    min-height: 48px;
+    padding: 0.6rem 0.8rem;
+    border-radius: 10px;
+    width: 190px;
+    flex-shrink: 0;
+}
+
+.tree-box.bisabuelo-box:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+@media (max-width: 900px) {
+    .genealogia-card {
+        padding: 1rem 0.8rem;
+    }
+    .genealogia-header-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+        margin-bottom: 1rem;
+    }
+    .genealogia-header-left h3 {
+        font-size: 1.6rem;
+    }
+    .genealogia-header-right {
+        flex-direction: row;
+        gap: 6px;
+        flex-wrap: wrap;
+        width: 100%;
+        justify-content: flex-start;
+    }
+    .genealogia-pill {
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+    }
+    .genealogia-photo-frame {
+        height: 180px;
+    }
+    .genealogia-measurements-bar {
+        font-size: 0.72rem;
+        padding: 0.5rem;
+        grid-template-columns: repeat(3, 1fr); /* Mantener horizontal */
+        gap: 2px;
+    }
+    .measurement-item {
+        border-right: 1px solid rgba(255, 255, 255, 0.2);
+        padding-bottom: 0;
+        font-size: 0.68rem;
+    }
+    .measurement-item:last-child {
+        border-right: none;
+    }
+
+    /* --- Árbol Horizontal Compacto para Móviles (Ajusta perfecto en iPhone) --- */
+    .genealogia-tree-container {
+        margin-top: 1.5rem;
+        overflow-x: auto; /* Permite scroll horizontal suave si la pantalla es muy angosta */
+        padding-bottom: 0.5rem;
+    }
+    .tree-parents-wrapper {
+        padding-left: 1.2rem;
+        gap: 1.8rem;
+        display: flex;
+        flex-direction: column;
+        width: max-content; /* Previene que se colapse el árbol */
+        margin: 0 auto;
+    }
+
+    /* Conector Principal Móvil */
+    .tree-parents-wrapper::before {
+        left: 0.6rem;
+        top: 20%;
+        bottom: 20%;
+        width: 0.6rem;
+        border-width: 1.5px;
+    }
+    .tree-parents-wrapper::after {
+        left: 0;
+        width: 0.6rem;
+        height: 1.5px;
+    }
+
+    .tree-parent-branch {
+        display: flex;
+        flex-direction: row; /* Horizontal */
+        align-items: center;
+        gap: 1.2rem;
+    }
+
+    .tree-grandparents-group {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+        position: relative;
+        padding-left: 1.2rem;
+    }
+
+    /* Conector Abuelos Móvil */
+    .tree-grandparents-group::before {
+        left: 0.6rem;
+        top: 20%;
+        bottom: 20%;
+        width: 0.6rem;
+        border-width: 1.5px;
+    }
+    .tree-grandparents-group::after {
+        left: 0;
+        width: 0.6rem;
+        height: 1.5px;
+    }
+
+    .tree-grandparent-branch {
+        display: flex;
+        flex-direction: row; /* Horizontal */
+        align-items: center;
+        gap: 1.2rem;
+    }
+
+    .tree-bisabuelos-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        position: relative;
+        padding-left: 1.2rem;
+    }
+
+    /* Conector Bisabuelos Móvil */
+    .tree-bisabuelos-group::before {
+        left: 0.6rem;
+        top: 22%;
+        bottom: 22%;
+        width: 0.6rem;
+        border-width: 1.5px;
+    }
+    .tree-bisabuelos-group::after {
+        left: 0;
+        width: 0.6rem;
+        height: 1.5px;
+    }
+
+    /* Cajas Ultra Compactas para Pantallas Chicas */
+    .tree-box.parent-box {
+        width: 82px !important;
+        min-height: 48px;
+        padding: 0.3rem 0.4rem;
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+
+    .tree-box.grandparent-box {
+        width: 82px !important;
+        min-height: 40px;
+        padding: 0.3rem 0.4rem;
+        border-radius: 8px;
+        flex-shrink: 0;
+    }
+
+    .tree-box.bisabuelo-box {
+        width: 82px !important;
+        min-height: 36px;
+        padding: 0.25rem 0.35rem;
+        border-radius: 6px;
+        flex-shrink: 0;
+    }
+
+    /* Tamaños de Textos en Cajas Móviles */
+    .tree-box .role-label {
+        font-size: 0.52rem;
+        margin-bottom: 2px;
+    }
+    
+    .tree-box .name-label {
+        font-size: 0.6rem;
+        font-weight: 700;
+        gap: 2px;
+        line-height: 1.1;
+        word-break: break-word; /* Permite saltos de línea si el nombre es largo */
+    }
+
+    /* Mostrar conectores móviles */
+    .tree-parents-wrapper::before,
+    .tree-parents-wrapper::after,
+    .tree-grandparents-group::before,
+    .tree-grandparents-group::after,
+    .tree-bisabuelos-group::before,
+    .tree-bisabuelos-group::after {
+        display: block !important;
+    }
+}
+
+/* ==========================================================================
+   PANEL DE ADMINISTRACION - ESTILOS PREMIUM
+   ========================================================================== */
+
+/* Login Admin */
+.admin-login-wrapper {
+    max-width: 400px;
+    margin: 6rem auto;
+    padding: 2.5rem;
+    background: linear-gradient(145deg, rgba(38, 24, 21, 0.9) 0%, rgba(20, 12, 10, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.5);
+    text-align: center;
+}
+.admin-login-logo {
+    width: 70px;
+    margin-bottom: 1rem;
+}
+.admin-login-title {
+    font-family: var(--font-heading);
+    color: white;
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+.admin-login-subtitle {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+/* Form Controls Admin */
+.admin-input-group {
+    text-align: left;
+    margin-bottom: 1.2rem;
+}
+.admin-label {
+    display: block;
+    color: var(--primary-light);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 6px;
+}
+.admin-input, .admin-select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    font-family: inherit;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+.admin-input:focus, .admin-select:focus {
+    border-color: var(--primary-color);
+    background: rgba(218, 67, 21, 0.03);
+    box-shadow: 0 0 10px rgba(218, 67, 21, 0.15);
+}
+
+.admin-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    gap: 8px;
+}
+.admin-btn-primary {
+    background: linear-gradient(135deg, #e65100 0%, #b23c00 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(230, 81, 0, 0.2);
+}
+.admin-btn-primary:hover {
+    background: linear-gradient(135deg, #ff5722 0%, #d84315 100%);
+    box-shadow: 0 6px 20px rgba(230, 81, 0, 0.35);
+    transform: translateY(-1px);
+}
+.admin-btn-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #e0d5c1;
+}
+.admin-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+.admin-btn-danger {
+    background: rgba(211, 47, 47, 0.15);
+    border: 1px solid rgba(211, 47, 47, 0.3);
+    color: #ef9a9a;
+}
+.admin-btn-danger:hover {
+    background: rgba(211, 47, 47, 0.3);
+    color: white;
+    box-shadow: 0 4px 15px rgba(211, 47, 47, 0.2);
+}
+
+/* Admin Dashboard layout */
+.admin-dashboard-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.admin-header-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1rem;
+}
+.admin-title-area h2 {
+    font-family: var(--font-heading);
+    font-size: 2rem;
+    color: white;
+    margin: 0;
+}
+.admin-title-area p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin: 4px 0 0 0;
+}
+
+/* Tabs Navigation */
+.admin-tabs-nav {
+    display: flex;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 2rem;
+}
+.admin-tab-btn {
+    flex: 1;
+    padding: 0.8rem 1rem;
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.admin-tab-btn.active {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 4px 12px rgba(216, 67, 21, 0.2);
+}
+
+.admin-tab-content {
+    display: none;
+}
+.admin-tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* Admin Table */
+.admin-table-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    gap: 1rem;
+}
+.admin-search-input {
+    max-width: 350px;
+}
+.admin-table-container {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    overflow-x: auto;
+    box-shadow: var(--shadow-sm);
+}
+.admin-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+.admin-data-table th, .admin-data-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+.admin-data-table th {
+    background: rgba(255, 255, 255, 0.02);
+    color: var(--primary-light);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+}
+.admin-data-table tr:hover td {
+    background: rgba(255, 255, 255, 0.01);
+}
+.admin-row-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Modales Admin */
+.admin-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.admin-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.admin-modal {
+    background: linear-gradient(145deg, rgba(38, 24, 21, 0.95) 0%, rgba(20, 12, 10, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    transform: translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.admin-modal-overlay.active .admin-modal {
+    transform: translateY(0);
+}
+.admin-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.admin-modal-header h3 {
+    margin: 0;
+    font-family: var(--font-heading);
+    font-size: 1.5rem;
+    color: white;
+}
+.admin-modal-close {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    font-size: 1.8rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+.admin-modal-close:hover {
+    color: white;
+}
+.admin-modal-body {
+    padding: 2rem;
+}
+.admin-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 1.5rem 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Forms Grid */
+.admin-form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.2rem;
+    margin-bottom: 1.5rem;
+}
+.admin-section-subtitle {
+    font-family: var(--font-heading);
+    color: var(--primary-light);
+    font-size: 1.2rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 0.4rem;
+    margin: 2rem 0 1.2rem 0;
+}
+.admin-section-subtitle:first-child {
+    margin-top: 0;
+}
+
+/* Upload Image Preview Frame */
+.admin-photo-upload-container {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+.admin-photo-preview {
+    width: 120px;
+    height: 80px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+.admin-photo-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Backup Panel Layout */
+.admin-backup-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+.admin-backup-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 2rem;
+    text-align: center;
+}
+.admin-backup-card h3 {
+    font-family: var(--font-heading);
+    font-size: 1.3rem;
+    color: white;
+    margin-top: 0;
+}
+.admin-backup-card p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+    min-height: 40px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .admin-header-panel {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .admin-tabs-nav {
+        flex-direction: column;
+        gap: 6px;
+    }
+    .admin-form-row {
+        grid-template-columns: 1fr;
+    }
+    .admin-table-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .admin-search-input {
+        max-width: 100%;
+    }
+}
+
+/* Animación Premium del Modal de Autenticación */
+#auth-modal-overlay {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+#auth-modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+#auth-modal-overlay .auth-modal-card {
+    transform: scale(0.93) translateY(18px);
+    transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+#auth-modal-overlay.active .auth-modal-card {
+    transform: scale(1) translateY(0);
+}

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corral Abierto x Champion de Chile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=3.1">
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-container">
+                <a href="index.html" class="header-logo-link">
+                    <span class="brand-title-main">Corral Abierto</span>
+                    <span class="brand-partner-divider">✕</span>
+                    <div class="brand-partner-group">
+                        <img src="https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png" alt="Federación del Rodeo Chileno" class="header-logo" style="margin-right: 0; width: 38px; height: auto;">
+                        <div class="header-branding" style="line-height: 1.1;">
+                            <span class="brand-title" style="font-size: 1.1rem; letter-spacing: 0;">Champion de Chile</span>
+                            <span class="brand-subtitle" style="font-size: 0.55rem; letter-spacing: 0.02em;">77° Campeonato Nacional</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <nav class="header-nav">
+                    <a href="index.html#envivo" class="nav-btn btn-live">En Vivo</a>
+                    <a href="index.html#analisis" class="nav-btn">Análisis</a>
+                    <a href="anuario.html" class="nav-btn">Anuario</a>
+                    <a href="genealogia.html" class="nav-btn active">Genealogía</a>
+                    <div class="nav-divider"></div>
+                    <a href="toro1.html" class="nav-btn">1er Animal</a>
+                    <a href="toro2.html" class="nav-btn">2do Animal</a>
+                    <a href="toro3.html" class="nav-btn">3er Animal</a>
+                    <a href="toro4.html" class="nav-btn">4to Animal</a>
+                                    <div class="nav-divider"></div>
+                    <a href="https://www.flow.cl/btn.php?token=t72149f43e71af43c82f6f67fdf40c375fa191cb" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; font-weight: 700; box-shadow: 0 4px 10px rgba(230,81,0,0.3); white-space: nowrap; flex-shrink: 0;">Hacerse Socio 🐴</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section id="resultados" class="section-resultados">
+                <h2 class="section-title">Genealogía de Caballos</h2>
+                <p style="text-align: center; color: var(--text-muted); margin-bottom: 2.5rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+                    Consulta el origen, linaje, medidas y árbol genealógico completo de los caballos participantes (Padres, Abuelos y Bisabuelos).
+                </p>
+
+                <!-- Buscador Dinámico -->
+                <div style="margin-bottom: 3rem; display: flex; gap: 1rem; max-width: 500px; margin-left: auto; margin-right: auto; padding: 0 1rem;">
+                    <input type="text" id="search-input" placeholder="Buscar caballo o ancestro..." 
+                           style="flex: 1; padding: 0.8rem 1.2rem; border-radius: var(--radius-md); border: 2px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 0.95rem; box-shadow: var(--shadow-sm); outline: none; transition: all 0.2s;"
+                           onfocus="this.style.borderColor='var(--primary-color)'" 
+                           onblur="this.style.borderColor='var(--border-color)'">
+                </div>
+
+                <!-- Lista de Genealogías (Dinámica) -->
+                <div class="genealogias-list" id="genealogias-container" style="max-width: 900px; margin: 0 auto; padding: 0 1rem;">
+                    <!-- Se carga dinámicamente con JS -->
+                </div>
+            </section>
+        </main>
+
+        <footer class="app-footer">
+            <p>&copy; 2026 Caballo y Rodeo - Tradición y Deporte</p>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js?v=3.2"></script>
+    <script>
+        // Renderizar la genealogía dinámica leyendo desde localStorage
+        function renderGenealogias() {
+            const container = document.getElementById('genealogias-container');
+            if (!container) return;
+
+            // Limpiar contenido
+            container.innerHTML = '';
+
+            if (!genealogiaData || genealogiaData.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                        <p>No hay registros de genealogía disponibles.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            genealogiaData.forEach(h => {
+                // Estructura de la foto
+                let fotoHtml = `
+                    <div class="genealogia-photo-placeholder">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                            <circle cx="12" cy="13" r="4"/>
+                        </svg>
+                        <span>Espacio para fotografía</span>
+                    </div>
+                `;
+                if (h.foto && h.foto.trim() !== '') {
+                    fotoHtml = `<img src="${h.foto}" alt="${h.nombre}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                }
+
+                const cardHtml = `
+                    <div class="genealogia-card" id="${h.id}">
+                        <!-- Cabecera -->
+                        <div class="genealogia-header-details">
+                            <div class="genealogia-header-left">
+                                <h3>${h.nombre}</h3>
+                                <span class="criadero-sub">${h.criadero || 'SIN CRIADERO REGISTRADO'}</span>
+                            </div>
+                            <div class="genealogia-header-right">
+                                <span class="genealogia-pill">${h.nacional || 'SBT N° --'}</span>
+                                <span class="genealogia-pill">${h.fn || 'F.N. --'}</span>
+                            </div>
+                        </div>
+
+                        <!-- Foto -->
+                        <div class="genealogia-photo-frame">
+                            ${fotoHtml}
+                        </div>
+
+                        <!-- Barra de Medidas -->
+                        <div class="genealogia-measurements-bar">
+                            <div class="measurement-item">• ALZADA ${h.alzada || '--'}</div>
+                            <div class="measurement-item">• CINCHA ${h.cincha || '--'}</div>
+                            <div class="measurement-item">• CAÑA ${h.cana || '--'}</div>
+                        </div>
+
+                        <!-- Árbol Genealógico -->
+                        <div class="genealogia-tree-container">
+                            <div class="tree-parents-wrapper">
+                                <!-- RAMA PATERNA -->
+                                <div class="tree-parent-branch">
+                                    <div class="tree-box parent-box">
+                                        <span class="role-label">Padre</span>
+                                        <span class="name-label"><span class="gender-m">♂</span> ${h.padre || '--'}</span>
+                                    </div>
+                                    <div class="tree-grandparents-group">
+                                        <!-- Abuelo P -->
+                                        <div class="tree-grandparent-branch">
+                                            <div class="tree-box grandparent-box">
+                                                <span class="role-label">Abuelo P.</span>
+                                                <span class="name-label"><span class="gender-m">♂</span> ${h.abueloP || '--'}</span>
+                                            </div>
+                                            <div class="tree-bisabuelos-group">
+                                                <div class="tree-box bisabuelo-box">
+                                                    <span class="role-label">Bisabuelo P.1</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisP1 || '--'}</span>
+                                                </div>
+                                                <div class="tree-box bisabuelo-box">
+                                                    <span class="role-label">Bisabuela P.1</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisP2 || '--'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Abuela P -->
+                                        <div class="tree-grandparent-branch">
+                                            <div class="tree-box grandparent-box">
+                                                <span class="role-label">Abuela P.</span>
+                                                <span class="name-label"><span class="gender-f">♀</span> ${h.abuelaP || '--'}</span>
+                                            </div>
+                                            <div class="tree-bisabuelos-group">
+                                                <div class="tree-box bisabuelo-box">
+                                                    <span class="role-label">Bisabuelo P.2</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisP3 || '--'}</span>
+                                                </div>
+                                                <div class="tree-box bisabuelo-box">
+                                                    <span class="role-label">Bisabuela P.2</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisP4 || '--'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- RAMA MATERNA -->
+                                <div class="tree-parent-branch">
+                                    <div class="tree-box parent-box">
+                                        <span class="role-label">Madre</span>
+                                        <span class="name-label"><span class="gender-f">♀</span> ${h.madre || '--'}</span>
+                                    </div>
+                                    <div class="tree-grandparents-group">
+                                        <!-- Abuelo M -->
+                                        <div class="tree-grandparent-branch">
+                                            <div class="tree-box grandparent-box">
+                                                <span class="role-label">Abuelo M.</span>
+                                                <span class="name-label"><span class="gender-m">♂</span> ${h.abueloM || '--'}</span>
+                                            </div>
+                                            <div class="tree-bisabuelos-group">
+                                                <div class="tree-box bisabuelo-box">
+                                                    <span class="role-label">Bisabuelo M.1</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisM1 || '--'}</span>
+                                                </div>
+                                                <div class="tree-box bisabuelo-box">
+                                                    <span class="role-label">Bisabuela M.1</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisM2 || '--'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Abuela M -->
+                                        <div class="tree-grandparent-branch">
+                                            <div class="tree-box grandparent-box">
+                                                <span class="role-label">Abuela M.</span>
+                                                <span class="name-label"><span class="gender-f">♀</span> ${h.abuelaM || '--'}</span>
+                                            </div>
+                                            <div class="tree-bisabuelos-group">
+                                                <div class="tree-box bisabuelo-box">
+                                                    <span class="role-label">Bisabuelo M.2</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisM3 || '--'}</span>
+                                                </div>
+                                                <div class="tree-box bisabuelo-box">
+                                                    <span class="role-label">Bisabuela M.2</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisM4 || '--'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+        }
+
+        // Cargar datos
+        renderGenealogias();
+
+        // Buscador Dinámico
+        document.getElementById('search-input').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase().trim();
+            const cards = document.querySelectorAll('.genealogia-card');
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                card.style.display = text.includes(term) ? '' : 'none';
+            });
+        });
+
+        // Suavizar y centrar el scroll al acceder mediante un enlace de caballo
+        window.addEventListener('load', () => {
+            if (window.location.hash) {
+                const targetId = window.location.hash.substring(1);
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    setTimeout(() => {
+                        const elementRect = targetElement.getBoundingClientRect();
+                        const absoluteElementTop = elementRect.top + window.pageYOffset;
+                        const elementHeight = elementRect.height;
+                        const windowHeight = window.innerHeight;
+                        const headerHeight = document.querySelector('.app-header')?.offsetHeight || 80;
+                        
+                        const availableHeight = windowHeight - headerHeight;
+                        let targetPosition = absoluteElementTop - headerHeight - (availableHeight - elementHeight) / 2;
+                        
+                        if (elementHeight > availableHeight) {
+                            targetPosition = absoluteElementTop - headerHeight - 20;
+                        }
+                        
+                        window.scrollTo({
+                            top: Math.max(0, targetPosition),
+                            behavior: 'smooth'
+                        });
+                    }, 250);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

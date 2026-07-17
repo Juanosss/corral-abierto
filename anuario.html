@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corral Abierto x Champion de Chile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=3.1">
+    <style>
+        /* Estilos específicos para la vista inspirada en Mailchimp */
+        .maintenance-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 65vh;
+            text-align: center;
+            padding: 3rem 1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .maintenance-title {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .maintenance-text {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            max-width: 520px;
+            margin: 0 auto 2.2rem;
+            font-weight: 500;
+        }
+
+        /* Botón de acción premium */
+        .btn-back {
+            display: inline-block;
+            text-decoration: none;
+            color: white;
+            background: var(--primary-color);
+            padding: 0.8rem 2.2rem;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 15px rgba(216, 67, 21, 0.3);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            border: 1px solid transparent;
+            margin-bottom: 2rem;
+        }
+
+        .btn-back:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(216, 67, 21, 0.4);
+        }
+
+        .illustration-box {
+            max-width: 420px;
+            width: 100%;
+            margin: 0 auto;
+            opacity: 0.95;
+            transition: transform 0.3s ease;
+        }
+
+        .illustration-box:hover {
+            transform: scale(1.02);
+        }
+
+        .illustration-img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        @media (max-width: 767px) {
+            .maintenance-container {
+                padding: 2rem 1rem 1rem;
+                min-height: 55vh;
+            }
+            .maintenance-title {
+                font-size: 2.1rem;
+            }
+            .maintenance-text {
+                font-size: 0.95rem;
+                margin-bottom: 1.8rem;
+            }
+            .btn-back {
+                padding: 0.7rem 1.8rem;
+                font-size: 0.88rem;
+                margin-bottom: 1.5rem;
+            }
+            .illustration-box {
+                max-width: 320px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-container">
+                <a href="index.html" class="header-logo-link">
+                    <span class="brand-title-main">Corral Abierto</span>
+                    <span class="brand-partner-divider">✕</span>
+                    <div class="brand-partner-group">
+                        <img src="https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png" alt="Federación del Rodeo Chileno" class="header-logo" style="margin-right: 0; width: 38px; height: auto;">
+                        <div class="header-branding" style="line-height: 1.1;">
+                            <span class="brand-title" style="font-size: 1.1rem; letter-spacing: 0;">Champion de Chile</span>
+                            <span class="brand-subtitle" style="font-size: 0.55rem; letter-spacing: 0.02em;">77° Campeonato Nacional</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <nav class="header-nav">
+                    <a href="index.html#envivo" class="nav-btn btn-live">En Vivo</a>
+                    <a href="index.html#analisis" class="nav-btn">Análisis</a>
+                    <a href="anuario.html" class="nav-btn active">Anuario</a>
+                    <a href="genealogia.html" class="nav-btn">Genealogía</a>
+                    <div class="nav-divider"></div>
+                    <a href="toro1.html" class="nav-btn">1er Animal</a>
+                    <a href="toro2.html" class="nav-btn">2do Animal</a>
+                    <a href="toro3.html" class="nav-btn">3er Animal</a>
+                    <a href="toro4.html" class="nav-btn">4to Animal</a>
+                                    <div class="nav-divider"></div>
+                    <a href="https://www.flow.cl/btn.php?token=t72149f43e71af43c82f6f67fdf40c375fa191cb" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; font-weight: 700; box-shadow: 0 4px 10px rgba(230,81,0,0.3); white-space: nowrap; flex-shrink: 0;">Hacerse Socio 🐴</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Mailchimp-style Maintenance View -->
+            <div class="maintenance-container">
+                <h1 class="maintenance-title">Se nos escapó el novillo...</h1>
+                <p class="maintenance-text">
+                    Buscamos por todo el apiadero pero no pudimos encontrar el anuario histórico. Estamos preparando el terreno y ensillando los caballos para tener esta sección lista muy pronto.
+                </p>
+                <a href="index.html" class="btn-back">Volver al inicio</a>
+                
+                <div class="illustration-box">
+                    <img src="horse_stuck.png" alt="Caballo con la cabeza en un hoyo buscando el novillo" class="illustration-img">
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <p>&copy; 2026 Caballo y Rodeo - Tradición y Deporte</p>
+        </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js?v=3.2"></script>
+</body>
+</html>
