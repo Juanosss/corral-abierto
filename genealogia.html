@@ -109,7 +109,13 @@
                         photos.forEach((src, idx) => {
                             imgElements += `<img src="${src}" alt="${h.nombre} - ${idx+1}" class="genealogia-carousel-img" style="width: 100%; height: 100%; object-fit: ${photoFit}; object-position: center ${photoPos}%; position: absolute; top:0; left:0; transition: opacity 1s ease-in-out; opacity: ${idx === 0 ? 1 : 0}; z-index: ${idx === 0 ? 2 : 1};">`;
                         });
-                        fotoHtml = `<div class="genealogia-photo-carousel-wrapper" style="width: 100%; height: 100%; position: relative; overflow: hidden; border-radius: 8px;">${imgElements}</div>`;
+                        fotoHtml = `
+                            <div class="genealogia-photo-carousel-wrapper" style="width: 100%; height: 100%; position: relative; overflow: hidden; border-radius: 8px;">
+                                ${imgElements}
+                                <button class="carousel-nav-btn prev-btn" onclick="navigateCarousel('${h.id}', -1)" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 10; opacity: 0; transition: all 0.2s; pointer-events: auto; outline: none; line-height: 1;">&#10094;</button>
+                                <button class="carousel-nav-btn next-btn" onclick="navigateCarousel('${h.id}', 1)" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.6); color: #fff; border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold; cursor: pointer; z-index: 10; opacity: 0; transition: all 0.2s; pointer-events: auto; outline: none; line-height: 1;">&#10095;</button>
+                            </div>
+                        `;
                     } else {
                         fotoHtml = `<img src="${photos[0]}" alt="${h.nombre}" style="width: 100%; height: 100%; object-fit: ${photoFit}; object-position: center ${photoPos}%; border-radius: 8px;">`;
                     }
@@ -240,34 +246,68 @@
             startPhotoCarousels();
         }
 
-        let activeIntervals = [];
+        let carouselStates = {};
+
         function startPhotoCarousels() {
-            // Limpiar intervalos anteriores por si se recarga la tabla
-            activeIntervals.forEach(interval => clearInterval(interval));
-            activeIntervals = [];
+            // Limpiar intervalos anteriores
+            Object.keys(carouselStates).forEach(id => {
+                if (carouselStates[id].timer) clearInterval(carouselStates[id].timer);
+            });
+            carouselStates = {};
 
             const wrappers = document.querySelectorAll('.genealogia-photo-carousel-wrapper');
             wrappers.forEach(wrapper => {
+                const card = wrapper.closest('.genealogia-card');
+                if (!card) return;
+                const horseId = card.id;
                 const images = wrapper.querySelectorAll('.genealogia-carousel-img');
                 if (images.length <= 1) return;
 
-                let currentIndex = 0;
-                const interval = setInterval(() => {
-                    // Desvanecer imagen actual (bajar z-index para que la nueva aparezca por encima)
-                    images[currentIndex].style.opacity = '0';
-                    images[currentIndex].style.zIndex = '1';
-                    
-                    // Avanzar índice
-                    currentIndex = (currentIndex + 1) % images.length;
-                    
-                    // Mostrar siguiente imagen
-                    images[currentIndex].style.opacity = '1';
-                    images[currentIndex].style.zIndex = '2';
-                }, 10000); // Cada 10 segundos
-                
-                activeIntervals.push(interval);
+                carouselStates[horseId] = {
+                    currentIndex: 0,
+                    images: Array.from(images),
+                    timer: null
+                };
+
+                resetCarouselTimer(horseId);
             });
         }
+
+        function resetCarouselTimer(horseId) {
+            const state = carouselStates[horseId];
+            if (!state) return;
+
+            if (state.timer) clearInterval(state.timer);
+
+            state.timer = setInterval(() => {
+                showSlide(horseId, state.currentIndex + 1);
+            }, 10000); // 10 segundos
+        }
+
+        function showSlide(horseId, index) {
+            const state = carouselStates[horseId];
+            if (!state) return;
+
+            // Desvanecer imagen actual
+            state.images[state.currentIndex].style.opacity = '0';
+            state.images[state.currentIndex].style.zIndex = '1';
+
+            // Avanzar/Retroceder de forma circular
+            state.currentIndex = (index + state.images.length) % state.images.length;
+
+            // Mostrar nueva imagen
+            state.images[state.currentIndex].style.opacity = '1';
+            state.images[state.currentIndex].style.zIndex = '2';
+        }
+
+        // Esta función se invoca al hacer clic en las flechas del HTML
+        window.navigateCarousel = function(horseId, direction) {
+            const state = carouselStates[horseId];
+            if (!state) return;
+
+            showSlide(horseId, state.currentIndex + direction);
+            resetCarouselTimer(horseId);
+        };
 
         // Cargar datos
         renderGenealogias();
