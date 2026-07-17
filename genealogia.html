@@ -89,7 +89,7 @@
             }
 
             genealogiaData.forEach(h => {
-                // Estructura de la foto
+                // Estructura de la foto (carrusel animado si hay más de una)
                 let fotoHtml = `
                     <div class="genealogia-photo-placeholder">
                         <svg viewBox="0 0 24 24">
@@ -100,7 +100,19 @@
                     </div>
                 `;
                 if (h.foto && h.foto.trim() !== '') {
-                    fotoHtml = `<img src="${h.foto}" alt="${h.nombre}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                    const photos = h.foto.split(',').map(p => p.trim()).filter(p => p !== '');
+                    const photoPos = h.photoPosition !== undefined ? h.photoPosition : 50;
+                    const photoFit = h.photoFit || 'cover';
+                    
+                    if (photos.length > 1) {
+                        let imgElements = '';
+                        photos.forEach((src, idx) => {
+                            imgElements += `<img src="${src}" alt="${h.nombre} - ${idx+1}" class="genealogia-carousel-img" style="width: 100%; height: 100%; object-fit: ${photoFit}; object-position: center ${photoPos}%; position: absolute; top:0; left:0; transition: opacity 1s ease-in-out; opacity: ${idx === 0 ? 1 : 0}; z-index: ${idx === 0 ? 2 : 1};">`;
+                        });
+                        fotoHtml = `<div class="genealogia-photo-carousel-wrapper" style="width: 100%; height: 100%; position: relative; overflow: hidden; border-radius: 8px;">${imgElements}</div>`;
+                    } else {
+                        fotoHtml = `<img src="${photos[0]}" alt="${h.nombre}" style="width: 100%; height: 100%; object-fit: ${photoFit}; object-position: center ${photoPos}%; border-radius: 8px;">`;
+                    }
                 }
 
                 const cardHtml = `
@@ -224,6 +236,36 @@
                     </div>
                 `;
                 container.insertAdjacentHTML('beforeend', cardHtml);
+            });
+            startPhotoCarousels();
+        }
+
+        let activeIntervals = [];
+        function startPhotoCarousels() {
+            // Limpiar intervalos anteriores por si se recarga la tabla
+            activeIntervals.forEach(interval => clearInterval(interval));
+            activeIntervals = [];
+
+            const wrappers = document.querySelectorAll('.genealogia-photo-carousel-wrapper');
+            wrappers.forEach(wrapper => {
+                const images = wrapper.querySelectorAll('.genealogia-carousel-img');
+                if (images.length <= 1) return;
+
+                let currentIndex = 0;
+                const interval = setInterval(() => {
+                    // Desvanecer imagen actual (bajar z-index para que la nueva aparezca por encima)
+                    images[currentIndex].style.opacity = '0';
+                    images[currentIndex].style.zIndex = '1';
+                    
+                    // Avanzar índice
+                    currentIndex = (currentIndex + 1) % images.length;
+                    
+                    // Mostrar siguiente imagen
+                    images[currentIndex].style.opacity = '1';
+                    images[currentIndex].style.zIndex = '2';
+                }, 10000); // Cada 10 segundos
+                
+                activeIntervals.push(interval);
             });
         }
 

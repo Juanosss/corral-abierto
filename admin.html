@@ -319,15 +319,31 @@
 
                     <!-- Foto del Ejemplar (Arriba) -->
                     <div class="admin-photo-upload-container" style="margin-bottom: 2rem;">
-                        <div id="photo-preview-box" class="admin-photo-preview" style="cursor: pointer; transition: all 0.2s; border: 2px dashed rgba(255,255,255,0.15);">
-                            <img id="preview-img" src="" alt="Vista Previa" style="display: none;">
-                            <span id="preview-text" style="text-align: center; padding: 6px;">Arrastra o pega una foto aquí</span>
+                        <div id="photo-preview-box" class="admin-photo-preview" style="cursor: pointer; transition: all 0.2s; border: 2px dashed rgba(255,255,255,0.15); width: 140px; height: 100px; display: flex; align-items: center; justify-content: center; position: relative;">
+                            <img id="preview-img" src="" alt="Vista Previa" style="display: none; width: 100%; height: 100%; object-fit: cover; object-position: center 50%;">
+                            <span id="preview-text" style="text-align: center; padding: 6px; font-size: 0.72rem;">Arrastra o pega una foto aquí</span>
                         </div>
                         <div class="admin-input-group" style="flex: 1; margin-bottom: 0;">
-                            <label class="admin-label">Foto del Caballo</label>
-                            <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: -4px; margin-bottom: 6px;">Puedes seleccionar un archivo, arrastrarlo al cuadro de la izquierda o pegar una imagen copiada (Cmd+V / Ctrl+V).</span>
+                            <label class="admin-label">Foto del Caballo (Soporta múltiples separadas por comas)</label>
+                            <span style="font-size: 0.72rem; color: var(--text-muted); display: block; margin-top: -4px; margin-bottom: 6px;">Para subir varias fotos, arrastra o pega una tras otra. Se acumularán automáticamente.</span>
                             <input type="file" id="form-foto-file" class="admin-input" accept="image/*" style="margin-bottom: 8px;">
-                            <input type="text" id="form-foto" class="admin-input" placeholder="URL de internet (https://...), nombre de archivo o base64...">
+                            <input type="text" id="form-foto" class="admin-input" placeholder="URLs separadas por comas, nombre de archivo o base64..." style="margin-bottom: 8px;">
+                            
+                            <!-- Controles de Ajuste de Foto -->
+                            <div style="display: flex; gap: 15px; align-items: center; background: rgba(255,255,255,0.02); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); margin-top: 6px;">
+                                <div style="flex: 1; display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-size: 0.72rem; color: var(--text-muted); white-space: nowrap;">Posición V:</span>
+                                    <input type="range" id="form-foto-position" min="0" max="100" value="50" style="flex: 1; accent-color: #ff5722; height: 4px; cursor: pointer;">
+                                    <span id="form-foto-position-val" style="font-size: 0.72rem; color: var(--text-muted); min-width: 25px;">50%</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <span style="font-size: 0.72rem; color: var(--text-muted);">Ajuste:</span>
+                                    <select id="form-foto-fit" style="background: #1c1412; color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; font-size: 0.72rem; padding: 2px 4px; outline: none; cursor: pointer;">
+                                        <option value="cover">Cortar (Cover)</option>
+                                        <option value="contain">Completo (Contain)</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -1022,10 +1038,20 @@
             if (file && file.type.startsWith('image/')) {
                 const reader = new FileReader();
                 reader.onload = function(evt) {
-                    document.getElementById('preview-img').src = evt.target.result;
-                    document.getElementById('preview-img').style.display = 'block';
+                    const currentVal = document.getElementById('form-foto').value.trim();
+                    if (currentVal === '') {
+                        document.getElementById('form-foto').value = evt.target.result;
+                    } else {
+                        // Acumular múltiples fotos separadas por coma
+                        document.getElementById('form-foto').value = currentVal + ', ' + evt.target.result;
+                    }
+                    
+                    // Mostrar la primera foto en la vista previa
+                    const firstPhoto = evt.target.result;
+                    const previewImg = document.getElementById('preview-img');
+                    previewImg.src = firstPhoto;
+                    previewImg.style.display = 'block';
                     document.getElementById('preview-text').style.display = 'none';
-                    document.getElementById('form-foto').value = evt.target.result;
                 };
                 reader.readAsDataURL(file);
             }
@@ -1042,7 +1068,9 @@
             const previewText = document.getElementById('preview-text');
             
             if (val !== '') {
-                previewImg.src = val;
+                // Si hay múltiples fotos separadas por coma, previsualizar la primera
+                const parts = val.split(',');
+                previewImg.src = parts[0].trim();
                 previewImg.style.display = 'block';
                 previewText.style.display = 'none';
             } else {
@@ -1050,6 +1078,21 @@
                 previewImg.style.display = 'none';
                 previewText.style.display = 'block';
             }
+        });
+
+        // Controles de Ajuste de Foto (Slider y Fit)
+        document.getElementById('form-foto-position').addEventListener('input', function(e) {
+            const val = e.target.value;
+            document.getElementById('form-foto-position-val').innerText = val + '%';
+            
+            const previewImg = document.getElementById('preview-img');
+            previewImg.style.objectPosition = `center ${val}%`;
+        });
+
+        document.getElementById('form-foto-fit').addEventListener('change', function(e) {
+            const val = e.target.value;
+            const previewImg = document.getElementById('preview-img');
+            previewImg.style.objectFit = val;
         });
 
         // Configurar Arrastrar y Soltar (Drag and Drop)
@@ -1108,7 +1151,13 @@
 
             document.getElementById('preview-img').src = '';
             document.getElementById('preview-img').style.display = 'none';
+            document.getElementById('preview-img').style.objectPosition = 'center 50%';
+            document.getElementById('preview-img').style.objectFit = 'cover';
             document.getElementById('preview-text').style.display = 'block';
+            
+            document.getElementById('form-foto-position').value = 50;
+            document.getElementById('form-foto-position-val').innerText = '50%';
+            document.getElementById('form-foto-fit').value = 'cover';
             
             form.reset();
 
@@ -1126,9 +1175,20 @@
                     document.getElementById('form-cana').value = horse.cana || '';
                     document.getElementById('form-foto').value = horse.foto || '';
 
+                    const photoPos = horse.photoPosition !== undefined ? horse.photoPosition : 50;
+                    const photoFit = horse.photoFit || 'cover';
+
+                    document.getElementById('form-foto-position').value = photoPos;
+                    document.getElementById('form-foto-position-val').innerText = photoPos + '%';
+                    document.getElementById('form-foto-fit').value = photoFit;
+
                     if (horse.foto && horse.foto.trim() !== '') {
-                        document.getElementById('preview-img').src = horse.foto;
+                        // Si hay múltiples fotos separadas por coma, previsualizar la primera
+                        const parts = horse.foto.split(',');
+                        document.getElementById('preview-img').src = parts[0].trim();
                         document.getElementById('preview-img').style.display = 'block';
+                        document.getElementById('preview-img').style.objectPosition = `center ${photoPos}%`;
+                        document.getElementById('preview-img').style.objectFit = photoFit;
                         document.getElementById('preview-text').style.display = 'none';
                     }
 
@@ -1181,6 +1241,8 @@
                 cincha: document.getElementById('form-cincha').value || '--',
                 cana: document.getElementById('form-cana').value || '--',
                 foto: document.getElementById('form-foto').value || '',
+                photoPosition: parseInt(document.getElementById('form-foto-position').value),
+                photoFit: document.getElementById('form-foto-fit').value,
                 padre: document.getElementById('form-padre').value || '--',
                 madre: document.getElementById('form-madre').value || '--',
                 abueloP: document.getElementById('form-abueloP').value || '--',
