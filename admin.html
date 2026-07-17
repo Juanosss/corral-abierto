@@ -223,6 +223,13 @@
                             <input type="text" id="form-caballo2" class="admin-input" required>
                         </div>
                     </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 8px; margin: -5px 0 15px 0; background: rgba(255,87,34,0.06); padding: 8px 12px; border-radius: 6px; border: 1px solid rgba(255,87,34,0.15); grid-column: 1 / -1;">
+                        <input type="checkbox" id="form-auto-genealogia" style="accent-color: #ff5722; cursor: pointer; width: 15px; height: 15px;" checked>
+                        <label for="form-auto-genealogia" style="font-size: 0.74rem; color: #fff; cursor: pointer; user-select: none;">
+                            <strong>Registrar en Genealogía:</strong> Agregar automáticamente los caballos a la base de datos de Genealogía (si aún no existen).
+                        </label>
+                    </div>
 
                     <div class="admin-section-subtitle">Puntajes y Desempeño</div>
                     <div class="admin-form-row">
@@ -936,6 +943,55 @@
 
             // Recalcular lugares de todas las colleras
             recalculateLugarForAll();
+
+            // Auto-registro en Genealogía si la casilla está marcada
+            const autoGenealogia = document.getElementById('form-auto-genealogia').checked;
+            if (autoGenealogia) {
+                let genealogiaModificada = false;
+                caballos.forEach(horseName => {
+                    if (horseName && horseName.trim() !== '') {
+                        const horseId = horseName.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+                        const existe = genealogiaData.some(g => g.id === horseId);
+                        if (!existe) {
+                            const newHorse = {
+                                id: horseId,
+                                nombre: horseName.toUpperCase().trim(),
+                                criadero: document.getElementById('form-criadero').value.toUpperCase().trim() || 'SIN CRIADERO REGISTRADO',
+                                nacional: 'SBT N° --',
+                                fn: 'F.N. --',
+                                alzada: '--',
+                                cincha: '--',
+                                cana: '--',
+                                foto: '',
+                                padre: '--',
+                                madre: '--',
+                                abueloP: '--',
+                                abuelaP: '--',
+                                abueloM: '--',
+                                abuelaM: '--',
+                                bisP1: '--',
+                                bisP2: '--',
+                                bisP3: '--',
+                                bisP4: '--',
+                                bisM1: '--',
+                                bisM2: '--',
+                                bisM3: '--',
+                                bisM4: '--',
+                                photoPosition: 50,
+                                photoFit: 'cover'
+                            };
+                            genealogiaData.push(newHorse);
+                            genealogiaModificada = true;
+                        }
+                    }
+                });
+
+                if (genealogiaModificada) {
+                    localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
+                    filteredGenealogias = [...genealogiaData];
+                    renderGenealogiasTable();
+                }
+            }
 
             localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
 
