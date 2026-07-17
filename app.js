@@ -45,1072 +45,295 @@ window.addEventListener('load', () => {
 });
 
 const defaultRodeoData = [
-    {
-        "n": 1,
-        "asociacion": "LAGO LLANQUIHUE",
-        "criadero": "EL ECO",
-        "jinetes": [
-            "JUAN ANTONIO REHBEIN",
-            "BRUNO REHBEIN"
-        ],
-        "caballos": [
-            "CARPACHO",
-            "FANTASIA"
-        ],
-        "animal1": 2,
-        "animal2": "X",
-        "sub1": "",
-        "animal3": "",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 2,
-        "asociacion": "QUILLOTA MAIPO",
-        "criadero": "",
-        "jinetes": [
-            "RICARDO LEMUS",
-            "MATIAS RAMIREZ"
-        ],
-        "caballos": [
-            "RESPLENDOR",
-            "ULTIMO"
-        ],
-        "animal1": -3,
-        "animal2": "X",
-        "sub1": "",
-        "animal3": "",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 3,
-        "asociacion": "QUILLOTA",
-        "criadero": "",
-        "jinetes": [
-            "SERGIO ABARCA",
-            "NICOLAS MAGGI"
-        ],
-        "caballos": [
-            "ESPUELAZO",
-            "ESTAFADO II"
-        ],
-        "animal1": 0,
-        "animal2": "X",
-        "sub1": "",
-        "animal3": "",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 4,
-        "asociacion": "SANTIAGO ORIENTE",
-        "criadero": "",
-        "jinetes": [
-            "PABLO PINO",
-            "MARTIN DURAN"
-        ],
-        "caballos": [
-            "NEGRITA",
-            "PACHAMAMA"
-        ],
-        "animal1": 5,
-        "animal2": 4,
-        "sub1": 9,
-        "animal3": "X",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 5,
-        "asociacion": "CORDILLERA",
-        "criadero": "ROCIO DE LUNA",
-        "jinetes": [
-            "CLAUDIO HERRERA",
-            "FRANCISCO MATAS"
-        ],
-        "caballos": [
-            "PITRAL",
-            "DICHA"
-        ],
-        "animal1": 5,
-        "animal2": 7,
-        "sub1": 12,
-        "animal3": "X",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 6,
-        "asociacion": "LITORAL CENTRAL",
-        "criadero": "RINCONADA DEL MONTE",
-        "jinetes": [
-            "JERONIMO VALDES",
-            "JOAQUIN VALDES"
-        ],
-        "caballos": [
-            "MERCENARIO",
-            "PRIMERA DAMA"
-        ],
-        "animal1": 10,
-        "animal2": 2,
-        "sub1": 12,
-        "animal3": "X",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 7,
-        "asociacion": "TALAGANTE",
-        "criadero": "",
-        "jinetes": [
-            "SEBASTIAN MORENO",
-            "GUILLERMO OLAVE"
-        ],
-        "caballos": [
-            "RESPONSO",
-            "QUIRQUINCHO"
-        ],
-        "animal1": 3,
-        "animal2": "X",
-        "sub1": "",
-        "animal3": "",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 8,
-        "asociacion": "LITORAL CENTRAL",
-        "criadero": "",
-        "jinetes": [
-            "FRANCISCO OLIVOS",
-            "JOAQUIN MALLEA"
-        ],
-        "caballos": [
-            "CADEJILLO",
-            "LOLERO"
-        ],
-        "animal1": 5,
-        "animal2": 4,
-        "sub1": 9,
-        "animal3": "X",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 9,
-        "asociacion": "RIO RAHUE",
-        "criadero": "",
-        "jinetes": [
-            "SEBASTIAN IBAÑEZ",
-            "VITTORIO CAVALIERI"
-        ],
-        "caballos": [
-            "YUCATAN",
-            "BUEN RECUERDO"
-        ],
-        "animal1": 4,
-        "animal2": "X",
-        "sub1": "",
-        "animal3": "",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 10,
-        "asociacion": "CARDENAL CARO",
-        "criadero": "ENTRE QUISCOS Y ESPINOS",
-        "jinetes": [
-            "JUAN PABLO YAÑEZ",
-            "JUAN PABLO YAÑEZ"
-        ],
-        "caballos": [
-            "DECRETO",
-            "ASTRONERA"
-        ],
-        "animal1": 5,
-        "animal2": 8,
-        "sub1": 13,
-        "animal3": "X",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 11,
-        "asociacion": "OSORNO",
-        "criadero": "MUTICAO",
-        "jinetes": [
-            "JOAQUIN GROB",
-            "CAMILO PADILLA"
-        ],
-        "caballos": [
-            "MALICIA",
-            "TERREMOTO"
-        ],
-        "animal1": 8,
-        "animal2": 8,
-        "sub1": 16,
-        "animal3": 3,
-        "sub2": 19,
-        "animal4": "X",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 12,
-        "asociacion": "TALCA ORIENTE",
-        "criadero": "",
-        "jinetes": [
-            "LEVIS LINEROS",
-            "FRANCISCO LINEROS"
-        ],
-        "caballos": [
-            "REVUELTO",
-            "FAMOSO"
-        ],
-        "animal1": "NO CORRE POR LESION DEL CABALLO FAMOSO",
-        "animal2": "",
-        "sub1": "",
-        "animal3": "",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 13,
-        "asociacion": "SANTIAGO SUR",
-        "criadero": "PALMAS DE PEÑAFLOR",
-        "jinetes": [
-            "ALFREDO MORENO",
-            "JUAN IGNACIO MEZA"
-        ],
-        "caballos": [
-            "TAY MAL",
-            "BIEN PAGADA"
-        ],
-        "animal1": 5,
-        "animal2": 4,
-        "sub1": 9,
-        "animal3": "X",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 14,
-        "asociacion": "RIO RAHUE",
-        "criadero": "",
-        "jinetes": [
-            "FELIPE KILALEO",
-            "JUAN IGNACIO VARGAS"
-        ],
-        "caballos": [
-            "MORENA MIA",
-            "ESENCIA"
-        ],
-        "animal1": 8,
-        "animal2": 3,
-        "sub1": 11,
-        "animal3": "X",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 15,
-        "asociacion": "MALLECO",
-        "criadero": "PELECO",
-        "jinetes": [
-            "GUSTAVO VALDEBENITO",
-            "FELIPE GARCES"
-        ],
-        "caballos": [
-            "PARODIA",
-            "CHAPERONA"
-        ],
-        "animal1": 9,
-        "animal2": 5,
-        "sub1": 14,
-        "animal3": -1,
-        "sub2": 13,
-        "animal4": "X",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 16,
-        "asociacion": "OSORNO",
-        "criadero": "",
-        "jinetes": [
-            "GONZALO SCHWALM",
-            "GONZALO SCHWALM"
-        ],
-        "caballos": [
-            "BURLESCO",
-            "PINTOSO"
-        ],
-        "animal1": 11,
-        "animal2": 5,
-        "sub1": 16,
-        "animal3": 8,
-        "sub2": 24,
-        "animal4": "X",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 17,
-        "asociacion": "MAGALLANES",
-        "criadero": "",
-        "jinetes": [
-            "NELSON GARCIA",
-            "HERNAN LÖBEL"
-        ],
-        "caballos": [
-            "ANTONIETA",
-            "AMIGA MIA"
-        ],
-        "animal1": 9,
-        "animal2": 5,
-        "sub1": 14,
-        "animal3": 5,
-        "sub2": 19,
-        "animal4": "X",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 18,
-        "asociacion": "COLCHAGUA",
-        "criadero": "",
-        "jinetes": [
-            "DIEGO PACHECO",
-            "SEBASTIAN CARO"
-        ],
-        "caballos": [
-            "BUEN VECINO",
-            "DON GONZA"
-        ],
-        "animal1": 4,
-        "animal2": "X",
-        "sub1": "",
-        "animal3": "",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 19,
-        "asociacion": "MELIPILLA",
-        "criadero": "LOS TACOS DE RUMAI",
-        "jinetes": [
-            "ROBERTO BOZZO",
-            "MATIAS SEPULVEDA"
-        ],
-        "caballos": [
-            "QUERENDON",
-            "RECLUTA"
-        ],
-        "animal1": 5,
-        "animal2": 7,
-        "sub1": 12,
-        "animal3": "X",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 20,
-        "asociacion": "MELIPILLA",
-        "criadero": "",
-        "jinetes": [
-            "FRANCISCO HIDALGO",
-            "NICOLAS AREVALO"
-        ],
-        "caballos": [
-            "FABULOSO",
-            "SARMIENTO"
-        ],
-        "animal1": 6,
-        "animal2": 13,
-        "sub1": 19,
-        "animal3": 8,
-        "sub2": 27,
-        "animal4": 7,
-        "resultado": 34,
-        "empates": "",
-        "lugar": "3°"
-    },
-    {
-        "n": 21,
-        "asociacion": "SANTIAGO ORIENTE",
-        "criadero": "RISCO LISO",
-        "jinetes": [
-            "PABLO PINO",
-            "MARTIN DURAN"
-        ],
-        "caballos": [
-            "LAURENCIO",
-            "RAMONCITO"
-        ],
-        "animal1": 12,
-        "animal2": 8,
-        "sub1": 20,
-        "animal3": 11,
-        "sub2": 31,
-        "animal4": 12,
-        "resultado": 43,
-        "empates": "",
-        "lugar": "1°"
-    },
-    {
-        "n": 22,
-        "asociacion": "VALDIVIA",
-        "criadero": "ALUCARPA",
-        "jinetes": [
-            "GUSTAVO CORNEJO",
-            "RAFAEL MELO"
-        ],
-        "caballos": [
-            "ENCAPUCHAO",
-            "FIGURITA"
-        ],
-        "animal1": 3,
-        "animal2": "X",
-        "sub1": "",
-        "animal3": "",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 23,
-        "asociacion": "MAIPO NORTE",
-        "criadero": "CARIMALLIN",
-        "jinetes": [
-            "PEDRO ESPINOZA",
-            "ARTURO RIOS"
-        ],
-        "caballos": [
-            "REVOLTOSA",
-            "LISTO NO MAS"
-        ],
-        "animal1": 8,
-        "animal2": 8,
-        "sub1": 16,
-        "animal3": 5,
-        "sub2": 21,
-        "animal4": "X",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 24,
-        "asociacion": "VALDIVIA CAUQUENES",
-        "criadero": "SANTA BERNARDITA",
-        "jinetes": [
-            "FERNANDO ALCALDE",
-            "LUIS FERNANDO CORVALAN"
-        ],
-        "caballos": [
-            "CHICO MATI",
-            "CACHULO"
-        ],
-        "animal1": 10,
-        "animal2": 10,
-        "sub1": 20,
-        "animal3": 7,
-        "sub2": 27,
-        "animal4": 4,
-        "resultado": 31,
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 25,
-        "asociacion": "CAUTIN",
-        "criadero": "SANTA ELBA",
-        "jinetes": [
-            "SEBASTIAN POBLETE",
-            "JUAN POBLETE"
-        ],
-        "caballos": [
-            "CALICANTO",
-            "CHAPEADO"
-        ],
-        "animal1": 10,
-        "animal2": 0,
-        "sub1": 10,
-        "animal3": "X",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 26,
-        "asociacion": "SANTIAGO SUR TALCA ORIENTE",
-        "criadero": "EL CARMEN DE NILAHUE",
-        "jinetes": [
-            "PABLO BARAONA",
-            "RUFINO HERNANDEZ"
-        ],
-        "caballos": [
-            "FACINANTE",
-            "NO VA MAS"
-        ],
-        "animal1": 4,
-        "animal2": "X",
-        "sub1": "",
-        "animal3": "",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 27,
-        "asociacion": "COLCHAGUA",
-        "criadero": "",
-        "jinetes": [
-            "DIEGO PACHECO",
-            "ROBERTO PAVEZ"
-        ],
-        "caballos": [
-            "CAPERUSO",
-            "COTOTUDO"
-        ],
-        "animal1": 7,
-        "animal2": 1,
-        "sub1": 8,
-        "animal3": "X",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 28,
-        "asociacion": "SAN FELIPE",
-        "criadero": "",
-        "jinetes": [
-            "JORGE ORTEGA",
-            "RODRIGO ORTEGA"
-        ],
-        "caballos": [
-            "ACUSAO",
-            "AGRAVIO"
-        ],
-        "animal1": 5,
-        "animal2": 10,
-        "sub1": 15,
-        "animal3": 7,
-        "sub2": 22,
-        "animal4": "X",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 29,
-        "asociacion": "CORDILLERA",
-        "criadero": "",
-        "jinetes": [
-            "NICOLAS BARROS",
-            "JOSE DE LA JARA"
-        ],
-        "caballos": [
-            "TENTAITA",
-            "JORNADA"
-        ],
-        "animal1": 5,
-        "animal2": -4,
-        "sub1": 1,
-        "animal3": "X",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 30,
-        "asociacion": "COLCHAGUA SANTIAGO ORIENTE",
-        "criadero": "TAITAO II",
-        "jinetes": [
-            "DIEGO PACHECO",
-            "EMILIANO RUIZ"
-        ],
-        "caballos": [
-            "SAFIRA",
-            "ESTELITA"
-        ],
-        "animal1": 4,
-        "animal2": "X",
-        "sub1": "",
-        "animal3": "",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 31,
-        "asociacion": "MAULE SUR",
-        "criadero": "BELLA CATALINA",
-        "jinetes": [
-            "LUCIANO TAPIA",
-            "RICARDO SOTO"
-        ],
-        "caballos": [
-            "MI MORENA",
-            "OÑA JAVI"
-        ],
-        "animal1": 9,
-        "animal2": 5,
-        "sub1": 14,
-        "animal3": 5,
-        "sub2": 19,
-        "animal4": "X",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 32,
-        "asociacion": "TALCA ORIENTE",
-        "criadero": "LOS MAQUIS",
-        "jinetes": [
-            "ALFONSO BARRIENTOS",
-            "JUAN PABLO GONZALEZ"
-        ],
-        "caballos": [
-            "AGUA BUENA",
-            "DERROTADA"
-        ],
-        "animal1": 5,
-        "animal2": "NO SIGUE CORRIENDO POR LESION DE DERROTADA",
-        "sub1": "",
-        "animal3": "",
-        "sub2": "",
-        "animal4": "",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 33,
-        "asociacion": "MAGALLANES",
-        "criadero": "LOS ALERCES",
-        "jinetes": [
-            "NELSON GARCIA",
-            "HERNAN LÖBEL"
-        ],
-        "caballos": [
-            "RECLUTA",
-            "ALERCE"
-        ],
-        "animal1": 7,
-        "animal2": 13,
-        "sub1": 20,
-        "animal3": 8,
-        "sub2": 28,
-        "animal4": 4,
-        "resultado": 32,
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 34,
-        "asociacion": "SANTIAGO SUR TALCA ORIENTE",
-        "criadero": "EL CARMEN DE NILAHUE",
-        "jinetes": [
-            "ANIBAL BARAONA",
-            "RUFINO HERNANDEZ"
-        ],
-        "caballos": [
-            "CONVENTILLERA",
-            "CARABELA"
-        ],
-        "animal1": 12,
-        "animal2": 11,
-        "sub1": 23,
-        "animal3": 8,
-        "sub2": 31,
-        "animal4": 9,
-        "resultado": 40,
-        "empates": "",
-        "lugar": "2°"
-    },
-    {
-        "n": 35,
-        "asociacion": "MAIPO NORTE",
-        "criadero": "AGUA DE LOS CAMPOS Y MAQUENA",
-        "jinetes": [
-            "GONZALO ABARCA",
-            "CRISTOBAL CORTINA"
-        ],
-        "caballos": [
-            "CUCHU CUCHU",
-            "DESPEINADA"
-        ],
-        "animal1": 5,
-        "animal2": 13,
-        "sub1": 18,
-        "animal3": 7,
-        "sub2": 25,
-        "animal4": 7,
-        "resultado": 32,
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 36,
-        "asociacion": "VALDIVIA",
-        "criadero": "VISTA VOLCAN",
-        "jinetes": [
-            "RICARDO ALVAREZ",
-            "MIGUEL PARRA"
-        ],
-        "caballos": [
-            "GOLPE A GOLPE",
-            "PATA E PERRO"
-        ],
-        "animal1": 7,
-        "animal2": 13,
-        "sub1": 20,
-        "animal3": 2,
-        "sub2": 22,
-        "animal4": "X",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    },
-    {
-        "n": 37,
-        "asociacion": "MALLECO",
-        "criadero": "PELECO",
-        "jinetes": [
-            "GUSTAVO VALDEBENITO",
-            "FELIPE GARCES"
-        ],
-        "caballos": [
-            "MESSI",
-            "EL MAMO"
-        ],
-        "animal1": 9,
-        "animal2": 5,
-        "sub1": 14,
-        "animal3": -2,
-        "sub2": 12,
-        "animal4": "X",
-        "resultado": "",
-        "empates": "",
-        "lugar": ""
-    }
+    { n: 1, asociacion: "LAGO LLANQUIHUE", criadero: "EL ECO", jinetes: ["JUAN ANTONIO REHBEIN", "BRUNO REHBEIN"], caballos: ["CARPACHO", "FANTASIA"], animal1: 2, animal2: "X", sub1: "", animal3: "", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 2, asociacion: "QUILLOTA MAIPO", criadero: "", jinetes: ["RICARDO LEMUS", "MATIAS RAMIREZ"], caballos: ["RESPLENDOR", "ULTIMO"], animal1: -3, animal2: "X", sub1: "", animal3: "", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 3, asociacion: "QUILLOTA", criadero: "", jinetes: ["SERGIO ABARCA", "NICOLAS MAGGI"], caballos: ["ESPUELAZO", "ESTAFADO II"], animal1: 0, animal2: "X", sub1: "", animal3: "", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 4, asociacion: "SANTIAGO ORIENTE", criadero: "", jinetes: ["PABLO PINO", "MARTIN DURAN"], caballos: ["NEGRITA", "PACHAMAMA"], animal1: 5, animal2: 4, sub1: 9, animal3: "X", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 5, asociacion: "CORDILLERA", criadero: "ROCIO DE LUNA", jinetes: ["CLAUDIO HERRERA", "FRANCISCO MATAS"], caballos: ["PITRAL", "DICHA"], animal1: 5, animal2: 7, sub1: 12, animal3: "X", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 6, asociacion: "LITORAL CENTRAL", criadero: "RINCONADA DEL MONTE", jinetes: ["JERONIMO VALDES", "JOAQUIN VALDES"], caballos: ["MERCENARIO", "PRIMERA DAMA"], animal1: 10, animal2: 2, sub1: 12, animal3: "X", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 7, asociacion: "TALAGANTE", criadero: "", jinetes: ["SEBASTIAN MORENO", "GUILLERMO OLAVE"], caballos: ["RESPONSO", "QUIRQUINCHO"], animal1: 3, animal2: "X", sub1: "", animal3: "", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 8, asociacion: "LITORAL CENTRAL", criadero: "", jinetes: ["FRANCISCO OLIVOS", "JOAQUIN MALLEA"], caballos: ["CADEJILLO", "LOLERO"], animal1: 5, animal2: 4, sub1: 9, animal3: "X", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 9, asociacion: "RIO RAHUE", criadero: "", jinetes: ["SEBASTIAN IBAÑEZ", "VITTORIO CAVALIERI"], caballos: ["YUCATAN", "BUEN RECUERDO"], animal1: 4, animal2: "X", sub1: "", animal3: "", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 10, asociacion: "CARDENAL CARO", criadero: "ENTRE QUISCOS Y ESPINOS", jinetes: ["JUAN PABLO YAÑEZ", "JUAN PABLO YAÑEZ"], caballos: ["DECRETO", "ASTRONERA"], animal1: 5, animal2: 8, sub1: 13, animal3: "X", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 11, asociacion: "OSORNO", criadero: "MUTICAO", jinetes: ["JOAQUIN GROB", "CAMILO PADILLA"], caballos: ["MALICIA", "TERREMOTO"], animal1: 8, animal2: 8, sub1: 16, animal3: 3, sub2: 19, animal4: "X", resultado: "", empates: "", lugar: "" },
+    { n: 12, asociacion: "TALCA ORIENTE", criadero: "", jinetes: ["LEVIS LINEROS", "FRANCISCO LINEROS"], caballos: ["REVUELTO", "FAMOSO"], animal1: "NO CORRE POR LESION DEL CABALLO FAMOSO", animal2: "", sub1: "", animal3: "", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 13, asociacion: "SANTIAGO SUR", criadero: "PALMAS DE PEÑAFLOR", jinetes: ["ALFREDO MORENO", "JUAN IGNACIO MEZA"], caballos: ["TAY MAL", "BIEN PAGADA"], animal1: 5, animal2: 4, sub1: 9, animal3: "X", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 14, asociacion: "RIO RAHUE", criadero: "", jinetes: ["FELIPE KILALEO", "JUAN IGNACIO VARGAS"], caballos: ["MORENA MIA", "ESENCIA"], animal1: 8, animal2: 3, sub1: 11, animal3: "X", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 15, asociacion: "MALLECO", criadero: "PELECO", jinetes: ["GUSTAVO VALDEBENITO", "FELIPE GARCES"], caballos: ["PARODIA", "CHAPERONA"], animal1: 9, animal2: 5, sub1: 14, animal3: -1, sub2: 13, animal4: "X", resultado: "", empates: "", lugar: "" },
+    { n: 16, asociacion: "OSORNO", criadero: "", jinetes: ["GONZALO SCHWALM", "GONZALO SCHWALM"], caballos: ["BURLESCO", "PINTOSO"], animal1: 11, animal2: 5, sub1: 16, animal3: 8, sub2: 24, animal4: "X", resultado: "", empates: "", lugar: "" },
+    { n: 17, asociacion: "MAGALLANES", criadero: "", jinetes: ["NELSON GARCIA", "HERNAN LÖBEL"], caballos: ["ANTONIETA", "AMIGA MIA"], animal1: 9, animal2: 5, sub1: 14, animal3: 5, sub2: 19, animal4: "X", resultado: "", empates: "", lugar: "" },
+    { n: 18, asociacion: "COLCHAGUA", criadero: "", jinetes: ["DIEGO PACHECO", "SEBASTIAN CARO"], caballos: ["BUEN VECINO", "DON GONZA"], animal1: 4, animal2: "X", sub1: "", animal3: "", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 19, asociacion: "MELIPILLA", criadero: "LOS TACOS DE RUMAI", jinetes: ["ROBERTO BOZZO", "MATIAS SEPULVEDA"], caballos: ["QUERENDON", "RECLUTA"], animal1: 5, animal2: 7, sub1: 12, animal3: "X", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 20, asociacion: "MELIPILLA", criadero: "", jinetes: ["FRANCISCO HIDALGO", "NICOLAS AREVALO"], caballos: ["FABULOSO", "SARMIENTO"], animal1: 6, animal2: 13, sub1: 19, animal3: 8, sub2: 27, animal4: 7, resultado: 34, empates: "", lugar: "3°" },
+    { n: 21, asociacion: "SANTIAGO ORIENTE", criadero: "RISCO LISO", jinetes: ["PABLO PINO", "MARTIN DURAN"], caballos: ["LAURENCIO", "RAMONCITO"], animal1: 12, animal2: 8, sub1: 20, animal3: 11, sub2: 31, animal4: 12, resultado: 43, empates: "", lugar: "1°" },
+    { n: 22, asociacion: "VALDIVIA", criadero: "ALUCARPA", jinetes: ["GUSTAVO CORNEJO", "RAFAEL MELO"], caballos: ["ENCAPUCHAO", "FIGURITA"], animal1: 3, animal2: "X", sub1: "", animal3: "", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 23, asociacion: "MAIPO NORTE", criadero: "CARIMALLIN", jinetes: ["PEDRO ESPINOZA", "ARTURO RIOS"], caballos: ["REVOLTOSA", "LISTO NO MAS"], animal1: 8, animal2: 8, sub1: 16, animal3: 5, sub2: 21, animal4: "X", resultado: "", empates: "", lugar: "" },
+    { n: 24, asociacion: "VALDIVIA CAUQUENES", criadero: "SANTA BERNARDITA", jinetes: ["FERNANDO ALCALDE", "LUIS FERNANDO CORVALAN"], caballos: ["CHICO MATI", "CACHULO"], animal1: 10, animal2: 10, sub1: 20, animal3: 7, sub2: 27, animal4: 4, resultado: 31, empates: "", lugar: "" },
+    { n: 25, asociacion: "CAUTIN", criadero: "SANTA ELBA", jinetes: ["SEBASTIAN POBLETE", "JUAN POBLETE"], caballos: ["CALICANTO", "CHAPEADO"], animal1: 10, animal2: 0, sub1: 10, animal3: "X", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 26, asociacion: "SANTIAGO SUR TALCA ORIENTE", criadero: "EL CARMEN DE NILAHUE", jinetes: ["PABLO BARAONA", "RUFINO HERNANDEZ"], caballos: ["FACINANTE", "NO VA MAS"], animal1: 4, animal2: "X", sub1: "", animal3: "", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 27, asociacion: "COLCHAGUA", criadero: "", jinetes: ["DIEGO PACHECO", "ROBERTO PAVEZ"], caballos: ["CAPERUSO", "COTOTUDO"], animal1: 7, animal2: 1, sub1: 8, animal3: "X", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 28, asociacion: "SAN FELIPE", criadero: "", jinetes: ["JORGE ORTEGA", "RODRIGO ORTEGA"], caballos: ["ACUSAO", "AGRAVIO"], animal1: 5, animal2: 10, sub1: 15, animal3: 7, sub2: 22, animal4: "X", resultado: "", empates: "", lugar: "" },
+    { n: 29, asociacion: "CORDILLERA", criadero: "", jinetes: ["NICOLAS BARROS", "JOSE DE LA JARA"], caballos: ["TENTAITA", "JORNADA"], animal1: 5, animal2: -4, sub1: 1, animal3: "X", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 30, asociacion: "COLCHAGUA SANTIAGO ORIENTE", criadero: "TAITAO II", jinetes: ["DIEGO PACHECO", "EMILIANO RUIZ"], caballos: ["SAFIRA", "ESTELITA"], animal1: 4, animal2: "X", sub1: "", animal3: "", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 31, asociacion: "MAULE SUR", criadero: "BELLA CATALINA", jinetes: ["LUCIANO TAPIA", "RICARDO SOTO"], caballos: ["MI MORENA", "OÑA JAVI"], animal1: 9, animal2: 5, sub1: 14, animal3: 5, sub2: 19, animal4: "X", resultado: "", empates: "", lugar: "" },
+    { n: 32, asociacion: "TALCA ORIENTE", criadero: "LOS MAQUIS", jinetes: ["ALFONSO BARRIENTOS", "JUAN PABLO GONZALEZ"], caballos: ["AGUA BUENA", "DERROTADA"], animal1: 5, animal2: "NO SIGUE CORRIENDO POR LESION DE DERROTADA", sub1: "", animal3: "", sub2: "", animal4: "", resultado: "", empates: "", lugar: "" },
+    { n: 33, asociacion: "MAGALLANES", criadero: "LOS ALERCES", jinetes: ["NELSON GARCIA", "HERNAN LÖBEL"], caballos: ["RECLUTA", "ALERCE"], animal1: 7, animal2: 13, sub1: 20, animal3: 8, sub2: 28, animal4: 4, resultado: 32, empates: "", lugar: "" },
+    { n: 34, asociacion: "SANTIAGO SUR TALCA ORIENTE", criadero: "EL CARMEN DE NILAHUE", jinetes: ["ANIBAL BARAONA", "RUFINO HERNANDEZ"], caballos: ["CONVENTILLERA", "CARABELA"], animal1: 12, animal2: 11, sub1: 23, animal3: 8, sub2: 31, animal4: 9, resultado: 40, empates: "", lugar: "2°" },
+    { n: 35, asociacion: "MAIPO NORTE", criadero: "AGUA DE LOS CAMPOS Y MAQUENA", jinetes: ["GONZALO ABARCA", "CRISTOBAL CORTINA"], caballos: ["CUCHU CUCHU", "DESPEINADA"], animal1: 5, animal2: 13, sub1: 18, animal3: 7, sub2: 25, animal4: 7, resultado: 32, empates: "", lugar: "" },
+    { n: 36, asociacion: "VALDIVIA", criadero: "VISTA VOLCAN", jinetes: ["RICARDO ALVAREZ", "MIGUEL PARRA"], caballos: ["GOLPE A GOLPE", "PATA E PERRO"], animal1: 7, animal2: 13, sub1: 20, animal3: 2, sub2: 22, animal4: "X", resultado: "", empates: "", lugar: "" },
+    { n: 37, asociacion: "MALLECO", criadero: "PELECO", jinetes: ["GUSTAVO VALDEBENITO", "FELIPE GARCES"], caballos: ["MESSI", "EL MAMO"], animal1: 9, animal2: 5, sub1: 14, animal3: -2, sub2: 12, animal4: "X", resultado: "", empates: "", lugar: "" }
 ];
 
 const defaultGenealogiaData = [
     {
-        "id": "carpacho",
-        "nombre": "CARPACHO",
-        "criadero": "CRIADERO EL ECO",
-        "nacional": "SBT N° 238190",
-        "fn": "F.N. 18-11-2012",
-        "foto": "carpacho.png",
-        "alzada": "1,40 m",
-        "cincha": "1,70 m",
-        "cana": "19 cm",
-        "padre": "Plebiscito",
-        "madre": "Esperanzada",
-        "abueloP": "Bellaco",
-        "abuelaP": "Tula",
-        "abueloM": "Estribillo",
-        "abuelaM": "Guinda",
-        "bisP1": "Taco",
-        "bisP2": "Percala",
-        "bisP3": "Colibrí",
-        "bisP4": "Nutria",
-        "bisM1": "Guaraní",
-        "bisM2": "Reserva",
-        "bisM3": "Clementina",
-        "bisM4": "Desdicha"
+        id: "carpacho",
+        nombre: "CARPACHO",
+        criadero: "CRIADERO EL ECO",
+        nacional: "SBT N° 238190",
+        fn: "F.N. 18-11-2012",
+        foto: "carpacho.png",
+        alzada: "1,40 m",
+        cincha: "1,70 m",
+        cana: "19 cm",
+        padre: "Plebiscito",
+        madre: "Esperanzada",
+        abueloP: "Bellaco",
+        abuelaP: "Tula",
+        abueloM: "Estribillo",
+        abuelaM: "Guinda",
+        bisP1: "Taco",
+        bisP2: "Percala",
+        bisP3: "Colibrí",
+        bisP4: "Nutria",
+        bisM1: "Guaraní",
+        bisM2: "Reserva",
+        bisM3: "Clementina",
+        bisM4: "Desdicha"
     },
     {
-        "id": "fantasia",
-        "nombre": "FANTASÍA",
-        "criadero": "CRIADERO EL ECO",
-        "nacional": "SBT N° 245901",
-        "fn": "F.N. 05-09-2014",
-        "foto": "",
-        "alzada": "1,38 m",
-        "cincha": "1,68 m",
-        "cana": "18 cm",
-        "padre": "Escorpión",
-        "madre": "Que Luna",
-        "abueloP": "Estribillo",
-        "abuelaP": "Torhuela",
-        "abueloM": "Borracho En Domingo",
-        "abuelaM": "Ocurrencia",
-        "bisP1": "Guaraní",
-        "bisP2": "Reserva",
-        "bisP3": "Taco",
-        "bisP4": "Nevería",
-        "bisM1": "Que Más Da",
-        "bisM2": "En Domingo",
-        "bisM3": "Bellaco",
-        "bisM4": "Chupilca"
+        id: "fantasia",
+        nombre: "FANTASÍA",
+        criadero: "CRIADERO EL ECO",
+        nacional: "SBT N° 245901",
+        fn: "F.N. 05-09-2014",
+        foto: "",
+        alzada: "1,38 m",
+        cincha: "1,68 m",
+        cana: "18 cm",
+        padre: "Escorpión",
+        madre: "Que Luna",
+        abueloP: "Estribillo",
+        abuelaP: "Torhuela",
+        abueloM: "Borracho En Domingo",
+        abuelaM: "Ocurrencia",
+        bisP1: "Guaraní",
+        bisP2: "Reserva",
+        bisP3: "Taco",
+        bisP4: "Nevería",
+        bisM1: "Que Más Da",
+        bisM2: "En Domingo",
+        bisM3: "Bellaco",
+        bisM4: "Chupilca"
     },
     {
-        "id": "resplendor",
-        "nombre": "RESPLENDOR",
-        "criadero": "PROPIETARIOS: LEMUS / RAMÍREZ",
-        "nacional": "SBT N° 229103",
-        "fn": "F.N. 12-10-2011",
-        "foto": "",
-        "alzada": "1.42 m",
-        "cincha": "1.72 m",
-        "cana": "19.5 cm",
-        "padre": "Rotoso",
-        "madre": "Estampa",
-        "abueloP": "Taco",
-        "abuelaP": "Rotosa",
-        "abueloM": "Esquinazo",
-        "abuelaM": "Codiciada",
-        "bisP1": "Rascacielos",
-        "bisP2": "Talavera",
-        "bisP3": "El Quinto",
-        "bisP4": "Rota",
-        "bisM1": "Estribillo",
-        "bisM2": "Talavera II",
-        "bisM3": "Taco",
-        "bisM4": "Codicia"
+        id: "resplendor",
+        nombre: "RESPLENDOR",
+        criadero: "PROPIETARIOS: LEMUS / RAMÍREZ",
+        nacional: "SBT N° 229103",
+        fn: "F.N. 12-10-2011",
+        foto: "",
+        alzada: "1.42 m",
+        cincha: "1.72 m",
+        cana: "19.5 cm",
+        padre: "Rotoso",
+        madre: "Estampa",
+        abueloP: "Taco",
+        abuelaP: "Rotosa",
+        abueloM: "Esquinazo",
+        abuelaM: "Codiciada",
+        bisP1: "Rascacielos",
+        bisP2: "Talavera",
+        bisP3: "El Quinto",
+        bisP4: "Rota",
+        bisM1: "Estribillo",
+        bisM2: "Talavera II",
+        bisM3: "Taco",
+        bisM4: "Codicia"
     },
     {
-        "id": "ultimo",
-        "nombre": "ÚLTIMO",
-        "criadero": "PROPIETARIOS: LEMUS / RAMÍREZ",
-        "nacional": "SBT N° 251092",
-        "fn": "F.N. 14-11-2015",
-        "foto": "",
-        "alzada": "1.41 m",
-        "cincha": "1.71 m",
-        "cana": "19 cm",
-        "padre": "Esquinazo",
-        "madre": "Inocencia",
-        "abueloP": "Estribillo",
-        "abuelaP": "Talavera II",
-        "abueloM": "Rante",
-        "abuelaM": "Purísima",
-        "bisP1": "Guaraní",
-        "bisP2": "Reserva",
-        "bisP3": "Taco",
-        "bisP4": "Talavera",
-        "bisM1": "Rigor",
-        "bisM2": "Anchoa",
-        "bisM3": "Taco",
-        "bisM4": "Purísima I"
+        id: "ultimo",
+        nombre: "ÚLTIMO",
+        criadero: "PROPIETARIOS: LEMUS / RAMÍREZ",
+        nacional: "SBT N° 251092",
+        fn: "F.N. 14-11-2015",
+        foto: "",
+        alzada: "1.41 m",
+        cincha: "1.71 m",
+        cana: "19 cm",
+        padre: "Esquinazo",
+        madre: "Inocencia",
+        abueloP: "Estribillo",
+        abuelaP: "Talavera II",
+        abueloM: "Rante",
+        abuelaM: "Purísima",
+        bisP1: "Guaraní",
+        bisP2: "Reserva",
+        bisP3: "Taco",
+        bisP4: "Talavera",
+        bisM1: "Rigor",
+        bisM2: "Anchoa",
+        bisM3: "Taco",
+        bisM4: "Purísima I"
     },
     {
-        "id": "espuelazo",
-        "nombre": "ESPUELAZO",
-        "criadero": "PROPIETARIOS: ABARCA / MAGGI",
-        "nacional": "SBT N° 236481",
-        "fn": "F.N. 22-10-2012",
-        "foto": "",
-        "alzada": "1.39 m",
-        "cincha": "1.69 m",
-        "cana": "18.5 cm",
-        "padre": "Esperando",
-        "madre": "Revoltosa",
-        "abueloP": "Estribillo",
-        "abuelaP": "Guinda",
-        "abueloM": "Taco",
-        "abuelaM": "Llovizna",
-        "bisP1": "Guaraní",
-        "bisP2": "Reserva",
-        "bisP3": "Clementina",
-        "bisP4": "Desdicha",
-        "bisM1": "Rascacielos",
-        "bisM2": "Talavera",
-        "bisM3": "Colibrí",
-        "bisM4": "Lluvia"
+        id: "espuelazo",
+        nombre: "ESPUELAZO",
+        criadero: "PROPIETARIOS: ABARCA / MAGGI",
+        nacional: "SBT N° 236481",
+        fn: "F.N. 22-10-2012",
+        foto: "",
+        alzada: "1.39 m",
+        cincha: "1.69 m",
+        cana: "18.5 cm",
+        padre: "Esperando",
+        madre: "Revoltosa",
+        abueloP: "Estribillo",
+        abuelaP: "Guinda",
+        abueloM: "Taco",
+        abuelaM: "Llovizna",
+        bisP1: "Guaraní",
+        bisP2: "Reserva",
+        bisP3: "Clementina",
+        bisP4: "Desdicha",
+        bisM1: "Rascacielos",
+        bisM2: "Talavera",
+        bisM3: "Colibrí",
+        bisM4: "Lluvia"
     },
     {
-        "id": "estafado-ii",
-        "nombre": "ESTAFADO II",
-        "criadero": "PROPIETARIOS: ABARCA / MAGGI",
-        "nacional": "SBT N° 240982",
-        "fn": "F.N. 02-09-2013",
-        "foto": "",
-        "alzada": "1.43 m",
-        "cincha": "1.74 m",
-        "cana": "20 cm",
-        "padre": "Estribillo",
-        "madre": "Chacarera",
-        "abueloP": "Guaraní",
-        "abuelaP": "Reserva",
-        "abueloM": "Comodín",
-        "abuelaM": "Fianza",
-        "bisP1": "Quebrado",
-        "bisP2": "Guaraní I",
-        "bisP3": "Estribillo I",
-        "bisP4": "Fianza",
-        "bisM1": "Taco",
-        "bisM2": "Comadre",
-        "bisM3": "Rigor",
-        "bisM4": "Fianza I"
+        id: "estafado-ii",
+        nombre: "ESTAFADO II",
+        criadero: "PROPIETARIOS: ABARCA / MAGGI",
+        nacional: "SBT N° 240982",
+        fn: "F.N. 02-09-2013",
+        foto: "",
+        alzada: "1.43 m",
+        cincha: "1.74 m",
+        cana: "20 cm",
+        padre: "Estribillo",
+        madre: "Chacarera",
+        abueloP: "Guaraní",
+        abuelaP: "Reserva",
+        abueloM: "Comodín",
+        abuelaM: "Fianza",
+        bisP1: "Quebrado",
+        bisP2: "Guaraní I",
+        bisP3: "Estribillo I",
+        bisP4: "Fianza",
+        bisM1: "Taco",
+        bisM2: "Comadre",
+        bisM3: "Rigor",
+        bisM4: "Fianza I"
     },
     {
-        "id": "negrita",
-        "nombre": "NEGRITA",
-        "criadero": "PROPIETARIOS: PINO / DURÁN",
-        "nacional": "SBT N° 248761",
-        "fn": "F.N. 19-11-2014",
-        "foto": "",
-        "alzada": "1.37 m",
-        "cincha": "1.67 m",
-        "cana": "18 cm",
-        "padre": "Remehue",
-        "madre": "Pachacha",
-        "abueloP": "Guante",
-        "abuelaP": "Ratera",
-        "abueloM": "Taco",
-        "abuelaM": "Consentida",
-        "bisP1": "Taco",
-        "bisP2": "Guadaña",
-        "bisP3": "Rante",
-        "bisP4": "Ratera I",
-        "bisM1": "Rascacielos",
-        "bisM2": "Talavera",
-        "bisM3": "Bellaco",
-        "bisM4": "Consentida I"
+        id: "negrita",
+        nombre: "NEGRITA",
+        criadero: "PROPIETARIOS: PINO / DURÁN",
+        nacional: "SBT N° 248761",
+        fn: "F.N. 19-11-2014",
+        foto: "",
+        alzada: "1.37 m",
+        cincha: "1.67 m",
+        cana: "18 cm",
+        padre: "Remehue",
+        madre: "Pachacha",
+        abueloP: "Guante",
+        abuelaP: "Ratera",
+        abueloM: "Taco",
+        abuelaM: "Consentida",
+        bisP1: "Taco",
+        bisP2: "Guadaña",
+        bisP3: "Rante",
+        bisP4: "Ratera I",
+        bisM1: "Rascacielos",
+        bisM2: "Talavera",
+        bisM3: "Bellaco",
+        bisM4: "Consentida I"
     },
     {
-        "id": "pachamama",
-        "nombre": "PACHAMAMA",
-        "criadero": "PROPIETARIOS: PINO / DURÁN",
-        "nacional": "SBT N° 256193",
-        "fn": "F.N. 30-10-2016",
-        "foto": "",
-        "alzada": "1.40 m",
-        "cincha": "1.70 m",
-        "cana": "19 cm",
-        "padre": "Talento",
-        "madre": "Presumida",
-        "abueloP": "Taco",
-        "abuelaP": "Que Chica",
-        "abueloM": "Esquinazo",
-        "abuelaM": "Coqueta",
-        "bisP1": "Rascacielos",
-        "bisP2": "Talavera",
-        "bisP3": "Estribillo",
-        "bisP4": "Chica",
-        "bisM1": "Estribillo",
-        "bisM2": "Talavera II",
-        "bisM3": "Rotoso",
-        "bisM4": "Coqueta I"
+        id: "pachamama",
+        nombre: "PACHAMAMA",
+        criadero: "PROPIETARIOS: PINO / DURÁN",
+        nacional: "SBT N° 256193",
+        fn: "F.N. 30-10-2016",
+        foto: "",
+        alzada: "1.40 m",
+        cincha: "1.70 m",
+        cana: "19 cm",
+        padre: "Talento",
+        madre: "Presumida",
+        abueloP: "Taco",
+        abuelaP: "Que Chica",
+        abueloM: "Esquinazo",
+        abuelaM: "Coqueta",
+        bisP1: "Rascacielos",
+        bisP2: "Talavera",
+        bisP3: "Estribillo",
+        bisP4: "Chica",
+        bisM1: "Estribillo",
+        bisM2: "Talavera II",
+        bisM3: "Rotoso",
+        bisM4: "Coqueta I"
     },
     {
-        "id": "pitral",
-        "nombre": "PITRAL",
-        "criadero": "CRIADERO ROCÍO DE LUNA",
-        "nacional": "SBT N° 243981",
-        "fn": "F.N. 25-11-2013",
-        "foto": "",
-        "alzada": "1.41 m",
-        "cincha": "1.73 m",
-        "cana": "19.5 cm",
-        "padre": "Albertio",
-        "madre": "Que Luna",
-        "abueloP": "Escorpión",
-        "abuelaP": "Alberca",
-        "abueloM": "Borracho En Domingo",
-        "abuelaM": "Ocurrencia",
-        "bisP1": "Estribillo",
-        "bisP2": "Torhuela",
-        "bisP3": "Taco",
-        "bisP4": "Alberca I",
-        "bisM1": "Que Más Da",
-        "bisM2": "En Domingo",
-        "bisM3": "Bellaco",
-        "bisM4": "Chupilca"
+        id: "pitral",
+        nombre: "PITRAL",
+        criadero: "CRIADERO ROCÍO DE LUNA",
+        nacional: "SBT N° 243981",
+        fn: "F.N. 25-11-2013",
+        foto: "",
+        alzada: "1.41 m",
+        cincha: "1.73 m",
+        cana: "19.5 cm",
+        padre: "Albertio",
+        madre: "Que Luna",
+        abueloP: "Escorpión",
+        abuelaP: "Alberca",
+        abueloM: "Borracho En Domingo",
+        abuelaM: "Ocurrencia",
+        bisP1: "Estribillo",
+        bisP2: "Torhuela",
+        bisP3: "Taco",
+        bisP4: "Alberca I",
+        bisM1: "Que Más Da",
+        bisM2: "En Domingo",
+        bisM3: "Bellaco",
+        bisM4: "Chupilca"
     },
     {
-        "id": "dicha",
-        "nombre": "DICHA",
-        "criadero": "CRIADERO ROCÍO DE LUNA",
-        "nacional": "SBT N° 231492",
-        "fn": "F.N. 10-10-2011",
-        "foto": "",
-        "alzada": "1.39 m",
-        "cincha": "1.68 m",
-        "cana": "18.5 cm",
-        "padre": "Canteado",
-        "madre": "Dicha H.",
-        "abueloP": "Esperando",
-        "abuelaP": "Tula",
-        "abueloM": "Taco",
-        "abuelaM": "Estampa",
-        "bisP1": "Estribillo",
-        "bisP2": "Guinda",
-        "bisP3": "Colibrí",
-        "bisP4": "Nutria",
-        "bisM1": "Rascacielos",
-        "bisM2": "Talavera",
-        "bisM3": "Esquinazo",
-        "bisM4": "Codiciada"
+        id: "dicha",
+        nombre: "DICHA",
+        criadero: "CRIADERO ROCÍO DE LUNA",
+        nacional: "SBT N° 231492",
+        fn: "F.N. 10-10-2011",
+        foto: "",
+        alzada: "1.39 m",
+        cincha: "1.68 m",
+        cana: "18.5 cm",
+        padre: "Canteado",
+        madre: "Dicha H.",
+        abueloP: "Esperando",
+        abuelaP: "Tula",
+        abueloM: "Taco",
+        abuelaM: "Estampa",
+        bisP1: "Estribillo",
+        bisP2: "Guinda",
+        bisP3: "Colibrí",
+        bisP4: "Nutria",
+        bisM1: "Rascacielos",
+        bisM2: "Talavera",
+        bisM3: "Esquinazo",
+        bisM4: "Codiciada"
     }
 ];
 
@@ -1471,17 +694,15 @@ async function initRodeoData() {
                 rodeoData = data;
                 localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
             } else {
-                // Si la tabla en Supabase está vacía, la sembramos usando localStorage o los datos por defecto
-                const localData = localStorage.getItem('rodeoData');
-                const dataToSeed = localData ? JSON.parse(localData) : defaultRodeoData;
-                console.log("Tabla de colleras vacía en Supabase, sembrando datos...");
-                const { error: insertError } = await supabaseClient.from('colleras').insert(dataToSeed);
+                // Si la tabla en Supabase está vacía, la sembramos automáticamente
+                console.log("Tabla de colleras vacía en Supabase, sembrando datos por defecto...");
+                const { error: insertError } = await supabaseClient.from('colleras').insert(defaultRodeoData);
                 if (insertError) {
                     console.error("Error al sembrar colleras en Supabase:", insertError);
                 } else {
                     console.log("Sembrado exitoso.");
                 }
-                rodeoData = dataToSeed;
+                rodeoData = defaultRodeoData;
             }
         } catch (err) {
             console.error("Error inesperado en Supabase:", err);
