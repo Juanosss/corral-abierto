@@ -764,7 +764,6 @@ async function initRodeoData() {
             });
         });
     });
-});
 
 // ==========================================================================
 // SISTEMA DE SOCIOS Y CONTROL DE ACCESO (Supabase Real-Time Connection)
