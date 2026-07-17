@@ -583,19 +583,21 @@
         }
 
         // INITIALIZE DASHBOARD
-        async function initDashboard() {
-            if (supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient.from('colleras').select('*').order('n');
-                    if (!error && data && data.length > 0) {
-                        rodeoData = data;
-                        localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
-                        filteredColleras = [...rodeoData];
-                    }
-                } catch(err) {
-                    console.error("Error al cargar colleras en admin:", err);
-                }
+        function initDashboard() {
+            let localData = null;
+            try {
+                localData = JSON.parse(localStorage.getItem('rodeoData'));
+            } catch(e) {
+                console.error(e);
             }
+            if (!localData || localData.length === 0) {
+                rodeoData = defaultRodeoData;
+                localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
+            } else {
+                rodeoData = localData;
+            }
+            filteredColleras = [...rodeoData];
+            
             renderCollerasTable();
             renderGenealogiasTable();
             renderUsuariosTable();
@@ -852,18 +854,6 @@
 
             localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
 
-            // Sincronizar todos los datos actualizados (incluyendo posiciones) con Supabase
-            if (supabaseClient) {
-                try {
-                    // Hacemos upsert de todo el set de colleras (37 elementos es muy liviano) para sincronizar lugares
-                    supabaseClient.from('colleras').upsert(rodeoData).then(({ error }) => {
-                        if (error) console.error("Error al sincronizar con Supabase:", error);
-                    });
-                } catch (err) {
-                    console.error("Error al conectar con Supabase:", err);
-                }
-            }
-
             filteredColleras = [...rodeoData];
             
             closeColleraModal();
@@ -871,24 +861,11 @@
             showToast("¡Collera guardada con éxito!");
         }
 
-        async function deleteCollera(cNumber) {
+        function deleteCollera(cNumber) {
             if (confirm(`¿Está seguro de eliminar la collera N° ${cNumber}?`)) {
                 rodeoData = rodeoData.filter(c => c.n !== cNumber);
                 recalculateLugarForAll(); // Recalcular posiciones tras la eliminación
                 localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
-
-                if (supabaseClient) {
-                    try {
-                        // Eliminar de Supabase
-                        const { error } = await supabaseClient.from('colleras').delete().eq('n', cNumber);
-                        if (error) console.error("Error al borrar en Supabase:", error);
-                        
-                        // Sincronizar los nuevos lugares recalculados tras borrar
-                        await supabaseClient.from('colleras').upsert(rodeoData);
-                    } catch (err) {
-                        console.error(err);
-                    }
-                }
 
                 filteredColleras = [...rodeoData];
                 renderCollerasTable();
@@ -1132,20 +1109,10 @@
             reader.readAsText(file);
         }
 
-        async function resetFactoryData() {
+        function resetFactoryData() {
             if (confirm("¿Está seguro de restablecer todos los valores por defecto? Se perderán todos los cambios guardados.")) {
                 localStorage.removeItem('rodeoData');
                 localStorage.removeItem('genealogiaData');
-                
-                if (supabaseClient) {
-                    try {
-                        // Eliminar todas las colleras de Supabase para forzar un re-sembrado limpio al recargar
-                        await supabaseClient.from('colleras').delete().neq('n', -1);
-                    } catch (err) {
-                        console.error("Error al limpiar colleras en Supabase:", err);
-                    }
-                }
-                
                 alert("Base de datos restablecida. Se recargará la página.");
                 location.reload();
             }

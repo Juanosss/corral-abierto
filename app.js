@@ -684,30 +684,18 @@ function renderChart(data, stage = 4) {
 }
 
 async function initRodeoData() {
-    // Intentar cargar colleras desde Supabase
-    if (supabaseClient) {
-        try {
-            const { data, error } = await supabaseClient.from('colleras').select('*').order('n');
-            if (error) {
-                console.error("Error al cargar colleras desde Supabase:", error);
-            } else if (data && data.length > 0) {
-                rodeoData = data;
-                localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
-            } else {
-                // Si la tabla en Supabase está vacía, la sembramos automáticamente
-                console.log("Tabla de colleras vacía en Supabase, sembrando datos por defecto...");
-                const { error: insertError } = await supabaseClient.from('colleras').insert(defaultRodeoData);
-                if (insertError) {
-                    console.error("Error al sembrar colleras en Supabase:", insertError);
-                } else {
-                    console.log("Sembrado exitoso.");
-                }
-                rodeoData = defaultRodeoData;
-            }
-        } catch (err) {
-            console.error("Error inesperado en Supabase:", err);
-        }
+    // Cargar colleras desde localStorage o los datos por defecto
+    let localData = null;
+    try {
+        localData = JSON.parse(localStorage.getItem('rodeoData'));
+    } catch(e) {
+        console.error("Error al parsear localStorage:", e);
     }
+    if (!localData || localData.length === 0) {
+        localData = defaultRodeoData;
+        localStorage.setItem('rodeoData', JSON.stringify(localData));
+    }
+    rodeoData = localData;
 
     // Renderizar una vez cargados los datos
     const isToroPage = document.body.getAttribute('data-toro');
