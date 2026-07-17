@@ -1210,6 +1210,7 @@
                     square.addEventListener('drop', (e) => {
                         const files = e.dataTransfer.files;
                         if (files && files.length > 0 && files[0].type.startsWith('image/')) {
+                            // Archivo local del disco
                             const reader = new FileReader();
                             reader.onload = function(evt) {
                                 photos[i] = evt.target.result;
@@ -1217,6 +1218,28 @@
                                 renderPhotoSquares();
                             };
                             reader.readAsDataURL(files[0]);
+                        } else {
+                            // Imagen arrastrada directo desde otra página de internet
+                            let imageUrl = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('URL');
+                            
+                            // Si no viene directo, buscar si viene como fragmento HTML y parsear el src
+                            if (!imageUrl) {
+                                const htmlText = e.dataTransfer.getData('text/html');
+                                if (htmlText) {
+                                    const parser = new DOMParser();
+                                    const doc = parser.parseFromString(htmlText, 'text/html');
+                                    const imgNode = doc.querySelector('img');
+                                    if (imgNode && imgNode.src) {
+                                        imageUrl = imgNode.src;
+                                    }
+                                }
+                            }
+                            
+                            if (imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('data:'))) {
+                                photos[i] = imageUrl;
+                                document.getElementById('form-foto').value = photos.join(', ');
+                                renderPhotoSquares();
+                            }
                         }
                     }, false);
                 }
