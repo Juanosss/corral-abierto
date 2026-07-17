@@ -1236,6 +1236,11 @@
                             }
                             
                             if (imageUrl && (imageUrl.startsWith('http') || imageUrl.startsWith('data:'))) {
+                                // Validar si es una miniatura/marcador temporal vacío (típico de Google Imágenes sin cargar)
+                                if (imageUrl.startsWith('data:') && imageUrl.length < 200) {
+                                    showToast("La imagen arrastrada es una miniatura sin cargar. Haz clic derecho en la imagen original -> 'Copiar imagen' y pégala aquí.", "error");
+                                    return;
+                                }
                                 photos[i] = imageUrl;
                                 document.getElementById('form-foto').value = photos.join(', ');
                                 renderPhotoSquares();
