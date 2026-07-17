@@ -338,10 +338,23 @@ const defaultGenealogiaData = [
 ];
 
 // Persistencia en localStorage
-let rodeoData = JSON.parse(localStorage.getItem('rodeoData'));
+let rodeoData = null;
+try {
+    const rawRodeo = localStorage.getItem('rodeoData');
+    if (rawRodeo && rawRodeo !== "undefined") {
+        rodeoData = JSON.parse(rawRodeo);
+    }
+} catch (e) {
+    console.error("Error al leer rodeoData de localStorage:", e);
+}
+
 if (!rodeoData || rodeoData.length === 0) {
     rodeoData = defaultRodeoData;
-    localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
+    try {
+        localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
+    } catch(e) {
+        console.error("Error al guardar defaultRodeoData:", e);
+    }
 } else {
     // CORRECCIÓN AUTOMÁTICA DE SUB-TOTALES DAÑADOS
     let databaseFixed = false;
@@ -360,14 +373,31 @@ if (!rodeoData || rodeoData.length === 0) {
         }
     });
     if (databaseFixed) {
-        localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
+        try {
+            localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
+        } catch(e) {
+            console.error(e);
+        }
     }
 }
 
-let genealogiaData = JSON.parse(localStorage.getItem('genealogiaData'));
+let genealogiaData = null;
+try {
+    const rawGenealogia = localStorage.getItem('genealogiaData');
+    if (rawGenealogia && rawGenealogia !== "undefined") {
+        genealogiaData = JSON.parse(rawGenealogia);
+    }
+} catch(e) {
+    console.error("Error al leer genealogiaData de localStorage:", e);
+}
+
 if (!genealogiaData || genealogiaData.length === 0) {
     genealogiaData = defaultGenealogiaData;
-    localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
+    try {
+        localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
+    } catch(e) {
+        console.error("Error al guardar defaultGenealogiaData:", e);
+    }
 }
 
 function formatScore(val) {
