@@ -339,7 +339,7 @@ const defaultGenealogiaData = [
 
 // Persistencia en localStorage
 let rodeoData = JSON.parse(localStorage.getItem('rodeoData'));
-if (!rodeoData) {
+if (!rodeoData || rodeoData.length === 0) {
     rodeoData = defaultRodeoData;
     localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
 } else {
@@ -365,7 +365,7 @@ if (!rodeoData) {
 }
 
 let genealogiaData = JSON.parse(localStorage.getItem('genealogiaData'));
-if (!genealogiaData) {
+if (!genealogiaData || genealogiaData.length === 0) {
     genealogiaData = defaultGenealogiaData;
     localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
 }
