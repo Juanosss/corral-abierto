@@ -132,8 +132,10 @@
                         <div class="admin-backup-card">
                             <h3>Importar Datos</h3>
                             <p>Carga un archivo de respaldo JSON guardado previamente para restaurar los datos completos.</p>
-                            <input type="file" id="import-file-input" style="display: none;" accept=".json" onchange="importBackupData(event)">
-                            <button class="admin-btn admin-btn-secondary" onclick="document.getElementById('import-file-input').click()">Importar Archivo JSON</button>
+                            <input type="file" id="import-file-input" style="display: none;" accept=".json" onchange="importBackupData(event)" onclick="this.value=null">
+                            <label for="import-file-input" class="admin-btn admin-btn-secondary" style="display: inline-block; cursor: pointer; text-align: center; text-decoration: none; box-sizing: border-box;">
+                                Importar Archivo JSON
+                            </label>
                         </div>
                         <div class="admin-backup-card">
                             <h3>Restaurar por Defecto</h3>
