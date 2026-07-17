@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corral Abierto x Champion de Chile</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=3.1">
+    <link rel="stylesheet" href="../styles.css?v=3.1">
     <style>
         /* Estilos específicos para la vista inspirada en Mailchimp */
         .maintenance-container {
@@ -33,70 +33,38 @@
             color: var(--text-muted);
             font-size: 1.1rem;
             line-height: 1.6;
-            max-width: 520px;
-            margin: 0 auto 2.2rem;
-            font-weight: 500;
+            margin-bottom: 2rem;
         }
 
-        /* Botón de acción premium */
         .btn-back {
-            display: inline-block;
-            text-decoration: none;
-            color: white;
             background: var(--primary-color);
-            padding: 0.8rem 2.2rem;
-            border-radius: 30px;
+            color: white;
+            padding: 0.9rem 2.2rem;
+            border-radius: 8px;
+            text-decoration: none;
             font-weight: 700;
-            font-size: 0.95rem;
-            box-shadow: 0 4px 15px rgba(216, 67, 21, 0.3);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            border: 1px solid transparent;
-            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.35);
+            transition: all 0.2s;
+            border: 2px solid transparent;
         }
 
         .btn-back:hover {
             background: var(--primary-dark);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(216, 67, 21, 0.4);
+            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.45);
         }
 
-        .illustration-box {
-            max-width: 420px;
-            width: 100%;
-            margin: 0 auto;
-            opacity: 0.95;
-            transition: transform 0.3s ease;
+        .btn-back:active {
+            transform: translateY(0);
         }
 
-        .illustration-box:hover {
-            transform: scale(1.02);
-        }
-
-        .illustration-img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        @media (max-width: 767px) {
-            .maintenance-container {
-                padding: 2rem 1rem 1rem;
-                min-height: 55vh;
-            }
+        /* Responsive */
+        @media (max-width: 768px) {
             .maintenance-title {
-                font-size: 2.1rem;
+                font-size: 2.2rem;
             }
             .maintenance-text {
-                font-size: 0.95rem;
-                margin-bottom: 1.8rem;
-            }
-            .btn-back {
-                padding: 0.7rem 1.8rem;
-                font-size: 0.88rem;
-                margin-bottom: 1.5rem;
-            }
-            .illustration-box {
-                max-width: 320px;
+                font-size: 1rem;
             }
         }
     </style>
@@ -106,7 +74,7 @@
         <!-- HEADER -->
         <header class="app-header">
             <div class="header-container">
-                <a href="index.html" class="header-logo-link">
+                <a href="../index.html" class="header-logo-link">
                     <span class="brand-title-main">Corral Abierto</span>
                     <span class="brand-partner-divider">✕</span>
                     <div class="brand-partner-group">
@@ -130,7 +98,7 @@
                     <a href="toro4.html" class="nav-btn">4to Animal</a>
                                     <div class="nav-divider"></div>
                     <a href="https://www.flow.cl/btn.php?token=t72149f43e71af43c82f6f67fdf40c375fa191cb" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; font-weight: 700; box-shadow: 0 4px 10px rgba(230,81,0,0.3); white-space: nowrap; flex-shrink: 0;">Hacerse Socio 🐴</a>
-                    <a href="#" onclick="sessionStorage.removeItem('selectedRodeo'); window.location.href='index.html';" class="nav-btn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600;">Cambiar Rodeo ⇄</a>
+                    <a href="#" onclick="sessionStorage.removeItem('selectedRodeo'); window.location.href='../index.html';" class="nav-btn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600;">Cambiar Rodeo ⇄</a>
                 </nav>
             </div>
         </header>
@@ -155,6 +123,6 @@
         </footer>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js?v=3.2"></script>
+    <script src="../app.js?v=3.2"></script>
 </body>
 </html>

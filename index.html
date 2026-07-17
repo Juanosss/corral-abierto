@@ -3,15 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corral Abierto x Champion de Chile</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Playfair Display for rustic headers, Inter for clean data -->
+    <title>Corral Abierto - Selección de Evento</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=3.1">
-</head>
-<body>
-    <!-- CSS ADICIONAL PARA LOBBY NETFLIX -->
     <style>
         /* Estilo Netflix - Perfiles */
         .lobby-profile-card:hover .lobby-profile-image {
@@ -29,9 +23,11 @@
             transform: scale(0.98);
         }
     </style>
+</head>
+<body style="margin: 0; padding: 0; background: #0d0604; overflow: hidden; width: 100vw; height: 100vh;">
 
     <!-- PANTALLA LOBBY SELECCIÓN DE EVENTOS (ESTILO NETFLIX) -->
-    <div id="lobby-screen" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: radial-gradient(circle at center, #1b0e0a 0%, #0d0604 100%); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; transition: opacity 0.4s ease-out; font-family: 'Inter', sans-serif;">
+    <div id="lobby-screen" style="width: 100%; height: 100%; background: radial-gradient(circle at center, #1b0e0a 0%, #0d0604 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; font-family: 'Inter', sans-serif;">
         <h1 style="font-family: 'Playfair Display', serif; font-size: 2.2rem; font-weight: 800; text-align: center; margin-bottom: 2.5rem; letter-spacing: -0.02em; color: #fff; text-shadow: 0 4px 15px rgba(0,0,0,0.5);">
             ¿Qué rodeo deseas ver hoy?
         </h1>
@@ -78,126 +74,13 @@
     </div>
 
     <script>
-        // Lógica de Lobby / Selección de Rodeo
+        // Redirigir al hacer clic en el perfil
         function selectRodeo(rodeoId) {
             if (rodeoId === 'champion-2026') {
-                const lobby = document.getElementById('lobby-screen');
-                const app = document.querySelector('.app-container');
-                
-                lobby.style.opacity = '0';
-                setTimeout(() => {
-                    lobby.style.display = 'none';
-                    app.style.display = 'block';
-                }, 400);
-                
                 sessionStorage.setItem('selectedRodeo', 'champion-2026');
+                window.location.href = './champion-chile/index.html';
             }
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const selected = sessionStorage.getItem('selectedRodeo');
-            const lobby = document.getElementById('lobby-screen');
-            const app = document.querySelector('.app-container');
-            
-            if (selected === 'champion-2026') {
-                lobby.style.display = 'none';
-                app.style.display = 'block';
-            } else {
-                lobby.style.display = 'flex';
-                app.style.display = 'none';
-            }
-        });
     </script>
-
-    <div class="app-container" style="display: none;">
-        <header class="app-header">
-            <div class="header-container">
-                <a href="index.html" class="header-logo-link">
-                    <span class="brand-title-main">Corral Abierto</span>
-                    <span class="brand-partner-divider">✕</span>
-                    <div class="brand-partner-group">
-                        <img src="https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png" alt="Federación del Rodeo Chileno" class="header-logo" style="margin-right: 0; width: 38px; height: auto;">
-                        <div class="header-branding" style="line-height: 1.1;">
-                            <span class="brand-title" style="font-size: 1.1rem; letter-spacing: 0;">Champion de Chile</span>
-                            <span class="brand-subtitle" style="font-size: 0.55rem; letter-spacing: 0.02em;">77° Campeonato Nacional</span>
-                        </div>
-                    </div>
-                </a>
-                
-                <nav class="header-nav">
-                    <a href="index.html#envivo" class="nav-btn btn-live">En Vivo</a>
-                    <a href="index.html#analisis" class="nav-btn">Análisis</a>
-                    <a href="anuario.html" class="nav-btn">Anuario</a>
-                    <a href="genealogia.html" class="nav-btn">Genealogía</a>
-                    <div class="nav-divider"></div>
-                    <a href="toro1.html" class="nav-btn">1er Animal</a>
-                    <a href="toro2.html" class="nav-btn">2do Animal</a>
-                    <a href="toro3.html" class="nav-btn">3er Animal</a>
-                    <a href="toro4.html" class="nav-btn">4to Animal</a>
-                    <div class="nav-divider"></div>
-                    <a href="https://www.flow.cl/btn.php?token=t72149f43e71af43c82f6f67fdf40c375fa191cb" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; font-weight: 700; box-shadow: 0 4px 10px rgba(230,81,0,0.3);">Hacerse Socio 🐴</a>
-                    <a href="#" onclick="sessionStorage.removeItem('selectedRodeo'); window.location.href='index.html';" class="nav-btn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600;">Cambiar Rodeo ⇄</a>
-                </nav>
-            </div>
-        </header>
-
-        <main class="main-content">
-            
-            <!-- SECTION 0: En Vivo -->
-            <section id="envivo" class="section-envivo" style="margin-bottom: 4rem;">
-                <h2 class="section-title">
-                    <span class="live-dot" style="color: #ff0000; font-size: 1.5rem; vertical-align: baseline; margin-right: 0.3rem;">●</span>Transmisión en Vivo
-                </h2>
-                <div style="max-width: 750px; margin: 0 auto;">
-                    <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 2px solid var(--primary-dark); background: #000;">
-                        <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://www.youtube.com/embed/fJps5TeZlZw" title="Champion de Chile en Vivo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 1: Análisis -->
-            <section id="analisis" class="section-analisis">
-                <h2 class="section-title">Análisis de la Final</h2>
-                <div class="analisis-grid" id="analisis-container">
-                    <!-- Cards de análisis generadas dinámicamente en JS -->
-                </div>
-                
-                <div class="chart-container" style="margin-top: 3rem; background: var(--card-bg); padding: 2rem; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);">
-                    <h3 style="text-align: center; font-family: var(--font-heading); color: var(--primary-dark); margin-bottom: 1.5rem; font-size: 1.5rem;">Comparativa de Puntajes Finales</h3>
-                    <div style="position: relative; height: 60vh; width: 100%;">
-                        <canvas id="scoreChart"></canvas>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SECTION 2: Resultados -->
-            <section id="resultados" class="section-resultados" style="margin-top: 4rem;">
-                <h2 class="section-title">Tabla de Resultados Finales</h2>
-
-                <div class="table-container">
-                    <table class="rodeo-table" id="rodeo-table">
-                        <thead id="table-head">
-                        </thead>
-                        <tbody id="table-body">
-                            <!-- Data populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-            <!-- SECTION: Club de Socios CTA -->
-            <section class="section-socio-cta" style="background: linear-gradient(145deg, rgba(230, 81, 0, 0.1) 0%, rgba(20, 12, 10, 0.5) 100%); border: 1px solid rgba(230, 81, 0, 0.25); border-radius: 16px; padding: 2.5rem 2rem; text-align: center; margin: 4rem auto 2rem auto; max-width: 1200px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);">
-                <h3 style="font-family: var(--font-heading); font-size: 2rem; color: #ff5722; margin-bottom: 0.5rem; font-weight: 800; letter-spacing: -0.01em;">Club de Socios Corral Abierto</h3>
-                <p style="color: #e0d5c1; max-width: 600px; margin: 0 auto 1.8rem auto; font-size: 0.95rem; line-height: 1.6;">Únete al club oficial y apoya la transmisión de resultados en vivo. Obtén acceso a estadísticas premium de jinetes y caballos, descarga de anuarios en alta definición y beneficios exclusivos.</p>
-                <a href="https://www.flow.cl/btn.php?token=t72149f43e71af43c82f6f67fdf40c375fa191cb" target="_blank" class="admin-btn admin-btn-primary" style="text-decoration: none; padding: 0.9rem 2.2rem; border-radius: 8px; font-weight: 700; display: inline-flex; align-items: center; gap: 8px;">Hacerse Socio de Temporada 🐴</a>
-            </section>
-        </main>
-        
-        <footer class="app-footer">
-            <p>&copy; 2026 Caballo y Rodeo - Tradición y Deporte</p>
-        </footer>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js?v=3.2"></script>
 </body>
 </html>
