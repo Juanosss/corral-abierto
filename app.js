@@ -927,8 +927,10 @@ async function checkPageAccess() {
     const currentUser = JSON.parse(localStorage.getItem('currentUser'));
     let isSocioActivo = false;
 
-    // Verificar si el usuario guardado localmente sigue estando activo en la base de datos de Supabase
-    if (currentUser && supabaseClient) {
+    // Si el usuario es el administrador principal, tiene acceso total e ilimitado
+    if (currentUser && currentUser.email === 'admin@corralabierto.cl') {
+        isSocioActivo = true;
+    } else if (currentUser && supabaseClient) {
         try {
             const { data, error } = await supabaseClient
                 .from('members')
@@ -1371,11 +1373,11 @@ async function submitLogin(e) {
         }
 
         // Permitir inicio de sesión local para todos, pero guardando si están activos o no
-        const isActive = memberData && memberData.active === true;
+        const isActive = (email === 'admin@corralabierto.cl') || (memberData && memberData.active === true);
         const userSessionObj = { 
             email: email, 
             active: isActive,
-            nombre: memberData ? memberData.nombre : '',
+            nombre: memberData ? memberData.nombre : (email === 'admin@corralabierto.cl' ? 'ADMINISTRADOR' : ''),
             apellido: memberData ? memberData.apellido : '',
             fecha_nacimiento: memberData ? memberData.fecha_nacimiento : ''
         };
@@ -1606,12 +1608,15 @@ function openAccountPlanModal(e) {
     overlay.style.justifyContent = 'center';
     overlay.style.zIndex = '3000';
 
-    const statusText = currentUser.active 
-        ? '<span style="color:#2e7d32; font-weight:700;">🟢 SOCIO ACTIVO (ACCESO COMPLETO)</span>'
-        : '<span style="color:#c62828; font-weight:700;">🔴 PENDIENTE DE PAGO (ACCESO LIMITADO)</span>';
+    const isAdmin = currentUser.email === 'admin@corralabierto.cl';
+    const statusText = isAdmin
+        ? '<span style="color:#2e7d32; font-weight:700;">🟢 ADMINISTRADOR (ACCESO TOTAL)</span>'
+        : (currentUser.active 
+            ? '<span style="color:#2e7d32; font-weight:700;">🟢 SOCIO ACTIVO (ACCESO COMPLETO)</span>'
+            : '<span style="color:#c62828; font-weight:700;">🔴 PENDIENTE DE PAGO (ACCESO LIMITADO)</span>');
 
     const flowUrl = "https://www.flow.cl/btn.php?token=t72149f43e71af43c82f6f67fdf40c375fa191cb";
-    const paymentButton = !currentUser.active
+    const paymentButton = (!currentUser.active && !isAdmin)
         ? `<div style="margin-top: 20px; text-align: center;">
              <a href="${flowUrl}" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; font-weight: 700; padding: 10px 20px; text-transform: uppercase; border-radius: 8px; font-size: 0.85rem; text-decoration: none; display: inline-block; box-shadow: 0 4px 15px rgba(230,81,0,0.3);">Pagar Membresía en Flow 🐴</a>
            </div>`

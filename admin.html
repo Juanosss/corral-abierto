@@ -1249,7 +1249,20 @@
                     return;
                 }
 
-                users.forEach(u => {
+                let usersList = [...users];
+                const adminExists = usersList.some(u => u.email === ADMIN_EMAIL);
+                if (!adminExists) {
+                    usersList.unshift({
+                        email: ADMIN_EMAIL,
+                        nombre: "ADMINISTRADOR",
+                        apellido: "PRINCIPAL",
+                        active: true,
+                        telefono: "SOPORTE",
+                        fecha_nacimiento: "N/A"
+                    });
+                }
+
+                usersList.forEach(u => {
                     const tr = document.createElement('tr');
                     const statusSpan = u.active 
                         ? `<span style="color:#2e7d32; font-weight:700;">🟢 ACTIVO (SOCIO)</span>`
@@ -1290,6 +1303,10 @@
         }
 
         async function toggleUserActive(email, currentStatus) {
+            if (email === ADMIN_EMAIL) {
+                showToast("No se puede suspender el acceso del Administrador Principal.", "error");
+                return;
+            }
             if (!supabaseClient) return;
 
             const newStatus = !currentStatus;
@@ -1326,6 +1343,10 @@
 
         // CONTROL DE MODAL DE USUARIO (ADMIN)
         function openEditUsuarioModal(email, nombre, apellido, nacimiento, telefono, active) {
+            if (email === ADMIN_EMAIL) {
+                showToast("La cuenta de administrador principal se edita directo desde el panel de Supabase.", "error");
+                return;
+            }
             document.getElementById('form-user-old-email').value = email;
             document.getElementById('form-user-email').value = email;
             document.getElementById('form-user-nombre').value = nombre;
