@@ -570,7 +570,7 @@ function renderTable(data, stage = 4) {
         // Caballos formatting (como link a su genealogía)
         const caballosHtml = row.caballos.map(c => {
             const slug = c.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
-            return `<a href="genealogia.html#${slug}" class="caballo-item caballo-link">${c}</a>`;
+            return `<a href="../genealogia.html#${slug}" class="caballo-item caballo-link">${c}</a>`;
         }).join('');
 
         let trHtml = `
@@ -893,6 +893,29 @@ async function updateHeaderBranding() {
             if (logoEl) logoEl.style.display = 'none';
             if (dividerEl) dividerEl.style.display = 'none';
         }
+
+        // Habilitar o deshabilitar pestañas de animales dinámicamente
+        const btnToro1 = document.querySelector('.header-nav a[href*="toro1.html"]');
+        const btnToro2 = document.querySelector('.header-nav a[href*="toro2.html"]');
+        const btnToro3 = document.querySelector('.header-nav a[href*="toro3.html"]');
+        const btnToro4 = document.querySelector('.header-nav a[href*="toro4.html"]');
+
+        const isT1 = activeRodeo.toro1 !== false;
+        const isT2 = activeRodeo.toro2 !== false;
+        const isT3 = activeRodeo.toro3 !== false;
+        const isT4 = activeRodeo.toro4 !== false;
+
+        if (btnToro1) btnToro1.style.display = isT1 ? 'inline-block' : 'none';
+        if (btnToro2) btnToro2.style.display = isT2 ? 'inline-block' : 'none';
+        if (btnToro3) btnToro3.style.display = isT3 ? 'inline-block' : 'none';
+        if (btnToro4) btnToro4.style.display = isT4 ? 'inline-block' : 'none';
+
+        // Redirigir si el usuario está intentando ver un toro que el admin bloqueó
+        const currentPage = window.location.pathname.split('/').pop();
+        if (currentPage === 'toro1.html' && !isT1) window.location.href = 'index.html';
+        if (currentPage === 'toro2.html' && !isT2) window.location.href = 'index.html';
+        if (currentPage === 'toro3.html' && !isT3) window.location.href = 'index.html';
+        if (currentPage === 'toro4.html' && !isT4) window.location.href = 'index.html';
     }
 }
 

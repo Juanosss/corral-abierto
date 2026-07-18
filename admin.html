@@ -97,6 +97,7 @@
                                      <th>Nombre del Rodeo</th>
                                      <th>Imagen Logo (URL)</th>
                                      <th>Estado de Acceso</th>
+                                     <th>Animales Activos</th>
                                      <th>Acciones</th>
                                  </tr>
                              </thead>
@@ -109,6 +110,31 @@
  
                  <!-- CONTENIDO PESTAÑA 1: COLLERAS -->
                  <div id="tab-colleras" class="admin-tab-content">
+                    <!-- PANEL DE PUNTAJES DE CORTE DEL JURADO -->
+                    <div class="admin-card" style="margin-bottom: 20px; padding: 18px; background: rgba(255, 87, 34, 0.08); border: 1px solid rgba(255, 87, 34, 0.25); border-radius: 8px; box-sizing: border-box;">
+                        <h4 style="margin: 0 0 8px 0; color: #ff5722; font-family: 'Playfair Display', serif; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+                            <span>⚡ Corte de Clasificación del Jurado</span>
+                        </h4>
+                        <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0 0 15px 0;">Define la puntuación mínima acumulada requerida para avanzar a cada animal. Las colleras que no la alcancen serán marcadas automáticamente con "X" en los toros siguientes.</p>
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap; align-items: flex-end;">
+                            <div class="admin-input-group" style="flex: 1; min-width: 140px; margin: 0;">
+                                <label class="admin-label" style="font-size: 0.75rem; color: #e0d5c1; font-weight: 600;">Corte 2° Animal (Min Ptos A1)</label>
+                                <input type="number" id="corte-toro2" class="admin-input" value="4" style="margin-top: 4px; padding: 6px 12px; height: auto;">
+                            </div>
+                            <div class="admin-input-group" style="flex: 1; min-width: 140px; margin: 0;">
+                                <label class="admin-label" style="font-size: 0.75rem; color: #e0d5c1; font-weight: 600;">Corte 3° Animal (Min Ptos Sub1)</label>
+                                <input type="number" id="corte-toro3" class="admin-input" value="8" style="margin-top: 4px; padding: 6px 12px; height: auto;">
+                            </div>
+                            <div class="admin-input-group" style="flex: 1; min-width: 140px; margin: 0;">
+                                <label class="admin-label" style="font-size: 0.75rem; color: #e0d5c1; font-weight: 600;">Corte 4° Animal (Min Ptos Sub2)</label>
+                                <input type="number" id="corte-toro4" class="admin-input" value="12" style="margin-top: 4px; padding: 6px 12px; height: auto;">
+                            </div>
+                            <button class="admin-btn admin-btn-primary" onclick="applyCorteAutomatico()" style="padding: 9px 18px; border-radius: 6px; font-weight: 700; height: auto;">
+                                Aplicar Puntajes de Corte
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="admin-table-actions">
                         <input type="text" id="search-colleras" class="admin-input admin-search-input" placeholder="Buscar colleras..." oninput="filterCollerasTable()">
                         <button class="admin-btn admin-btn-primary" onclick="openColleraModal()">Agregar Nueva Collera</button>
@@ -241,6 +267,23 @@
                     <div class="admin-input-group" style="margin-bottom: 15px;">
                         <label class="admin-label" for="form-rodeo-logo">URL del Logo del Rodeo (Opcional)</label>
                         <input type="text" id="form-rodeo-logo" class="admin-input" placeholder="ej: https://www.enlace-imagen.png/logo.png">
+                    </div>
+                    <div class="admin-input-group" style="margin-bottom: 18px;">
+                        <label class="admin-label" style="display: block; margin-bottom: 8px;">Animales Habilitados para el Público</label>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                            <label style="display: flex; align-items: center; gap: 5px; color: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                                <input type="checkbox" id="form-rodeo-toro1" checked style="width: 16px; height: 16px; cursor: pointer;"> 1° Animal
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; color: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                                <input type="checkbox" id="form-rodeo-toro2" checked style="width: 16px; height: 16px; cursor: pointer;"> 2° Animal
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; color: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                                <input type="checkbox" id="form-rodeo-toro3" checked style="width: 16px; height: 16px; cursor: pointer;"> 3° Animal
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; color: #fff; cursor: pointer; font-size: 0.85rem; font-weight: 600;">
+                                <input type="checkbox" id="form-rodeo-toro4" checked style="width: 16px; height: 16px; cursor: pointer;"> 4° Animal
+                            </label>
+                        </div>
                     </div>
                     <div class="admin-modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
                         <button type="button" class="admin-btn admin-btn-secondary" onclick="closeRodeoModal()">Cancelar</button>
@@ -756,10 +799,10 @@
                 rodeos = JSON.parse(localRodeos);
             } else {
                 rodeos = [
-                    { id: 'champion-chile-2026', nombre: 'Champion de Chile 2026', activo: true, logo_url: 'https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png' },
-                    { id: 'clasificatorio-sur-2026', nombre: 'Clasificatorio Sur 2026', activo: false, logo_url: '' },
-                    { id: 'clasificatorio-centro-2026', nombre: 'Clasificatorio Centro 2026', activo: false, logo_url: '' },
-                    { id: 'clasificatorio-norte-2026', nombre: 'Clasificatorio Norte 2026', activo: false, logo_url: '' }
+                    { id: 'champion-chile-2026', nombre: 'Champion de Chile 2026', activo: true, logo_url: 'https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png', toro1: true, toro2: true, toro3: true, toro4: true },
+                    { id: 'clasificatorio-sur-2026', nombre: 'Clasificatorio Sur 2026', activo: false, logo_url: '', toro1: true, toro2: true, toro3: true, toro4: true },
+                    { id: 'clasificatorio-centro-2026', nombre: 'Clasificatorio Centro 2026', activo: false, logo_url: '', toro1: true, toro2: true, toro3: true, toro4: true },
+                    { id: 'clasificatorio-norte-2026', nombre: 'Clasificatorio Norte 2026', activo: false, logo_url: '', toro1: true, toro2: true, toro3: true, toro4: true }
                 ];
                 localStorage.setItem('rodeos', JSON.stringify(rodeos));
             }
@@ -768,7 +811,6 @@
         async function loadRodeoColleras(rodeoId) {
             if (supabaseClient) {
                 try {
-                    // Intentar filtrar por rodeo_id en Supabase
                     const { data, error } = await supabaseClient.from('colleras').select('*').eq('rodeo_id', rodeoId).order('n');
                     if (!error && data) {
                         rodeoData = data;
@@ -797,7 +839,6 @@
         async function initDashboard() {
             await loadRodeos();
             
-            // Si no hay un rodeo seleccionado activo, seleccionar el primero
             if (!activeRodeoId && rodeos.length > 0) {
                 activeRodeoId = rodeos[0].id;
                 localStorage.setItem('activeRodeoId', activeRodeoId);
@@ -825,7 +866,6 @@
             rodeos.forEach(rodeo => {
                 const tr = document.createElement('tr');
                 
-                // Determinar si este es el seleccionado
                 const isSelected = activeRodeoId === rodeo.id;
                 const selectBtnText = isSelected ? "👉 Seleccionado" : "Administrar Colleras";
                 const selectBtnStyle = isSelected 
@@ -839,6 +879,12 @@
                 const activeBtnText = rodeo.activo ? "Bloquear Acceso" : "Activar Acceso";
                 const activeBtnStyle = rodeo.activo ? "background: #d32f2f;" : "background: #2e7d32;";
 
+                const t1 = rodeo.toro1 !== false ? `<span style="color:#2e7d32; font-weight:800;">1°</span>` : `<span style="color:#c62828; font-weight:500; opacity:0.4;">1°</span>`;
+                const t2 = rodeo.toro2 !== false ? `<span style="color:#2e7d32; font-weight:800;">2°</span>` : `<span style="color:#c62828; font-weight:500; opacity:0.4;">2°</span>`;
+                const t3 = rodeo.toro3 !== false ? `<span style="color:#2e7d32; font-weight:800;">3°</span>` : `<span style="color:#c62828; font-weight:500; opacity:0.4;">3°</span>`;
+                const t4 = rodeo.toro4 !== false ? `<span style="color:#2e7d32; font-weight:800;">4°</span>` : `<span style="color:#c62828; font-weight:500; opacity:0.4;">4°</span>`;
+                const torosHtml = `${t1} | ${t2} | ${t3} | ${t4}`;
+
                 tr.innerHTML = `
                     <td style="font-family: monospace; font-weight: bold; color: #ff5722;">${rodeo.id}</td>
                     <td style="font-weight: 700; color: #fff;">${rodeo.nombre}</td>
@@ -846,6 +892,7 @@
                         ${rodeo.logo_url ? `<img src="${rodeo.logo_url}" style="height:25px; border-radius:4px; max-width:60px;">` : `<span style="color:var(--text-muted);">Sin logo</span>`}
                     </td>
                     <td>${activeText}</td>
+                    <td style="font-size:0.9rem; font-weight:700;">${torosHtml}</td>
                     <td>
                         <div style="display:flex; gap:8px; flex-wrap:wrap;">
                             <button style="${selectBtnStyle}" onclick="${isSelected ? '' : `selectRodeoForAdmin('${rodeo.id}')`}">${selectBtnText}</button>
@@ -858,7 +905,6 @@
                 tbody.appendChild(tr);
             });
 
-            // Actualizar banner de estado superior
             const activeRodeo = rodeos.find(r => r.id === activeRodeoId);
             const bannerTitle = document.getElementById('active-rodeo-title');
             const bannerBadge = document.getElementById('active-rodeo-status-badge');
@@ -881,6 +927,10 @@
             document.getElementById('form-rodeo-id').disabled = false;
             document.getElementById('form-rodeo-nombre').value = "";
             document.getElementById('form-rodeo-logo').value = "";
+            document.getElementById('form-rodeo-toro1').checked = true;
+            document.getElementById('form-rodeo-toro2').checked = true;
+            document.getElementById('form-rodeo-toro3').checked = true;
+            document.getElementById('form-rodeo-toro4').checked = true;
             document.getElementById('modal-rodeo-overlay').style.display = 'flex';
         }
 
@@ -894,6 +944,10 @@
             document.getElementById('form-rodeo-id').disabled = true;
             document.getElementById('form-rodeo-nombre').value = rodeo.nombre;
             document.getElementById('form-rodeo-logo').value = rodeo.logo_url || "";
+            document.getElementById('form-rodeo-toro1').checked = rodeo.toro1 !== false;
+            document.getElementById('form-rodeo-toro2').checked = rodeo.toro2 !== false;
+            document.getElementById('form-rodeo-toro3').checked = rodeo.toro3 !== false;
+            document.getElementById('form-rodeo-toro4').checked = rodeo.toro4 !== false;
             document.getElementById('modal-rodeo-overlay').style.display = 'flex';
         }
 
@@ -907,16 +961,22 @@
             const idVal = document.getElementById('form-rodeo-id').value.trim().toLowerCase().replace(/\s+/g, '-');
             const nombreVal = document.getElementById('form-rodeo-nombre').value.trim();
             const logoVal = document.getElementById('form-rodeo-logo').value.trim();
+            const t1 = document.getElementById('form-rodeo-toro1').checked;
+            const t2 = document.getElementById('form-rodeo-toro2').checked;
+            const t3 = document.getElementById('form-rodeo-toro3').checked;
+            const t4 = document.getElementById('form-rodeo-toro4').checked;
 
             if (idOld) {
-                // Modo Edición
                 const idx = rodeos.findIndex(r => r.id === idOld);
                 if (idx !== -1) {
                     rodeos[idx].nombre = nombreVal;
                     rodeos[idx].logo_url = logoVal;
+                    rodeos[idx].toro1 = t1;
+                    rodeos[idx].toro2 = t2;
+                    rodeos[idx].toro3 = t3;
+                    rodeos[idx].toro4 = t4;
                 }
             } else {
-                // Modo Crear Nuevo
                 if (rodeos.some(r => r.id === idVal)) {
                     showToast("Ya existe un rodeo con ese ID único.", "error");
                     return;
@@ -925,7 +985,11 @@
                     id: idVal,
                     nombre: nombreVal,
                     activo: true,
-                    logo_url: logoVal
+                    logo_url: logoVal,
+                    toro1: t1,
+                    toro2: t2,
+                    toro3: t3,
+                    toro4: t4
                 };
                 rodeos.push(newRodeo);
                 if (!activeRodeoId) {
@@ -939,8 +1003,8 @@
             if (supabaseClient) {
                 try {
                     const rodeoObj = idOld 
-                        ? { id: idOld, nombre: nombreVal, logo_url: logoVal }
-                        : { id: idVal, nombre: nombreVal, activo: true, logo_url: logoVal };
+                        ? { id: idOld, nombre: nombreVal, logo_url: logoVal, toro1: t1, toro2: t2, toro3: t3, toro4: t4 }
+                        : { id: idVal, nombre: nombreVal, activo: true, logo_url: logoVal, toro1: t1, toro2: t2, toro3: t3, toro4: t4 };
                     const { error } = await supabaseClient.from('rodeos').upsert(rodeoObj);
                     if (error) {
                         console.error("Error en Supabase:", error);
@@ -1383,6 +1447,100 @@
                 renderCollerasTable();
                 showToast("Collera eliminada.");
             }
+        }
+
+        async function applyCorteAutomatico() {
+            if (!activeRodeoId) {
+                showToast("Por favor, selecciona un rodeo en la pestaña 'Gestión de Rodeos' primero.", "error");
+                return;
+            }
+
+            const val2 = parseInt(document.getElementById('corte-toro2').value) || 0;
+            const val3 = parseInt(document.getElementById('corte-toro3').value) || 0;
+            const val4 = parseInt(document.getElementById('corte-toro4').value) || 0;
+
+            if (!confirm(`¿Desea aplicar los cortes del jurado en cascada?\n\n• 2° Animal corte: ${val2} puntos (sobre A1)\n• 3° Animal corte: ${val3} puntos (sobre Subtotal 1)\n• 4° Animal corte: ${val4} puntos (sobre Subtotal 2)\n\nLas colleras que queden por debajo recibirán una "X".`)) {
+                return;
+            }
+
+            rodeoData.forEach(c => {
+                const getVal = (v) => {
+                    if (v === "" || v === null || v === undefined) return null;
+                    const clean = v.toString().trim().toUpperCase();
+                    if (clean === "X") return "X";
+                    const num = parseInt(clean);
+                    return isNaN(num) ? null : num;
+                };
+
+                const score1 = getVal(c.animal1);
+                
+                // 1. Corte 2do Animal
+                if (score1 === "X" || score1 === null || score1 < val2) {
+                    c.animal2 = "X";
+                }
+
+                const score2 = getVal(c.animal2);
+
+                if (score1 !== "X" && score1 !== null && score2 !== "X" && score2 !== null) {
+                    c.sub1 = score1 + score2;
+                } else {
+                    c.sub1 = "";
+                }
+
+                // 2. Corte 3er Animal
+                if (c.animal2 === "X" || c.sub1 === "" || parseInt(c.sub1) < val3) {
+                    c.animal3 = "X";
+                }
+
+                const score3 = getVal(c.animal3);
+
+                if (c.sub1 !== "" && score3 !== "X" && score3 !== null) {
+                    c.sub2 = parseInt(c.sub1) + score3;
+                } else {
+                    c.sub2 = "";
+                }
+
+                // 3. Corte 4to Animal
+                if (c.animal3 === "X" || c.sub2 === "" || parseInt(c.sub2) < val4) {
+                    c.animal4 = "X";
+                }
+
+                // Recalcular el total
+                let total = 0;
+                const a1 = getVal(c.animal1);
+                const a2 = getVal(c.animal2);
+                const a3 = getVal(c.animal3);
+                const a4 = getVal(c.animal4);
+
+                if (typeof a1 === "number") total += a1;
+                if (typeof a2 === "number") total += a2;
+                if (typeof a3 === "number") total += a3;
+                if (typeof a4 === "number") total += a4;
+
+                c.resultado = total;
+            });
+
+            recalculateLugarForAll();
+
+            localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
+            localStorage.setItem(`rodeoData_${activeRodeoId}`, JSON.stringify(rodeoData));
+
+            if (supabaseClient) {
+                try {
+                    rodeoData.forEach(c => { c.rodeo_id = activeRodeoId; });
+                    const { error } = await supabaseClient.from('colleras').upsert(rodeoData);
+                    if (error) {
+                        console.error("Error al guardar cortes en Supabase:", error);
+                        showToast("Cortes aplicados localmente, pero falló la subida a la nube.", "error");
+                    }
+                } catch(err) {
+                    console.warn(err);
+                }
+            }
+
+            filteredColleras = [...rodeoData];
+            renderCollerasTable();
+            showToast("¡Puntajes de corte aplicados en cascada!");
         }
 
         // ==========================================================================
