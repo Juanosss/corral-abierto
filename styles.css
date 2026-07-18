@@ -284,27 +284,44 @@ h1, h2, h3, h4 {
     }
 
     .header-logo-link {
-        max-width: calc(100% - 60px) !important;
+        max-width: calc(100% - 50px) !important;
         overflow: hidden;
         white-space: nowrap;
-        text-overflow: ellipsis;
+        display: flex !important;
+        align-items: center;
+        gap: 0.3rem;
     }
 
-    .brand-partner-divider,
+    .brand-title-main {
+        font-size: 1.05rem !important;
+    }
+
+    .brand-partner-divider {
+        display: inline-block !important;
+        font-size: 0.8rem !important;
+        color: rgba(255, 255, 255, 0.4);
+        margin: 0 2px !important;
+    }
+
     .brand-partner-group {
-        display: none !important; /* Esconder el logo y título secundario para que no choque con el botón de hamburguesa */
+        display: flex !important;
+        align-items: center;
+        gap: 4px;
     }
 
     .app-header .header-logo {
-        width: 36px;
+        width: 26px !important;
+        height: 26px !important;
     }
 
     .brand-title {
-        font-size: 1.15rem;
+        font-size: 0.82rem !important;
     }
 
     .brand-subtitle {
-        font-size: 0.62rem;
+        font-size: 0.52rem !important;
+        display: block !important;
+        opacity: 0.7;
     }
     
     .header-nav {
