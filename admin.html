@@ -148,11 +148,14 @@
 
                 <!-- CONTENIDO PESTAÑA 4: USUARIOS -->
                 <div id="tab-usuarios" class="admin-tab-content">
-                    <div class="admin-table-actions">
+                    <div class="admin-table-actions" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
                         <div>
                             <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif; font-size: 1.5rem;">Control de Socios de Corral Abierto <span style="font-size: 0.8rem; color: #e0d5c1; opacity: 0.6; font-weight: 400; font-family: sans-serif; margin-left: 10px;">v3.2</span></h3>
                             <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Activa o suspende el acceso premium de los usuarios que pagan mediante Flow.</p>
                         </div>
+                        <button class="admin-btn admin-btn-primary" onclick="renderUsuariosTable()" style="display: flex; align-items: center; gap: 6px; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600;">
+                            <span>🔄 Refrescar Socios</span>
+                        </button>
                     </div>
                     <div class="admin-table-container">
                         <table class="admin-data-table">
