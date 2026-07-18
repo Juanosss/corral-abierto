@@ -83,19 +83,18 @@
             border-radius: 12px;
         }
 
-        /* Centrar logo en cabecera del 404 */
-        .header-container {
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-            width: 100% !important;
-        }
-        .header-logo-link {
-            justify-content: center !important;
-            margin: 0 auto !important;
-        }
-
         @media (max-width: 768px) {
+            /* Centrar logo en cabecera del 404 solo en móviles */
+            .header-container {
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                width: 100% !important;
+            }
+            .header-logo-link {
+                justify-content: center !important;
+                margin: 0 auto !important;
+            }
             .brand-title-main {
                 font-size: 1.75rem !important;
             }
