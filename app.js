@@ -843,6 +843,9 @@ if (typeof supabase !== 'undefined') {
 
 // Inicializar interfaz y verificar permisos al cargar la página
 document.addEventListener('DOMContentLoaded', async () => {
+    // Si estamos en la página de administración, no ejecutar lógica de inicialización pública
+    if (window.location.pathname.includes('admin.html')) return;
+
     updateHeaderAuthUI();
     await updateHeaderBranding();
     await checkPageAccess();

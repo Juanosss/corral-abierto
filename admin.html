@@ -931,7 +931,7 @@
             document.getElementById('form-rodeo-toro2').checked = true;
             document.getElementById('form-rodeo-toro3').checked = true;
             document.getElementById('form-rodeo-toro4').checked = true;
-            document.getElementById('modal-rodeo-overlay').style.display = 'flex';
+            document.getElementById('modal-rodeo-overlay').classList.add('active');
         }
 
         function editRodeoTrigger(rodeoId) {
@@ -948,11 +948,11 @@
             document.getElementById('form-rodeo-toro2').checked = rodeo.toro2 !== false;
             document.getElementById('form-rodeo-toro3').checked = rodeo.toro3 !== false;
             document.getElementById('form-rodeo-toro4').checked = rodeo.toro4 !== false;
-            document.getElementById('modal-rodeo-overlay').style.display = 'flex';
+            document.getElementById('modal-rodeo-overlay').classList.add('active');
         }
 
         function closeRodeoModal() {
-            document.getElementById('modal-rodeo-overlay').style.display = 'none';
+            document.getElementById('modal-rodeo-overlay').classList.remove('active');
         }
 
         async function saveRodeo(e) {
