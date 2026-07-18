@@ -714,14 +714,15 @@ function renderChart(data, stage = 4) {
 }
 
 async function initRodeoData() {
+    const activeRodeoId = sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026';
     if (supabaseClient) {
         try {
-            // Leer colleras desde Supabase en tiempo real
-            const { data, error } = await supabaseClient.from('colleras').select('*').order('n');
-            if (!error && data && data.length > 0) {
+            // Leer colleras desde Supabase en tiempo real filtradas por el rodeo activo
+            const { data, error } = await supabaseClient.from('colleras').select('*').eq('rodeo_id', activeRodeoId).order('n');
+            if (!error && data) {
                 rodeoData = data;
                 try {
-                    localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
+                    localStorage.setItem(`rodeoData_${activeRodeoId}`, JSON.stringify(rodeoData));
                 } catch(e) {
                     console.error(e);
                 }
@@ -750,16 +751,21 @@ async function initRodeoData() {
 }
 
 function loadBackupLocalRodeoData() {
+    const activeRodeoId = sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026';
     let localData = null;
     try {
-        localData = JSON.parse(localStorage.getItem('rodeoData'));
+        localData = JSON.parse(localStorage.getItem(`rodeoData_${activeRodeoId}`));
     } catch(e) {
         console.error("Error al parsear localStorage:", e);
     }
     if (!localData || localData.length === 0) {
-        localData = defaultRodeoData;
+        if (activeRodeoId === 'champion-chile-2026') {
+            localData = defaultRodeoData;
+        } else {
+            localData = [];
+        }
         try {
-            localStorage.setItem('rodeoData', JSON.stringify(localData));
+            localStorage.setItem(`rodeoData_${activeRodeoId}`, JSON.stringify(localData));
         } catch(e) {
             console.error(e);
         }
@@ -838,10 +844,57 @@ if (typeof supabase !== 'undefined') {
 // Inicializar interfaz y verificar permisos al cargar la página
 document.addEventListener('DOMContentLoaded', async () => {
     updateHeaderAuthUI();
+    await updateHeaderBranding();
     await checkPageAccess();
     createLoginModalDOM();
     await initRodeoData();
 });
+
+// Función para actualizar dinámicamente el logotipo y títulos del menú superior según el rodeo
+async function updateHeaderBranding() {
+    const activeRodeoId = sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026';
+    
+    let activeRodeo = null;
+    if (supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient.from('rodeos').select('*').eq('id', activeRodeoId).single();
+            if (!error && data) {
+                activeRodeo = data;
+            }
+        } catch(e) {
+            console.warn("Supabase rodeos no disponible para branding.");
+        }
+    }
+
+    if (!activeRodeo) {
+        const localRodeos = localStorage.getItem('rodeos');
+        if (localRodeos) {
+            const list = JSON.parse(localRodeos);
+            activeRodeo = list.find(r => r.id === activeRodeoId);
+        }
+    }
+
+    if (activeRodeo) {
+        const titleEl = document.querySelector('.brand-title');
+        const subtitleEl = document.querySelector('.brand-subtitle');
+        const logoEl = document.querySelector('.header-logo');
+        const dividerEl = document.querySelector('.brand-partner-divider');
+
+        if (titleEl) titleEl.innerText = activeRodeo.nombre;
+        if (subtitleEl) subtitleEl.innerText = "Resultados & Transmisión";
+
+        if (activeRodeo.logo_url) {
+            if (logoEl) {
+                logoEl.src = activeRodeo.logo_url;
+                logoEl.style.display = 'block';
+            }
+            if (dividerEl) dividerEl.style.display = 'inline-block';
+        } else {
+            if (logoEl) logoEl.style.display = 'none';
+            if (dividerEl) dividerEl.style.display = 'none';
+        }
+    }
+}
 
 // Función para actualizar los botones de login/perfil en la barra de navegación
 function updateHeaderAuthUI() {

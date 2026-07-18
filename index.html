@@ -110,13 +110,7 @@
 
         function selectRodeo(rodeoId) {
             sessionStorage.setItem('selectedRodeo', rodeoId);
-            // Si el rodeo seleccionado es el Champion de Chile, ir a su subcarpeta.
-            // Para otros rodeos dinámicos futuros, se pueden agregar sus rutas aquí.
-            if (rodeoId === 'champion-chile-2026') {
-                window.location.href = './champion-chile/index.html';
-            } else {
-                alert(`Has seleccionado ${rodeoId}. Próximamente se habilitará su portal específico.`);
-            }
+            window.location.href = './champion-chile/index.html';
         }
 
         // Cargar perfiles al iniciar
