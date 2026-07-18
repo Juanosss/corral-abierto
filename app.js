@@ -530,7 +530,7 @@ function renderTable(data, stage = 4) {
     } else if (displayStage === 3) {
         theadHtml += `<th>1er Animal</th><th>2do Animal</th><th>3er Animal</th><th>Sub Total</th>`;
     } else if (displayStage === 4) {
-        theadHtml += `<th>1er Animal</th><th>2do Animal</th><th>3er Animal</th><th>4to Animal</th><th>Resultado</th><th>Empates</th><th>Lugar</th>`;
+        theadHtml += `<th>1er Animal</th><th>2do Animal</th><th>3er Animal</th><th>4to Animal</th><th>Resultado</th><th>Empates</th>`;
     }
     theadHtml += `</tr>`;
     
@@ -603,7 +603,6 @@ function renderTable(data, stage = 4) {
                 <td data-label="4to Animal">${formatScore(row.animal4)}</td>
                 <td data-label="Resultado" class="td-resultado">${formatScore(isTotalMode ? getFinalScore(row) : row.resultado)}</td>
                 <td data-label="Empates">${formatScore(row.empates)}</td>
-                <td data-label="Lugar" class="td-lugar">${row.lugar}</td>
             `;
         }
 
