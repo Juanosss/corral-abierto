@@ -992,6 +992,34 @@ async function updateHeaderBranding() {
         if (currentPage === 'toro3.html' && !isT3) window.location.href = 'index.html';
         if (currentPage === 'toro4.html' && !isT4) window.location.href = 'index.html';
     }
+
+    // Ajustar enlaces de navegación dinámicamente si estamos en una página de raíz como genealogia.html o anuario.html
+    const pathname = window.location.pathname;
+    const isRootPage = pathname.endsWith('genealogia.html') || pathname.endsWith('anuario.html') || (!pathname.includes('champion-chile') && !pathname.includes('clasificatorio-'));
+    
+    if (isRootPage) {
+        const folder = activeRodeoId === 'champion-chile-2026' ? 'champion-chile' : activeRodeoId;
+        const navLinks = document.querySelectorAll('.header-nav a');
+        navLinks.forEach(link => {
+            let href = link.getAttribute('href');
+            if (href && !href.startsWith('http') && !href.startsWith('#') && !href.startsWith('javascript:')) {
+                // Si el enlace apunta a toros, index o anuario de un rodeo, hacerlo apuntar a la subcarpeta correcta
+                if (href.includes('toro') || href.includes('index.html')) {
+                    const filename = href.split('/').pop();
+                    link.setAttribute('href', `${folder}/${filename}`);
+                } else if (href.includes('anuario.html') || href.includes('genealogia.html')) {
+                    const filename = href.split('/').pop();
+                    link.setAttribute('href', filename); // Mantener en la raíz
+                }
+            }
+        });
+        
+        // También actualizar el logo de inicio en el header
+        const logoLink = document.querySelector('.header-logo-link');
+        if (logoLink) {
+            logoLink.setAttribute('href', `${folder}/index.html`);
+        }
+    }
 }
 
 // Función para actualizar los botones de login/perfil en la barra de navegación
