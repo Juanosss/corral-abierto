@@ -35,6 +35,11 @@
     box-sizing: border-box;
 }
 
+html, body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
 body {
     background-color: var(--bg-color);
     color: var(--text-main);
@@ -271,18 +276,31 @@ h1, h2, h3, h4 {
         align-items: center;
         padding: 0.4rem 0;
         width: 100%;
+        position: relative;
     }
     
     .header-container::after {
         display: none;
     }
 
+    .header-logo-link {
+        max-width: calc(100% - 60px) !important;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .brand-partner-divider,
+    .brand-partner-group {
+        display: none !important; /* Esconder el logo y título secundario para que no choque con el botón de hamburguesa */
+    }
+
     .app-header .header-logo {
-        width: 36px; /* Logo más pequeño en iPhone */
+        width: 36px;
     }
 
     .brand-title {
-        font-size: 1.15rem; /* Título de marca más compacto */
+        font-size: 1.15rem;
     }
 
     .brand-subtitle {
@@ -290,7 +308,7 @@ h1, h2, h3, h4 {
     }
     
     .header-nav {
-        display: none; /* Ocultar por defecto en celulares; se usa sidebar */
+        display: none;
     }
 
     .nav-divider {
