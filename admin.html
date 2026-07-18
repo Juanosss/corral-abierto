@@ -1153,25 +1153,8 @@
             const tbody = document.getElementById('colleras-tbody');
             tbody.innerHTML = '';
 
-            // Helper para obtener puntaje numérico y ordenar descendente
-            const getScoreNum = (c) => {
-                const r = parseInt(c.resultado);
-                return isNaN(r) ? -999 : r;
-            };
-
-            // Ordenar colleras antes de mostrarlas en la tabla
-            filteredColleras.sort((a, b) => {
-                const scoreA = getScoreNum(a);
-                const scoreB = getScoreNum(b);
-                if (scoreB !== scoreA) return scoreB - scoreA;
-                
-                // Si empatan en puntos, ordenar por puntos de desempate
-                const empA = parseInt(a.empates) || 0;
-                const empB = parseInt(b.empates) || 0;
-                if (empB !== empA) return empB - empA;
-                
-                return a.n - b.n;
-            });
+            // Ordenar colleras por su número de collera (n) de forma ascendente
+            filteredColleras.sort((a, b) => a.n - b.n);
 
             filteredColleras.forEach((c, idx) => {
                 const tr = document.createElement('tr');
