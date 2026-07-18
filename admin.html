@@ -941,7 +941,11 @@
                     const rodeoObj = idOld 
                         ? { id: idOld, nombre: nombreVal, logo_url: logoVal }
                         : { id: idVal, nombre: nombreVal, activo: true, logo_url: logoVal };
-                    await supabaseClient.from('rodeos').upsert(rodeoObj);
+                    const { error } = await supabaseClient.from('rodeos').upsert(rodeoObj);
+                    if (error) {
+                        console.error("Error en Supabase:", error);
+                        showToast("Guardado localmente, pero falló en Supabase. Revisa si creaste la tabla 'rodeos' en el SQL Editor.", "error");
+                    }
                 } catch(err) {
                     console.warn("Error al sincronizar rodeo con Supabase.", err);
                 }
@@ -962,7 +966,11 @@
 
             if (supabaseClient) {
                 try {
-                    await supabaseClient.from('rodeos').update({ activo: newStatus }).eq('id', rodeoId);
+                    const { error } = await supabaseClient.from('rodeos').update({ activo: newStatus }).eq('id', rodeoId);
+                    if (error) {
+                        console.error("Error en Supabase:", error);
+                        showToast("Modificado localmente, pero falló en Supabase. Revisa si creaste la tabla 'rodeos' en el SQL Editor.", "error");
+                    }
                 } catch(err) {
                     console.warn("Error al actualizar estado en Supabase.", err);
                 }
