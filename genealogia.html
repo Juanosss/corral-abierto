@@ -49,11 +49,34 @@
                 </p>
 
                 <!-- Buscador Dinámico -->
-                <div style="margin-bottom: 3rem; display: flex; gap: 1rem; max-width: 500px; margin-left: auto; margin-right: auto; padding: 0 1rem;">
+                <div style="margin-bottom: 2rem; display: flex; gap: 1rem; max-width: 500px; margin-left: auto; margin-right: auto; padding: 0 1rem;">
                     <input type="text" id="search-input" placeholder="Buscar caballo o ancestro..." 
                            style="flex: 1; padding: 0.8rem 1.2rem; border-radius: var(--radius-md); border: 2px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 0.95rem; box-shadow: var(--shadow-sm); outline: none; transition: all 0.2s;"
                            onfocus="this.style.borderColor='var(--primary-color)'" 
                            onblur="this.style.borderColor='var(--border-color)'">
+                </div>
+
+                <!-- Dashboard de Estadísticas de Criadores -->
+                <div class="stats-dashboard" id="stats-dashboard-container" style="display: none;">
+                    <div class="stats-card">
+                        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #ff9100; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; font-weight: 700;">
+                            📊 Estadísticas y Líneas de Sangre Dominantes
+                        </h3>
+                        <div class="stats-grid">
+                            <div class="stat-box">
+                                <div class="stat-label">Criaderos más Frecuentes</div>
+                                <div class="stat-tags" id="stat-criaderos-tags"></div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Líneas de Sangre Populares</div>
+                                <div class="stat-tags" id="stat-sangres-tags"></div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">Alzada Promedio (Caballos)</div>
+                                <div class="stat-value" id="stat-alzada-promedio">--</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Lista de Genealogías (Dinámica) -->
@@ -72,6 +95,163 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="app.js?v=4.5"></script>
     <script>
+        // Familias de sangre ilustres
+        const FAMOUS_BLOODLINES = [
+            "ESTRIBILLO", "TACO", "ROTOSO", "QUE MAS DA", "ESQUINAZO", 
+            "ESCORPION", "REBECO", "MORCAZO", "PLEBISCITO", "ESPERANDO", 
+            "CANTEADO", "TALENTO", "MORCACHO", "BELLACO", "TACANEO",
+            "CUSTODIO", "RELIQUIA", "RONCADOR"
+        ];
+
+        // Función para dar formato a los ancestros, ver si son clicables o líneas de sangre famosas
+        function formatAncestor(name) {
+            if (!name || name.trim() === '' || name.trim() === '--') return '--';
+            
+            const cleanName = name.trim();
+            const upperName = cleanName.toUpperCase();
+            
+            // Verificar si el ancestro existe como registro principal en la BD
+            const targetHorse = genealogiaData.find(h => h.nombre.toLowerCase().trim() === cleanName.toLowerCase());
+            
+            let html = '';
+            
+            if (targetHorse) {
+                // Hacerlo clicable para saltar a su tarjeta
+                const slug = targetHorse.id;
+                html = `<span class="clickable-ancestor" onclick="jumpToHorse('${slug}', event)">${cleanName}</span>`;
+            } else {
+                html = `<span>${cleanName}</span>`;
+            }
+            
+            // Buscar si es de una línea famosa
+            const isFamous = FAMOUS_BLOODLINES.some(famous => upperName.includes(famous));
+            if (isFamous) {
+                const famousName = FAMOUS_BLOODLINES.find(famous => upperName.includes(famous));
+                html += ` <span class="famous-badge" title="Línea de Sangre Ilustre: ${famousName}">👑 ${famousName}</span>`;
+            }
+            
+            return html;
+        }
+
+        // Función para saltar a la tarjeta del caballo y hacer un flash
+        window.jumpToHorse = function(id, event) {
+            if (event) event.preventDefault();
+            const target = document.getElementById(id);
+            if (!target) return;
+            
+            // Remover flash previo
+            target.classList.remove('flash-highlight-active');
+            void target.offsetWidth; // Forzar reflow
+            
+            // Hacer scroll suave
+            const headerHeight = document.querySelector('.app-header')?.offsetHeight || 80;
+            const elementPosition = target.getBoundingClientRect().top + window.pageYOffset;
+            const offsetPosition = elementPosition - headerHeight - 20;
+            
+            window.scrollTo({
+                top: Math.max(0, offsetPosition),
+                behavior: 'smooth'
+            });
+            
+            // Añadir flash
+            target.classList.add('flash-highlight-active');
+            
+            // Actualizar URL hash sin disparar scroll nativo
+            history.pushState(null, null, `#${id}`);
+        };
+
+        // Función para calcular y renderizar el panel de estadísticas de criadores
+        function renderStatsDashboard() {
+            const container = document.getElementById('stats-dashboard-container');
+            const criadoresTags = document.getElementById('stat-criaderos-tags');
+            const sangresTags = document.getElementById('stat-sangres-tags');
+            const alzadaEl = document.getElementById('stat-alzada-promedio');
+            
+            if (!genealogiaData || genealogiaData.length === 0) {
+                if (container) container.style.display = 'none';
+                return;
+            }
+            
+            if (container) container.style.display = 'block';
+            
+            const criaderosCount = {};
+            let alzadaSum = 0;
+            let alzadaCount = 0;
+            const sangresCount = {};
+            
+            genealogiaData.forEach(h => {
+                // Contar Criadero
+                if (h.criadero && h.criadero.trim() !== '' && !h.criadero.includes('SIN CRIADERO')) {
+                    const cName = h.criadero.toUpperCase().trim();
+                    criaderosCount[cName] = (criaderosCount[cName] || 0) + 1;
+                }
+                
+                // Procesar alzada
+                if (h.alzada) {
+                    const alzadaVal = parseFloat(h.alzada.replace(',', '.'));
+                    if (!isNaN(alzadaVal) && alzadaVal > 0) {
+                        alzadaSum += alzadaVal;
+                        alzadaCount++;
+                    }
+                }
+                
+                // Contar ancestros principales (Padre, Abuelo P, Abuelo M)
+                const mainAncestors = [h.padre, h.abueloP, h.abueloM];
+                mainAncestors.forEach(anc => {
+                    if (anc && anc.trim() !== '' && anc.trim() !== '--') {
+                        const ancUpper = anc.toUpperCase().trim();
+                        FAMOUS_BLOODLINES.forEach(famous => {
+                            if (ancUpper.includes(famous)) {
+                                sangresCount[famous] = (sangresCount[famous] || 0) + 1;
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Ordenar y tomar los top 3 Criaderos
+            const topCriaderos = Object.entries(criaderosCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 3);
+                
+            // Ordenar y tomar las top 4 Líneas de Sangre
+            const topSangres = Object.entries(sangresCount)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 4);
+                
+            // Renderizar Criaderos
+            if (criadoresTags) {
+                if (topCriaderos.length > 0) {
+                    criadoresTags.innerHTML = topCriaderos.map(([name, count]) => 
+                        `<span class="stat-tag">${name} (${count})</span>`
+                    ).join('');
+                } else {
+                    criadoresTags.innerHTML = '<span style="color:var(--text-muted); font-size:0.75rem;">Sin datos</span>';
+                }
+            }
+            
+            // Renderizar Líneas de Sangre
+            if (sangresTags) {
+                if (topSangres.length > 0) {
+                    sangresTags.innerHTML = topSangres.map(([name, count]) => 
+                        `<span class="stat-tag highlight">👑 Línea ${name} (${count})</span>`
+                    ).join('');
+                } else {
+                    sangresTags.innerHTML = '<span style="color:var(--text-muted); font-size:0.75rem;">Sin datos</span>';
+                }
+            }
+            
+            // Renderizar Alzada Promedio
+            if (alzadaEl) {
+                if (alzadaCount > 0) {
+                    const avg = (alzadaSum / alzadaCount).toFixed(2);
+                    alzadaEl.textContent = `${avg} mt`;
+                } else {
+                    alzadaEl.textContent = '--';
+                }
+            }
+        }
+
         // Renderizar la genealogía dinámica leyendo desde localStorage
         function renderGenealogias() {
             const container = document.getElementById('genealogias-container');
@@ -88,6 +268,9 @@
                 `;
                 return;
             }
+
+            // Renderizar el Dashboard de Estadísticas
+            renderStatsDashboard();
 
             genealogiaData.forEach(h => {
                 // Estructura de la foto (carrusel animado si hay más de una)
@@ -155,23 +338,23 @@
                                 <div class="tree-parent-branch">
                                     <div class="tree-box parent-box">
                                         <span class="role-label">Padre</span>
-                                        <span class="name-label"><span class="gender-m">♂</span> ${h.padre || '--'}</span>
+                                        <span class="name-label"><span class="gender-m">♂</span> ${formatAncestor(h.padre)}</span>
                                     </div>
                                     <div class="tree-grandparents-group">
                                         <!-- Abuelo P -->
                                         <div class="tree-grandparent-branch">
                                             <div class="tree-box grandparent-box">
                                                 <span class="role-label">Abuelo P.</span>
-                                                <span class="name-label"><span class="gender-m">♂</span> ${h.abueloP || '--'}</span>
+                                                <span class="name-label"><span class="gender-m">♂</span> ${formatAncestor(h.abueloP)}</span>
                                             </div>
                                             <div class="tree-bisabuelos-group">
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuelo P.1</span>
-                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisP1 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${formatAncestor(h.bisP1)}</span>
                                                 </div>
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuela P.1</span>
-                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisP2 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${formatAncestor(h.bisP2)}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -179,16 +362,16 @@
                                         <div class="tree-grandparent-branch">
                                             <div class="tree-box grandparent-box">
                                                 <span class="role-label">Abuela P.</span>
-                                                <span class="name-label"><span class="gender-f">♀</span> ${h.abuelaP || '--'}</span>
+                                                <span class="name-label"><span class="gender-f">♀</span> ${formatAncestor(h.abuelaP)}</span>
                                             </div>
                                             <div class="tree-bisabuelos-group">
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuelo P.2</span>
-                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisP3 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${formatAncestor(h.bisP3)}</span>
                                                 </div>
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuela P.2</span>
-                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisP4 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${formatAncestor(h.bisP4)}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -199,23 +382,23 @@
                                 <div class="tree-parent-branch">
                                     <div class="tree-box parent-box">
                                         <span class="role-label">Madre</span>
-                                        <span class="name-label"><span class="gender-f">♀</span> ${h.madre || '--'}</span>
+                                        <span class="name-label"><span class="gender-f">♀</span> ${formatAncestor(h.madre)}</span>
                                     </div>
                                     <div class="tree-grandparents-group">
                                         <!-- Abuelo M -->
                                         <div class="tree-grandparent-branch">
                                             <div class="tree-box grandparent-box">
                                                 <span class="role-label">Abuelo M.</span>
-                                                <span class="name-label"><span class="gender-m">♂</span> ${h.abueloM || '--'}</span>
+                                                <span class="name-label"><span class="gender-m">♂</span> ${formatAncestor(h.abueloM)}</span>
                                             </div>
                                             <div class="tree-bisabuelos-group">
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuelo M.1</span>
-                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisM1 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${formatAncestor(h.bisM1)}</span>
                                                 </div>
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuela M.1</span>
-                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisM2 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${formatAncestor(h.bisM2)}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -223,16 +406,16 @@
                                         <div class="tree-grandparent-branch">
                                             <div class="tree-box grandparent-box">
                                                 <span class="role-label">Abuela M.</span>
-                                                <span class="name-label"><span class="gender-f">♀</span> ${h.abuelaM || '--'}</span>
+                                                <span class="name-label"><span class="gender-f">♀</span> ${formatAncestor(h.abuelaM)}</span>
                                             </div>
                                             <div class="tree-bisabuelos-group">
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuelo M.2</span>
-                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisM3 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${formatAncestor(h.bisM3)}</span>
                                                 </div>
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuela M.2</span>
-                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisM4 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${formatAncestor(h.bisM4)}</span>
                                                 </div>
                                             </div>
                                         </div>
