@@ -869,12 +869,61 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Si estamos en la página de administración, no ejecutar lógica de inicialización pública
     if (window.location.pathname.includes('admin.html')) return;
 
+    initMobileMenu();
     updateHeaderAuthUI();
     await updateHeaderBranding();
     await checkPageAccess();
     createLoginModalDOM();
     await initRodeoData();
 });
+
+// Función para inyectar dinámicamente el botón de menú hamburguesa y su funcionalidad en celulares
+function initMobileMenu() {
+    const headerContainer = document.querySelector('.header-container');
+    const headerNav = document.querySelector('.header-nav');
+    
+    if (headerContainer && headerNav) {
+        // Crear el botón de hamburguesa
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'mobile-menu-toggle';
+        toggleBtn.innerHTML = '☰';
+        toggleBtn.setAttribute('aria-label', 'Menú de navegación');
+        
+        // Insertarlo antes del contenedor de acciones/login
+        const headerActions = document.querySelector('.header-actions');
+        if (headerActions) {
+            headerContainer.insertBefore(toggleBtn, headerActions);
+        } else {
+            headerContainer.appendChild(toggleBtn);
+        }
+        
+        // Controlar click en el botón de hamburguesa
+        toggleBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isActive = headerNav.classList.toggle('active');
+            toggleBtn.innerHTML = isActive ? '✕' : '☰';
+            toggleBtn.style.transform = isActive ? 'rotate(90deg)' : 'none';
+        });
+        
+        // Cerrar menú al hacer clic fuera del sidebar
+        document.addEventListener('click', (e) => {
+            if (headerNav.classList.contains('active') && !headerNav.contains(e.target) && e.target !== toggleBtn) {
+                headerNav.classList.remove('active');
+                toggleBtn.innerHTML = '☰';
+                toggleBtn.style.transform = 'none';
+            }
+        });
+
+        // Cerrar menú al hacer clic en cualquier enlace interno
+        headerNav.querySelectorAll('.nav-btn').forEach(link => {
+            link.addEventListener('click', () => {
+                headerNav.classList.remove('active');
+                toggleBtn.innerHTML = '☰';
+                toggleBtn.style.transform = 'none';
+            });
+        });
+    }
+}
 
 // Función para actualizar dinámicamente el logotipo y títulos del menú superior según el rodeo
 async function updateHeaderBranding() {
