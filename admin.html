@@ -771,6 +771,28 @@
             }, 3000);
         }
 
+        // FUNCIÓN GLOBAL PARA SEPARAR FOTOS SOPORTANDO BASE64 SIN ROMPERSE POR LAS COMAS
+        function splitPhotos(str) {
+            if (!str) return [];
+            if (!str.includes(',')) return [str.trim()];
+            const result = [];
+            const parts = str.split(',');
+            for (let i = 0; i < parts.length; i++) {
+                let part = parts[i].trim();
+                if (part.startsWith('data:')) {
+                    if (i + 1 < parts.length) {
+                        result.push(part + ',' + parts[i+1].trim());
+                        i++;
+                    } else {
+                        result.push(part);
+                    }
+                } else {
+                    result.push(part);
+                }
+            }
+            return result.filter(p => p !== '');
+        }
+
         // TABS SWITCHER
         function switchTab(tabId) {
             const tabs = document.querySelectorAll('.admin-tab-content');
@@ -1612,7 +1634,7 @@
                 
                 let photoHtml = `<span style="font-size: 0.72rem; color: var(--text-muted); font-style: italic;">Sin Foto</span>`;
                 if (g.foto && g.foto.trim() !== '') {
-                    const parts = g.foto.split(',');
+                    const parts = splitPhotos(g.foto);
                     const firstPhoto = parts[0].trim();
                     const photoPos = g.photoPosition !== undefined ? g.photoPosition : 50;
                     const photoFit = g.photoFit || 'cover';
@@ -1661,7 +1683,7 @@
 
             const currentVal = document.getElementById('form-foto').value.trim();
             // Separar fotos por comas y limpiar espacios
-            const photos = currentVal ? currentVal.split(',').map(p => p.trim()).filter(p => p !== '') : [];
+            const photos = splitPhotos(currentVal);
             const photoPos = parseInt(document.getElementById('form-foto-position').value) || 50;
             const photoFit = document.getElementById('form-foto-fit').value || 'cover';
 
@@ -1810,7 +1832,7 @@
                 const reader = new FileReader();
                 reader.onload = function(evt) {
                     const currentVal = document.getElementById('form-foto').value.trim();
-                    const photos = currentVal ? currentVal.split(',').map(p => p.trim()).filter(p => p !== '') : [];
+                    const photos = splitPhotos(currentVal);
                     
                     photos[activeSlotIndex] = evt.target.result;
                     document.getElementById('form-foto').value = photos.join(', ');
@@ -1847,7 +1869,7 @@
                         
                         // Buscar el primer slot vacío
                         const currentVal = document.getElementById('form-foto').value.trim();
-                        const photos = currentVal ? currentVal.split(',').map(p => p.trim()).filter(p => p !== '') : [];
+                        const photos = splitPhotos(currentVal);
                         const emptyIndex = photos.length < 4 ? photos.length : 0;
                         
                         const reader = new FileReader();
