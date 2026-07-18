@@ -62,7 +62,7 @@
                         <h3 style="font-family: 'Playfair Display', serif; font-size: 1.15rem; color: #ff9100; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px; font-weight: 700;">
                             📊 Estadísticas y Líneas de Sangre Dominantes
                         </h3>
-                        <div class="stats-grid">
+                        <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
                             <div class="stat-box">
                                 <div class="stat-label">Criaderos más Frecuentes</div>
                                 <div class="stat-tags" id="stat-criaderos-tags"></div>
@@ -70,10 +70,6 @@
                             <div class="stat-box">
                                 <div class="stat-label">Líneas de Sangre Populares</div>
                                 <div class="stat-tags" id="stat-sangres-tags"></div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-label">Alzada Promedio (Caballos)</div>
-                                <div class="stat-value" id="stat-alzada-promedio">--</div>
                             </div>
                         </div>
                     </div>
@@ -165,7 +161,6 @@
             const container = document.getElementById('stats-dashboard-container');
             const criadoresTags = document.getElementById('stat-criaderos-tags');
             const sangresTags = document.getElementById('stat-sangres-tags');
-            const alzadaEl = document.getElementById('stat-alzada-promedio');
             
             if (!genealogiaData || genealogiaData.length === 0) {
                 if (container) container.style.display = 'none';
@@ -175,8 +170,6 @@
             if (container) container.style.display = 'block';
             
             const criaderosCount = {};
-            let alzadaSum = 0;
-            let alzadaCount = 0;
             const sangresCount = {};
             
             genealogiaData.forEach(h => {
@@ -184,15 +177,6 @@
                 if (h.criadero && h.criadero.trim() !== '' && !h.criadero.includes('SIN CRIADERO')) {
                     const cName = h.criadero.toUpperCase().trim();
                     criaderosCount[cName] = (criaderosCount[cName] || 0) + 1;
-                }
-                
-                // Procesar alzada
-                if (h.alzada) {
-                    const alzadaVal = parseFloat(h.alzada.replace(',', '.'));
-                    if (!isNaN(alzadaVal) && alzadaVal > 0) {
-                        alzadaSum += alzadaVal;
-                        alzadaCount++;
-                    }
                 }
                 
                 // Contar ancestros principales (Padre, Abuelo P, Abuelo M)
@@ -238,16 +222,6 @@
                     ).join('');
                 } else {
                     sangresTags.innerHTML = '<span style="color:var(--text-muted); font-size:0.75rem;">Sin datos</span>';
-                }
-            }
-            
-            // Renderizar Alzada Promedio
-            if (alzadaEl) {
-                if (alzadaCount > 0) {
-                    const avg = (alzadaSum / alzadaCount).toFixed(2);
-                    alzadaEl.textContent = `${avg} mt`;
-                } else {
-                    alzadaEl.textContent = '--';
                 }
             }
         }
