@@ -3,71 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Corral Abierto x Clasificatorio Norte 2026</title>
+    <title>Corral Abierto x Clasificatorio Norte 2026 – Anuarios</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../styles.css?v=4.8">
-    <style>
-        /* Estilos específicos para la vista inspirada en Mailchimp */
-        .maintenance-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 65vh;
-            text-align: center;
-            padding: 3rem 1rem;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .maintenance-title {
-            font-family: var(--font-heading);
-            font-size: 3rem;
-            color: var(--primary-dark);
-            margin-bottom: 1rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-        }
-
-        .maintenance-text {
-            color: var(--text-muted);
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-        }
-
-        .btn-back {
-            background: var(--primary-color);
-            color: white;
-            padding: 0.9rem 2.2rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 700;
-            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.35);
-            transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-
-        .btn-back:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.45);
-        }
-
-        .btn-back:active {
-            transform: translateY(0);
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .maintenance-title {
-                font-size: 2.2rem;
-            }
-            .maintenance-text {
-                font-size: 1rem;
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="app-container">
@@ -104,25 +42,241 @@
         </header>
 
         <main class="main-content">
-            <!-- Mailchimp-style Maintenance View -->
-            <div class="maintenance-container">
-                <h1 class="maintenance-title">Se nos escapó el novillo...</h1>
-                <p class="maintenance-text">
-                    Buscamos por todo el apiadero pero no pudimos encontrar el anuario histórico. Estamos preparando el terreno y ensillando los caballos para tener esta sección lista muy pronto.
-                </p>
-                <a href="index.html" class="btn-back">Volver al inicio</a>
-                
-                <div class="illustration-box">
-                    <img src="../horse_stuck.png" alt="Caballo con la cabeza en un hoyo buscando el novillo" class="illustration-img">
+            <section class="library-section">
+                <div class="library-header">
+                    <h1 class="library-title">Anuarios Históricos</h1>
+                    <p class="library-subtitle">
+                        Explora la colección digital de anuarios oficiales del Rodeo y la Asociación de Criadores. Haz clic en cualquier portada para abrir el lector interactivo.
+                    </p>
                 </div>
-            </div>
+
+                <div class="anuarios-grid">
+                    <!-- 2018 Criadores -->
+                    <div class="anuario-card" data-url="https://anuarios.caballoyrodeo.cl/2018/index.html" data-title="Anuario Criadores 2018">
+                        <div class="book-container">
+                            <div class="book-cover criadores">
+                                <div class="book-inner-border"></div>
+                                <div class="book-header">Criadores</div>
+                                <div class="book-middle">
+                                    <span class="book-year">2018</span>
+                                    <div class="book-divider"></div>
+                                    <span class="book-type">Criadores</span>
+                                </div>
+                                <div class="book-footer-text">Edición Oficial</div>
+                            </div>
+                        </div>
+                        <div class="anuario-info">
+                            <h3 class="anuario-card-title">Anuario 2018</h3>
+                            <p class="anuario-card-meta">Asociación de Criadores</p>
+                        </div>
+                    </div>
+
+                    <!-- 2017 Rodeo -->
+                    <div class="anuario-card" data-url="https://anuarios.caballoyrodeo.cl/2017/index.html" data-title="Anuario Rodeo 2017">
+                        <div class="book-container">
+                            <div class="book-cover rodeo">
+                                <div class="book-inner-border"></div>
+                                <div class="book-header">Federación Rodeo</div>
+                                <div class="book-middle">
+                                    <span class="book-year">2017</span>
+                                    <div class="book-divider"></div>
+                                    <span class="book-type">Rodeo</span>
+                                </div>
+                                <div class="book-footer-text">Edición Oficial</div>
+                            </div>
+                        </div>
+                        <div class="anuario-info">
+                            <h3 class="anuario-card-title">Anuario 2017</h3>
+                            <p class="anuario-card-meta">Federación del Rodeo Chileno</p>
+                        </div>
+                    </div>
+
+                    <!-- 2016 Rodeo -->
+                    <div class="anuario-card" data-url="https://anuarios.caballoyrodeo.cl/2016/index.html" data-title="Anuario Rodeo 2016">
+                        <div class="book-container">
+                            <div class="book-cover rodeo">
+                                <div class="book-inner-border"></div>
+                                <div class="book-header">Federación Rodeo</div>
+                                <div class="book-middle">
+                                    <span class="book-year">2016</span>
+                                    <div class="book-divider"></div>
+                                    <span class="book-type">Rodeo</span>
+                                </div>
+                                <div class="book-footer-text">Edición Oficial</div>
+                            </div>
+                        </div>
+                        <div class="anuario-info">
+                            <h3 class="anuario-card-title">Anuario 2016</h3>
+                            <p class="anuario-card-meta">Federación del Rodeo Chileno</p>
+                        </div>
+                    </div>
+
+                    <!-- 2011 Historico -->
+                    <div class="anuario-card" data-url="https://anuarios.caballoyrodeo.cl/2011/index.html" data-title="Anuario 2011 – Preservando Tradiciones">
+                        <div class="book-container">
+                            <div class="book-cover historico">
+                                <div class="book-inner-border"></div>
+                                <div class="book-header">Anuario Histórico</div>
+                                <div class="book-middle">
+                                    <span class="book-year">2011</span>
+                                    <div class="book-divider"></div>
+                                    <span class="book-type">Tradiciones</span>
+                                </div>
+                                <div class="book-footer-text">Visualización Digital</div>
+                            </div>
+                        </div>
+                        <div class="anuario-info">
+                            <h3 class="anuario-card-title">Anuario 2011</h3>
+                            <p class="anuario-card-meta">Preservando las Tradiciones</p>
+                        </div>
+                    </div>
+
+                    <!-- 1987 Historico -->
+                    <div class="anuario-card" data-url="https://anuarios.caballoyrodeo.cl/1987/index.html" data-title="Antecedentes Genealógicos XXXIX Rancagua 1987">
+                        <div class="book-container">
+                            <div class="book-cover historico">
+                                <div class="book-inner-border"></div>
+                                <div class="book-header">Genealogías</div>
+                                <div class="book-middle">
+                                    <span class="book-year">1987</span>
+                                    <div class="book-divider"></div>
+                                    <span class="book-type">Rancagua</span>
+                                </div>
+                                <div class="book-footer-text">Edición de Colección</div>
+                            </div>
+                        </div>
+                        <div class="anuario-info">
+                            <h3 class="anuario-card-title">Anuario 1987</h3>
+                            <p class="anuario-card-meta">Genealogía XXXIX Rancagua</p>
+                        </div>
+                    </div>
+
+                    <!-- 1974 Historico -->
+                    <div class="anuario-card" data-url="https://anuarios.caballoyrodeo.cl/1974/index.html" data-title="Revista Asociación de Criadores 1974">
+                        <div class="book-container">
+                            <div class="book-cover historico">
+                                <div class="book-inner-border"></div>
+                                <div class="book-header">Revista Histórica</div>
+                                <div class="book-middle">
+                                    <span class="book-year">1974</span>
+                                    <div class="book-divider"></div>
+                                    <span class="book-type">Criadores</span>
+                                </div>
+                                <div class="book-footer-text">Joyas del Rodeo</div>
+                            </div>
+                        </div>
+                        <div class="anuario-info">
+                            <h3 class="anuario-card-title">Anuario 1974</h3>
+                            <p class="anuario-card-meta">Asociación de Criadores</p>
+                        </div>
+                    </div>
+
+                    <!-- 1973 Historico -->
+                    <div class="anuario-card" data-url="https://anuarios.caballoyrodeo.cl/1973/index.html" data-title="Revista Asociación de Criadores 1973">
+                        <div class="book-container">
+                            <div class="book-cover historico">
+                                <div class="book-inner-border"></div>
+                                <div class="book-header">Revista Histórica</div>
+                                <div class="book-middle">
+                                    <span class="book-year">1973</span>
+                                    <div class="book-divider"></div>
+                                    <span class="book-type">Criadores</span>
+                                </div>
+                                <div class="book-footer-text">Joyas del Rodeo</div>
+                            </div>
+                        </div>
+                        <div class="anuario-info">
+                            <h3 class="anuario-card-title">Anuario 1973</h3>
+                            <p class="anuario-card-meta">Asociación de Criadores</p>
+                        </div>
+                    </div>
+
+                    <!-- 1954 Historico -->
+                    <div class="anuario-card" data-url="https://anuarios.caballoyrodeo.cl/1954/index.html" data-title="Revista Asociación de Criadores 1954">
+                        <div class="book-container">
+                            <div class="book-cover historico">
+                                <div class="book-inner-border"></div>
+                                <div class="book-header">Revista Histórica</div>
+                                <div class="book-middle">
+                                    <span class="book-year">1954</span>
+                                    <div class="book-divider"></div>
+                                    <span class="book-type">Criadores</span>
+                                </div>
+                                <div class="book-footer-text">Edición Limitada</div>
+                            </div>
+                        </div>
+                        <div class="anuario-info">
+                            <h3 class="anuario-card-title">Anuario 1954</h3>
+                            <p class="anuario-card-meta">Asociación de Criadores</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
 
         <footer class="app-footer">
             <p>&copy; 2026 Caballo y Rodeo - Tradición y Deporte</p>
         </footer>
     </div>
+
+    <!-- MODAL DE LECTURA (FLOWPAPER INTEGRATION) -->
+    <div class="anuario-modal" id="anuarioModal">
+        <div class="modal-container">
+            <div class="modal-header">
+                <span class="modal-title-text" id="modalTitle">Lector de Anuario</span>
+                <div class="modal-header-actions">
+                    <a href="#" target="_blank" class="btn-modal-full" id="btnModalFull">Pantalla Completa ↗</a>
+                    <button class="btn-modal-close" id="btnModalClose">&times;</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <iframe src="" class="modal-iframe" id="modalIframe" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../app.js?v=4.4"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById('anuarioModal');
+            const iframe = document.getElementById('modalIframe');
+            const modalTitle = document.getElementById('modalTitle');
+            const btnFull = document.getElementById('btnModalFull');
+            const btnClose = document.getElementById('btnModalClose');
+            const cards = document.querySelectorAll('.anuario-card');
+
+            // Abrir Modal
+            cards.forEach(card => {
+                card.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const url = card.getAttribute('data-url');
+                    const title = card.getAttribute('data-title');
+                    
+                    iframe.src = url;
+                    modalTitle.textContent = title;
+                    btnFull.href = url;
+                    
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden'; // Bloquear scroll de fondo
+                });
+            });
+
+            // Cerrar Modal
+            const closeModal = () => {
+                modal.classList.remove('active');
+                iframe.src = ''; // Limpiar src para detener audio/videos
+                document.body.style.overflow = ''; // Restaurar scroll
+            };
+
+            btnClose.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+        });
+    </script>
 </body>
 </html>

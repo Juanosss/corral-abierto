@@ -1987,3 +1987,325 @@ h1, h2, h3, h4 {
         display: block; /* Asegura su renderizado */
     }
 }
+
+/* ==========================================================================
+   BIBLIOTECA DE ANUARIOS HISTÓRICOS (3D BOOK GALLERY & LIGHTBOX MODAL)
+   ========================================================================== */
+.library-section {
+    padding: 3rem 1.5rem 6rem 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.library-header {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.library-title {
+    font-family: var(--font-heading);
+    font-size: 2.8rem;
+    color: var(--primary-dark);
+    margin-bottom: 0.8rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.library-subtitle {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.anuarios-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 4rem 2.5rem;
+    padding: 1rem 0;
+}
+
+/* 3D Book Card Layout */
+.anuario-card {
+    background: transparent;
+    cursor: pointer;
+    perspective: 1000px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.book-container {
+    width: 100%;
+    aspect-ratio: 3/4;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.5s ease;
+    border-radius: 4px 12px 12px 4px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.35), 
+                inset 3px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.anuario-card:hover .book-container {
+    transform: rotateY(-18deg) translateY(-10px);
+    box-shadow: 20px 20px 30px rgba(0, 0, 0, 0.45), 
+                inset 3px 0 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Book Cover Styling */
+.book-cover {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #4e1d15 0%, #2b0c07 100%); /* Elegant leather brown default */
+    border-radius: 4px 12px 12px 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.8rem;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-left: 6px solid rgba(0, 0, 0, 0.45); /* Book spine effect */
+}
+
+/* Color variations based on type */
+.book-cover.rodeo {
+    background: linear-gradient(135deg, #1e382b 0%, #0d1a13 100%); /* Forest green for Rodeo */
+}
+
+.book-cover.criadores {
+    background: linear-gradient(135deg, #1b263b 0%, #0d131f 100%); /* Deep Navy for Criadores */
+}
+
+.book-cover.historico {
+    background: linear-gradient(135deg, #421010 0%, #200404 100%); /* Deep burgundy for older editions */
+}
+
+.book-inner-border {
+    position: absolute;
+    top: 10px;
+    bottom: 10px;
+    left: 14px;
+    right: 10px;
+    border: 1px solid rgba(229, 192, 96, 0.25); /* Gold embossed line */
+    pointer-events: none;
+    border-radius: 2px 8px 8px 2px;
+}
+
+.book-header {
+    text-align: center;
+    font-size: 0.65rem;
+    color: #e5c060; /* Embossed gold */
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.book-middle {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.book-year {
+    font-family: var(--font-heading);
+    font-size: 3.2rem;
+    font-weight: 800;
+    color: #e5c060;
+    text-shadow: 2px 2px 0px rgba(0,0,0,0.5), 
+                 0 0 15px rgba(229, 192, 96, 0.25);
+    line-height: 1;
+}
+
+.book-divider {
+    width: 40px;
+    height: 1px;
+    background: #e5c060;
+    margin: 0.4rem 0;
+    opacity: 0.5;
+}
+
+.book-type {
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    opacity: 0.95;
+}
+
+.book-footer-text {
+    font-size: 0.55rem;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Card details (below the book) */
+.anuario-info {
+    margin-top: 1.2rem;
+    text-align: center;
+    width: 100%;
+}
+
+.anuario-card-title {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 0.2rem;
+}
+
+.anuario-card-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Iframe Lightbox Modal */
+.anuario-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(13, 7, 6, 0.85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.anuario-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal-container {
+    width: 92%;
+    height: 88%;
+    background: #1a0f0d;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.95);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.anuario-modal.active .modal-container {
+    transform: scale(1);
+}
+
+.modal-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.modal-title-text {
+    font-family: var(--font-heading);
+    color: #ffffff;
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.modal-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-modal-full {
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-modal-full:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-modal-close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    transition: all 0.2s;
+}
+
+.btn-modal-close:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.modal-body {
+    flex-grow: 1;
+    position: relative;
+    background: #000;
+}
+
+.modal-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+@media (max-width: 768px) {
+    .library-title {
+        font-size: 2.2rem;
+    }
+    .anuarios-grid {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 2.5rem 1.5rem;
+    }
+    .book-cover {
+        padding: 1.2rem;
+    }
+    .book-year {
+        font-size: 2.5rem;
+    }
+    .book-type {
+        font-size: 0.7rem;
+    }
+    .modal-container {
+        width: 96%;
+        height: 94%;
+    }
+    .modal-title-text {
+        font-size: 1rem;
+    }
+}
+
