@@ -59,16 +59,56 @@
                     <button id="btn-logout" class="admin-btn admin-btn-danger">Cerrar Sesión</button>
                 </div>
 
-                <!-- Navegación de Pestañas Dashboard -->
-                <div class="admin-tabs-nav">
-                    <button class="admin-tab-btn active" onclick="switchTab('tab-colleras')">Colleras & Resultados</button>
-                    <button class="admin-tab-btn" onclick="switchTab('tab-genealogias')">Genealogía & Morfología</button>
-                    <button class="admin-tab-btn" onclick="switchTab('tab-backup')">Respaldos & Backup</button>
-                    <button class="admin-tab-btn" onclick="switchTab('tab-usuarios')">Control de Socios</button>
-                </div>
-
-                <!-- CONTENIDO PESTAÑA 1: COLLERAS -->
-                <div id="tab-colleras" class="admin-tab-content active">
+                 <!-- Navegación de Pestañas Dashboard -->
+                 <div class="admin-tabs-nav">
+                     <button class="admin-tab-btn active" id="nav-btn-rodeos" onclick="switchTab('tab-rodeos')">Gestión de Rodeos</button>
+                     <button class="admin-tab-btn" id="nav-btn-colleras" onclick="switchTab('tab-colleras')">Colleras & Resultados</button>
+                     <button class="admin-tab-btn" id="nav-btn-genealogias" onclick="switchTab('tab-genealogias')">Genealogía & Morfología</button>
+                     <button class="admin-tab-btn" id="nav-btn-backup" onclick="switchTab('tab-backup')">Respaldos & Backup</button>
+                     <button class="admin-tab-btn" id="nav-btn-usuarios" onclick="switchTab('tab-usuarios')">Control de Socios</button>
+                 </div>
+ 
+                 <!-- CONTENIDO PESTAÑA 0: GESTIÓN DE RODEOS -->
+                 <div id="tab-rodeos" class="admin-tab-content active">
+                     <div class="admin-table-actions" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                         <div>
+                             <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif; font-size: 1.5rem;">Lobby de Rodeos de Corral Abierto</h3>
+                             <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Crea, edita o bloquea el acceso público a cada rodeo, y selecciona cuál quieres administrar.</p>
+                         </div>
+                         <button class="admin-btn admin-btn-primary" onclick="openRodeoModal()" style="display: flex; align-items: center; gap: 6px; padding: 0.5rem 1rem;">
+                             <span>➕ Agregar Nuevo Rodeo</span>
+                         </button>
+                     </div>
+                     
+                     <!-- Barra de estado del Rodeo Activo -->
+                     <div id="active-rodeo-status-banner" style="background: rgba(255, 87, 34, 0.15); border: 1px solid #ff5722; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; color: #fff;">
+                         <div>
+                             <span style="font-size: 0.8rem; color: #bcaaa4; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 2px;">Rodeo Seleccionado Actualmente</span>
+                             <strong id="active-rodeo-title" style="font-size: 1.2rem; color: #fff; font-family: 'Playfair Display', serif;">Ninguno Seleccionado</strong>
+                         </div>
+                         <span id="active-rodeo-status-badge" style="font-size: 0.75rem; background: #c62828; color: #fff; padding: 4px 10px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">Ninguno</span>
+                     </div>
+ 
+                     <div class="admin-table-container">
+                         <table class="admin-data-table">
+                             <thead>
+                                 <tr>
+                                     <th>ID Rodeo</th>
+                                     <th>Nombre del Rodeo</th>
+                                     <th>Imagen Logo (URL)</th>
+                                     <th>Estado de Acceso</th>
+                                     <th>Acciones</th>
+                                 </tr>
+                             </thead>
+                             <tbody id="rodeos-tbody">
+                                 <!-- Filas dinámicas -->
+                             </tbody>
+                         </table>
+                     </div>
+                 </div>
+ 
+                 <!-- CONTENIDO PESTAÑA 1: COLLERAS -->
+                 <div id="tab-colleras" class="admin-tab-content">
                     <div class="admin-table-actions">
                         <input type="text" id="search-colleras" class="admin-input admin-search-input" placeholder="Buscar colleras..." oninput="filterCollerasTable()">
                         <button class="admin-btn admin-btn-primary" onclick="openColleraModal()">Agregar Nueva Collera</button>
@@ -178,6 +218,37 @@
         <footer class="app-footer">
             <p>&copy; 2026 Caballo y Rodeo - Tradición y Deporte</p>
         </footer>
+    </div>
+
+    <!-- MODAL RODEOS -->
+    <div id="modal-rodeo-overlay" class="admin-modal-overlay" style="display: none;">
+        <div class="admin-modal" style="max-width: 500px;">
+            <div class="admin-modal-header">
+                <h3 id="rodeo-modal-title">Agregar Nuevo Rodeo</h3>
+                <button class="admin-modal-close" onclick="closeRodeoModal()">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <form id="form-rodeo" onsubmit="saveRodeo(event)">
+                    <input type="hidden" id="form-rodeo-id-old">
+                    <div class="admin-input-group" style="margin-bottom: 12px;">
+                        <label class="admin-label" for="form-rodeo-id">ID del Rodeo (Minúsculas y guiones, ej: clasificatorio-sur-2026)</label>
+                        <input type="text" id="form-rodeo-id" class="admin-input" required placeholder="ej: clasificatorio-sur-2026">
+                    </div>
+                    <div class="admin-input-group" style="margin-bottom: 12px;">
+                        <label class="admin-label" for="form-rodeo-nombre">Nombre del Rodeo (ej: Clasificatorio Sur 2026)</label>
+                        <input type="text" id="form-rodeo-nombre" class="admin-input" required placeholder="ej: Clasificatorio Sur 2026">
+                    </div>
+                    <div class="admin-input-group" style="margin-bottom: 15px;">
+                        <label class="admin-label" for="form-rodeo-logo">URL del Logo del Rodeo (Opcional)</label>
+                        <input type="text" id="form-rodeo-logo" class="admin-input" placeholder="ej: https://www.enlace-imagen.png/logo.png">
+                    </div>
+                    <div class="admin-modal-actions" style="display: flex; justify-content: flex-end; gap: 10px;">
+                        <button type="button" class="admin-btn admin-btn-secondary" onclick="closeRodeoModal()">Cancelar</button>
+                        <button type="submit" class="admin-btn admin-btn-primary">Guardar Rodeo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL COLLERAS -->
@@ -662,44 +733,294 @@
             event.target.classList.add('active');
         }
 
-        // INITIALIZE DASHBOARD
-        async function initDashboard() {
+        // Declaración de variables para multi-rodeos
+        let activeRodeoId = localStorage.getItem('activeRodeoId') || '';
+        let rodeos = [];
+
+        async function loadRodeos() {
             if (supabaseClient) {
                 try {
-                    const { data, error } = await supabaseClient.from('colleras').select('*').order('n');
-                    if (!error && data && data.length > 0) {
-                        rodeoData = data;
-                        localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
-                    } else {
-                        loadLocalRodeoData();
+                    const { data, error } = await supabaseClient.from('rodeos').select('*').order('created_at', { ascending: true });
+                    if (!error && data) {
+                        rodeos = data;
+                        localStorage.setItem('rodeos', JSON.stringify(rodeos));
+                        return;
                     }
                 } catch(err) {
-                    console.error("Error al cargar colleras en admin:", err);
-                    loadLocalRodeoData();
+                    console.warn("Tabla 'rodeos' no disponible en Supabase. Usando respaldo local.", err);
                 }
-            } else {
-                loadLocalRodeoData();
             }
+            // Fallback Local
+            let localRodeos = localStorage.getItem('rodeos');
+            if (localRodeos) {
+                rodeos = JSON.parse(localRodeos);
+            } else {
+                rodeos = [
+                    { id: 'champion-chile-2026', nombre: 'Champion de Chile 2026', activo: true, logo_url: 'https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png' },
+                    { id: 'clasificatorio-sur-2026', nombre: 'Clasificatorio Sur 2026', activo: false, logo_url: '' },
+                    { id: 'clasificatorio-centro-2026', nombre: 'Clasificatorio Centro 2026', activo: false, logo_url: '' },
+                    { id: 'clasificatorio-norte-2026', nombre: 'Clasificatorio Norte 2026', activo: false, logo_url: '' }
+                ];
+                localStorage.setItem('rodeos', JSON.stringify(rodeos));
+            }
+        }
+
+        async function loadRodeoColleras(rodeoId) {
+            if (supabaseClient) {
+                try {
+                    // Intentar filtrar por rodeo_id en Supabase
+                    const { data, error } = await supabaseClient.from('colleras').select('*').eq('rodeo_id', rodeoId).order('n');
+                    if (!error && data) {
+                        rodeoData = data;
+                        localStorage.setItem(`rodeoData_${rodeoId}`, JSON.stringify(rodeoData));
+                        return;
+                    }
+                } catch(err) {
+                    console.warn(`Supabase filter by rodeo_id failed for ${rodeoId}. Trying fallback filter...`);
+                }
+            }
+            // Fallback local
+            let localData = localStorage.getItem(`rodeoData_${rodeoId}`);
+            if (localData) {
+                rodeoData = JSON.parse(localData);
+            } else {
+                if (rodeoId === 'champion-chile-2026') {
+                    rodeoData = defaultRodeoData;
+                } else {
+                    rodeoData = [];
+                }
+                localStorage.setItem(`rodeoData_${rodeoId}`, JSON.stringify(rodeoData));
+            }
+        }
+
+        // INITIALIZE DASHBOARD
+        async function initDashboard() {
+            await loadRodeos();
+            
+            // Si no hay un rodeo seleccionado activo, seleccionar el primero
+            if (!activeRodeoId && rodeos.length > 0) {
+                activeRodeoId = rodeos[0].id;
+                localStorage.setItem('activeRodeoId', activeRodeoId);
+            }
+
+            if (activeRodeoId) {
+                await loadRodeoColleras(activeRodeoId);
+            } else {
+                rodeoData = [];
+            }
+            
             filteredColleras = [...rodeoData];
             
+            renderRodeosTable();
             renderCollerasTable();
             renderGenealogiasTable();
             renderUsuariosTable();
         }
 
-        function loadLocalRodeoData() {
-            let localData = null;
-            try {
-                localData = JSON.parse(localStorage.getItem('rodeoData'));
-            } catch(e) {
-                console.error(e);
-            }
-            if (!localData || localData.length === 0) {
-                rodeoData = defaultRodeoData;
-                localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
+        function renderRodeosTable() {
+            const tbody = document.getElementById('rodeos-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            rodeos.forEach(rodeo => {
+                const tr = document.createElement('tr');
+                
+                // Determinar si este es el seleccionado
+                const isSelected = activeRodeoId === rodeo.id;
+                const selectBtnText = isSelected ? "👉 Seleccionado" : "Administrar Colleras";
+                const selectBtnStyle = isSelected 
+                    ? "background: #2e7d32; color: #fff; cursor: default; border: none; padding: 6px 12px; border-radius: 4px; font-weight:700;"
+                    : "background: var(--primary-color); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-weight:600; cursor:pointer;";
+                
+                const activeText = rodeo.activo 
+                    ? `<span style="color:#2e7d32; font-weight:700;">🟢 PÚBLICO (ACTIVO)</span>`
+                    : `<span style="color:#c62828; font-weight:700;">🔴 BLOQUEADO (CANDADO)</span>`;
+                
+                const activeBtnText = rodeo.activo ? "Bloquear Acceso" : "Activar Acceso";
+                const activeBtnStyle = rodeo.activo ? "background: #d32f2f;" : "background: #2e7d32;";
+
+                tr.innerHTML = `
+                    <td style="font-family: monospace; font-weight: bold; color: #ff5722;">${rodeo.id}</td>
+                    <td style="font-weight: 700; color: #fff;">${rodeo.nombre}</td>
+                    <td>
+                        ${rodeo.logo_url ? `<img src="${rodeo.logo_url}" style="height:25px; border-radius:4px; max-width:60px;">` : `<span style="color:var(--text-muted);">Sin logo</span>`}
+                    </td>
+                    <td>${activeText}</td>
+                    <td>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button style="${selectBtnStyle}" onclick="${isSelected ? '' : `selectRodeoForAdmin('${rodeo.id}')`}">${selectBtnText}</button>
+                            <button class="admin-btn" style="${activeBtnStyle} color:#fff; padding:6px 12px;" onclick="toggleRodeoActive('${rodeo.id}', ${rodeo.activo})">${activeBtnText}</button>
+                            <button class="admin-btn" style="background:#e0a800; color:#000; padding:6px 12px;" onclick="editRodeoTrigger('${rodeo.id}')">Editar</button>
+                            <button class="admin-btn" style="background:#c62828; color:#fff; padding:6px 12px;" onclick="deleteRodeo('${rodeo.id}')">Eliminar</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Actualizar banner de estado superior
+            const activeRodeo = rodeos.find(r => r.id === activeRodeoId);
+            const bannerTitle = document.getElementById('active-rodeo-title');
+            const bannerBadge = document.getElementById('active-rodeo-status-badge');
+            
+            if (activeRodeo) {
+                bannerTitle.innerText = activeRodeo.nombre;
+                bannerBadge.innerText = activeRodeo.activo ? "Público Activo" : "Público Bloqueado";
+                bannerBadge.style.background = activeRodeo.activo ? "#2e7d32" : "#c62828";
             } else {
-                rodeoData = localData;
+                bannerTitle.innerText = "Ninguno Seleccionado";
+                bannerBadge.innerText = "Ninguno";
+                bannerBadge.style.background = "#c62828";
             }
+        }
+
+        function openRodeoModal() {
+            document.getElementById('rodeo-modal-title').innerText = "Agregar Nuevo Rodeo";
+            document.getElementById('form-rodeo-id-old').value = "";
+            document.getElementById('form-rodeo-id').value = "";
+            document.getElementById('form-rodeo-id').disabled = false;
+            document.getElementById('form-rodeo-nombre').value = "";
+            document.getElementById('form-rodeo-logo').value = "";
+            document.getElementById('modal-rodeo-overlay').style.display = 'flex';
+        }
+
+        function editRodeoTrigger(rodeoId) {
+            const rodeo = rodeos.find(r => r.id === rodeoId);
+            if (!rodeo) return;
+
+            document.getElementById('rodeo-modal-title').innerText = "Editar Rodeo";
+            document.getElementById('form-rodeo-id-old').value = rodeo.id;
+            document.getElementById('form-rodeo-id').value = rodeo.id;
+            document.getElementById('form-rodeo-id').disabled = true;
+            document.getElementById('form-rodeo-nombre').value = rodeo.nombre;
+            document.getElementById('form-rodeo-logo').value = rodeo.logo_url || "";
+            document.getElementById('modal-rodeo-overlay').style.display = 'flex';
+        }
+
+        function closeRodeoModal() {
+            document.getElementById('modal-rodeo-overlay').style.display = 'none';
+        }
+
+        async function saveRodeo(e) {
+            e.preventDefault();
+            const idOld = document.getElementById('form-rodeo-id-old').value;
+            const idVal = document.getElementById('form-rodeo-id').value.trim().toLowerCase().replace(/\s+/g, '-');
+            const nombreVal = document.getElementById('form-rodeo-nombre').value.trim();
+            const logoVal = document.getElementById('form-rodeo-logo').value.trim();
+
+            if (idOld) {
+                // Modo Edición
+                const idx = rodeos.findIndex(r => r.id === idOld);
+                if (idx !== -1) {
+                    rodeos[idx].nombre = nombreVal;
+                    rodeos[idx].logo_url = logoVal;
+                }
+            } else {
+                // Modo Crear Nuevo
+                if (rodeos.some(r => r.id === idVal)) {
+                    showToast("Ya existe un rodeo con ese ID único.", "error");
+                    return;
+                }
+                const newRodeo = {
+                    id: idVal,
+                    nombre: nombreVal,
+                    activo: true,
+                    logo_url: logoVal
+                };
+                rodeos.push(newRodeo);
+                if (!activeRodeoId) {
+                    activeRodeoId = idVal;
+                    localStorage.setItem('activeRodeoId', activeRodeoId);
+                }
+            }
+
+            localStorage.setItem('rodeos', JSON.stringify(rodeos));
+
+            if (supabaseClient) {
+                try {
+                    const rodeoObj = idOld 
+                        ? { id: idOld, nombre: nombreVal, logo_url: logoVal }
+                        : { id: idVal, nombre: nombreVal, activo: true, logo_url: logoVal };
+                    await supabaseClient.from('rodeos').upsert(rodeoObj);
+                } catch(err) {
+                    console.warn("Error al sincronizar rodeo con Supabase.", err);
+                }
+            }
+
+            closeRodeoModal();
+            renderRodeosTable();
+            showToast("Rodeo guardado correctamente.");
+        }
+
+        async function toggleRodeoActive(rodeoId, currentStatus) {
+            const idx = rodeos.findIndex(r => r.id === rodeoId);
+            if (idx === -1) return;
+            
+            const newStatus = !currentStatus;
+            rodeos[idx].activo = newStatus;
+            localStorage.setItem('rodeos', JSON.stringify(rodeos));
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('rodeos').update({ activo: newStatus }).eq('id', rodeoId);
+                } catch(err) {
+                    console.warn("Error al actualizar estado en Supabase.", err);
+                }
+            }
+
+            renderRodeosTable();
+            showToast(newStatus ? "Acceso al rodeo ACTIVADO (Público)" : "Acceso al rodeo BLOQUEADO (Candado)");
+        }
+
+        async function deleteRodeo(rodeoId) {
+            if (!confirm(`¿Está seguro que desea eliminar este rodeo?\n\n¡ESTA ACCIÓN ELIMINARÁ TAMBIÉN TODAS LAS COLLERAS Y PUNTAJES DE ESTE RODEO Y NO SE PUEDE DESHACER!`)) {
+                return;
+            }
+
+            rodeos = rodeos.filter(r => r.id !== rodeoId);
+            localStorage.setItem('rodeos', JSON.stringify(rodeos));
+
+            if (activeRodeoId === rodeoId) {
+                activeRodeoId = rodeos.length > 0 ? rodeos[0].id : '';
+                localStorage.setItem('activeRodeoId', activeRodeoId);
+            }
+
+            localStorage.removeItem(`rodeoData_${rodeoId}`);
+
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('colleras').delete().eq('rodeo_id', rodeoId);
+                    await supabaseClient.from('rodeos').delete().eq('id', rodeoId);
+                } catch(err) {
+                    console.warn("Error al eliminar de Supabase.", err);
+                }
+            }
+
+            if (activeRodeoId) {
+                await loadRodeoColleras(activeRodeoId);
+            } else {
+                rodeoData = [];
+                filteredColleras = [];
+                renderCollerasTable();
+            }
+
+            renderRodeosTable();
+            showToast("Rodeo eliminado exitosamente.");
+        }
+
+        async function selectRodeoForAdmin(rodeoId) {
+            activeRodeoId = rodeoId;
+            localStorage.setItem('activeRodeoId', activeRodeoId);
+            
+            const tbody = document.getElementById('colleras-tbody');
+            if (tbody) tbody.innerHTML = '<tr><td colspan="11" style="text-align:center;">Cargando colleras del rodeo seleccionado...</td></tr>';
+            
+            await loadRodeoColleras(rodeoId);
+            filteredColleras = [...rodeoData];
+            
+            renderRodeosTable();
+            renderCollerasTable();
+            showToast(`Administrando actualmente: ${rodeos.find(r => r.id === rodeoId).nombre}`);
         }
 
         // ==========================================================================
@@ -920,6 +1241,7 @@
 
             const colleraObj = {
                 n: nVal,
+                rodeo_id: activeRodeoId,
                 asociacion: document.getElementById('form-asociacion').value.toUpperCase(),
                 criadero: document.getElementById('form-criadero').value.toUpperCase(),
                 jinetes: jinetes,
@@ -1000,7 +1322,9 @@
                 }
             }
 
+            rodeoData.forEach(c => { c.rodeo_id = activeRodeoId; });
             localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
+            localStorage.setItem(`rodeoData_${activeRodeoId}`, JSON.stringify(rodeoData));
 
             if (supabaseClient) {
                 try {
@@ -1028,16 +1352,18 @@
                 rodeoData = rodeoData.filter(c => c.n !== cNumber);
                 recalculateLugarForAll(); // Recalcular posiciones tras la eliminación
                 localStorage.setItem('rodeoData', JSON.stringify(rodeoData));
+                localStorage.setItem(`rodeoData_${activeRodeoId}`, JSON.stringify(rodeoData));
 
                 if (supabaseClient) {
                     try {
-                        // Eliminar de la nube
-                        const { error } = await supabaseClient.from('colleras').delete().eq('n', cNumber);
+                        // Eliminar de la nube filtrando también por el rodeo activo
+                        const { error } = await supabaseClient.from('colleras').delete().eq('n', cNumber).eq('rodeo_id', activeRodeoId);
                         if (error) {
                             console.error("Error al borrar en Supabase:", error);
                             showToast("Borrado local, pero falló en la nube.", "error");
                         } else {
                             // Sincronizar los nuevos lugares recalculated tras borrar
+                            rodeoData.forEach(c => { c.rodeo_id = activeRodeoId; });
                             await supabaseClient.from('colleras').upsert(rodeoData);
                         }
                     } catch (err) {
