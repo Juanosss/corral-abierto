@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corral Abierto – Página no encontrada</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css?v=4.8">
+    <style>
+        .maintenance-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 65vh;
+            text-align: center;
+            padding: 3rem 1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .maintenance-title {
+            font-family: var(--font-heading);
+            font-size: 3rem;
+            color: var(--primary-dark);
+            margin-bottom: 1rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .maintenance-text {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .btn-back {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.9rem 2.2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(255, 87, 34, 0.35);
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .btn-back:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 87, 34, 0.45);
+        }
+
+        .btn-back:active {
+            transform: translateY(0);
+        }
+
+        .illustration-box {
+            margin-top: 2.5rem;
+        }
+
+        .illustration-img {
+            max-width: 260px;
+            width: 100%;
+            opacity: 0.85;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .maintenance-title { font-size: 2.2rem; }
+            .maintenance-text  { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-container">
+                <a href="/index.html" class="header-logo-link">
+                    <span class="brand-title-main">Corral Abierto</span>
+                    <span class="brand-partner-divider">✕</span>
+                    <div class="brand-partner-group">
+                        <img src="https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png" alt="Federación del Rodeo Chileno" class="header-logo" style="margin-right: 0; width: 38px; height: auto;">
+                        <div class="header-branding" style="line-height: 1.1;">
+                            <span class="brand-title" style="font-size: 1.1rem; letter-spacing: 0;">Corral Abierto</span>
+                            <span class="brand-subtitle" style="font-size: 0.55rem; letter-spacing: 0.02em;">Resultados & Transmisión</span>
+                        </div>
+                    </div>
+                </a>
+                <nav class="header-nav">
+                    <a href="/index.html" class="nav-btn">Inicio</a>
+                    <a href="/champion-chile/index.html" class="nav-btn">Champion de Chile</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Página 404 estilo anuario -->
+            <div class="maintenance-container">
+                <h1 class="maintenance-title">Se nos escapó el novillo...</h1>
+                <p class="maintenance-text">
+                    Buscamos por todo el apiadero pero no pudimos encontrar esta página. Puede que esté en construcción o que la dirección sea incorrecta. ¡Sigue ensillando!
+                </p>
+                <a href="/index.html" class="btn-back">Volver al inicio 🐴</a>
+
+                <div class="illustration-box">
+                    <img src="/horse_stuck.png" alt="Caballo con la cabeza en un hoyo buscando el novillo" class="illustration-img">
+                </div>
+            </div>
+        </main>
+
+        <footer class="app-footer">
+            <p>&copy; 2026 Caballo y Rodeo - Tradición y Deporte</p>
+        </footer>
+    </div>
+</body>
+</html>
