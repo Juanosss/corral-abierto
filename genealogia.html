@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corral Abierto x Champion de Chile</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../styles.css?v=3.1">
+    <link rel="stylesheet" href="styles.css?v=3.1">
 </head>
 <body>
     <div class="app-container">
         <!-- HEADER -->
         <header class="app-header">
             <div class="header-container">
-                <a href="../index.html" class="header-logo-link">
+                <a href="index.html" class="header-logo-link">
                     <span class="brand-title-main">Corral Abierto</span>
                     <span class="brand-partner-divider">✕</span>
                     <div class="brand-partner-group">
@@ -25,18 +25,18 @@
                 </a>
                 
                 <nav class="header-nav">
-                    <a href="index.html#envivo" class="nav-btn btn-live">En Vivo</a>
-                    <a href="index.html#analisis" class="nav-btn">Análisis</a>
-                    <a href="anuario.html" class="nav-btn">Anuario</a>
+                    <a href="champion-chile/index.html#envivo" class="nav-btn btn-live">En Vivo</a>
+                    <a href="champion-chile/index.html#analisis" class="nav-btn">Análisis</a>
+                    <a href="champion-chile/anuario.html" class="nav-btn">Anuario</a>
                     <a href="genealogia.html" class="nav-btn active">Genealogía</a>
                     <div class="nav-divider"></div>
-                    <a href="toro1.html" class="nav-btn">1er Animal</a>
-                    <a href="toro2.html" class="nav-btn">2do Animal</a>
-                    <a href="toro3.html" class="nav-btn">3er Animal</a>
-                    <a href="toro4.html" class="nav-btn">4to Animal</a>
+                    <a href="champion-chile/toro1.html" class="nav-btn">1er Animal</a>
+                    <a href="champion-chile/toro2.html" class="nav-btn">2do Animal</a>
+                    <a href="champion-chile/toro3.html" class="nav-btn">3er Animal</a>
+                    <a href="champion-chile/toro4.html" class="nav-btn">4to Animal</a>
                                     <div class="nav-divider"></div>
                     <a href="https://www.flow.cl/btn.php?token=t72149f43e71af43c82f6f67fdf40c375fa191cb" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; font-weight: 700; box-shadow: 0 4px 10px rgba(230,81,0,0.3); white-space: nowrap; flex-shrink: 0;">Hacerse Socio 🐴</a>
-                    <a href="#" onclick="sessionStorage.removeItem('selectedRodeo'); window.location.href='../index.html';" class="nav-btn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600;">Cambiar Rodeo ⇄</a>
+                    <a href="#" onclick="sessionStorage.removeItem('selectedRodeo'); window.location.href='index.html';" class="nav-btn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600;">Cambiar Rodeo ⇄</a>
                 </nav>
             </div>
         </header>
@@ -70,7 +70,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="../app.js?v=3.2"></script>
+    <script src="app.js?v=3.2"></script>
     <script>
         // Renderizar la genealogía dinámica leyendo desde localStorage
         function renderGenealogias() {
