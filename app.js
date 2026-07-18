@@ -713,8 +713,31 @@ function renderChart(data, stage = 4) {
     });
 }
 
+// Obtiene el ID del rodeo actual basándose en la ruta URL de la carpeta física
+function getActiveRodeoIdFromURL() {
+    const pathParts = window.location.pathname.split('/');
+    if (pathParts.length > 2) {
+        const folderName = pathParts[pathParts.length - 2];
+        if (folderName && 
+            folderName !== 'proyecto rodeo' && 
+            folderName !== 'proyecto%20rodeo' && 
+            folderName !== 'Documents' && 
+            folderName !== 'Users' && 
+            folderName !== 'juan' &&
+            folderName !== 'corralabierto.cl' &&
+            folderName !== '') {
+            
+            if (folderName === 'champion-chile') {
+                return 'champion-chile-2026';
+            }
+            return folderName;
+        }
+    }
+    return sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026';
+}
+
 async function initRodeoData() {
-    const activeRodeoId = sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026';
+    const activeRodeoId = getActiveRodeoIdFromURL();
     if (supabaseClient) {
         try {
             // Leer colleras desde Supabase en tiempo real filtradas por el rodeo activo
@@ -751,7 +774,7 @@ async function initRodeoData() {
 }
 
 function loadBackupLocalRodeoData() {
-    const activeRodeoId = sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026';
+    const activeRodeoId = getActiveRodeoIdFromURL();
     let localData = null;
     try {
         localData = JSON.parse(localStorage.getItem(`rodeoData_${activeRodeoId}`));
@@ -855,7 +878,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Función para actualizar dinámicamente el logotipo y títulos del menú superior según el rodeo
 async function updateHeaderBranding() {
-    const activeRodeoId = sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026';
+    const activeRodeoId = getActiveRodeoIdFromURL();
     
     let activeRodeo = null;
     if (supabaseClient) {

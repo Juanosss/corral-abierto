@@ -110,7 +110,8 @@
 
         function selectRodeo(rodeoId) {
             sessionStorage.setItem('selectedRodeo', rodeoId);
-            window.location.href = './champion-chile/index.html';
+            const folderName = rodeoId === 'champion-chile-2026' ? 'champion-chile' : rodeoId;
+            window.location.href = `./${folderName}/index.html`;
         }
 
         // Cargar perfiles al iniciar
