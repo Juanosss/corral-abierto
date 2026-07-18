@@ -717,15 +717,13 @@ function getActiveRodeoIdFromURL() {
     const pathParts = window.location.pathname.split('/');
     if (pathParts.length > 2) {
         const folderName = pathParts[pathParts.length - 2];
-        if (folderName && 
-            folderName !== 'proyecto rodeo' && 
-            folderName !== 'proyecto%20rodeo' && 
-            folderName !== 'Documents' && 
-            folderName !== 'Users' && 
-            folderName !== 'juan' &&
-            folderName !== 'corralabierto.cl' &&
-            folderName !== '') {
-            
+        const validFolders = [
+            'champion-chile',
+            'clasificatorio-sur-2026',
+            'clasificatorio-norte-2026',
+            'clasificatorio-centro-2026'
+        ];
+        if (validFolders.includes(folderName)) {
             if (folderName === 'champion-chile') {
                 return 'champion-chile-2026';
             }
@@ -867,6 +865,12 @@ if (typeof supabase !== 'undefined') {
 document.addEventListener('DOMContentLoaded', async () => {
     // Si estamos en la página de administración, no ejecutar lógica de inicialización pública
     if (window.location.pathname.includes('admin.html')) return;
+
+    // Guardar activamente el rodeo detectado en sessionStorage para consistencia en la raíz
+    const activeRodeoId = getActiveRodeoIdFromURL();
+    if (activeRodeoId) {
+        sessionStorage.setItem('selectedRodeo', activeRodeoId);
+    }
 
     initMobileMenu();
     updateHeaderAuthUI();
