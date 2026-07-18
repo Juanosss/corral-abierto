@@ -667,6 +667,7 @@
                     const { data: { session }, error } = await supabaseClient.auth.getSession();
                     if (!error && session && session.user && session.user.email === ADMIN_EMAIL) {
                         loginScreen.style.display = 'none';
+                        loginScreen.remove(); // Elimina el password input del DOM para evitar autocompletados molestos
                         dashboard.style.display = 'block';
                         initDashboard();
                     } else {
@@ -713,6 +714,7 @@
                         }));
                         loginErrorMsg.style.display = 'none';
                         loginScreen.style.display = 'none';
+                        loginScreen.remove(); // Elimina el password input del DOM para evitar autocompletados molestos
                         dashboard.style.display = 'block';
                         initDashboard();
                     }
