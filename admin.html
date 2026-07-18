@@ -265,8 +265,15 @@
                         <input type="text" id="form-rodeo-nombre" class="admin-input" required placeholder="ej: Clasificatorio Sur 2026">
                     </div>
                     <div class="admin-input-group" style="margin-bottom: 15px;">
-                        <label class="admin-label" for="form-rodeo-logo">URL del Logo del Rodeo (Opcional)</label>
-                        <input type="text" id="form-rodeo-logo" class="admin-input" placeholder="ej: https://www.enlace-imagen.png/logo.png">
+                        <label class="admin-label" for="form-rodeo-logo">Logo del Rodeo (Ingresa una URL o súbelo localmente)</label>
+                        <input type="text" id="form-rodeo-logo" class="admin-input" placeholder="ej: https://www.enlace-imagen.png/logo.png" style="margin-bottom: 6px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label class="admin-btn admin-btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin: 0; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;">
+                                📁 Subir Imagen
+                                <input type="file" id="form-rodeo-logo-file" accept="image/*" style="display: none;" onchange="handleLogoUpload(this)">
+                            </label>
+                            <span id="logo-upload-status" style="font-size: 0.75rem; color: rgba(255,255,255,0.5);"></span>
+                        </div>
                     </div>
                     <div class="admin-input-group" style="margin-bottom: 18px;">
                         <label class="admin-label" style="display: block; margin-bottom: 8px;">Animales Habilitados para el Público</label>
@@ -944,6 +951,16 @@
             document.getElementById('form-rodeo-id').disabled = false;
             document.getElementById('form-rodeo-nombre').value = "";
             document.getElementById('form-rodeo-logo').value = "";
+            
+            // Reset local upload file state
+            const fileInput = document.getElementById('form-rodeo-logo-file');
+            if (fileInput) fileInput.value = '';
+            const statusEl = document.getElementById('logo-upload-status');
+            if (statusEl) {
+                statusEl.textContent = '';
+                statusEl.style.color = '';
+            }
+
             document.getElementById('form-rodeo-toro1').checked = true;
             document.getElementById('form-rodeo-toro2').checked = true;
             document.getElementById('form-rodeo-toro3').checked = true;
@@ -961,6 +978,16 @@
             document.getElementById('form-rodeo-id').disabled = true;
             document.getElementById('form-rodeo-nombre').value = rodeo.nombre;
             document.getElementById('form-rodeo-logo').value = rodeo.logo_url || "";
+            
+            // Reset local upload file state on edit
+            const fileInput = document.getElementById('form-rodeo-logo-file');
+            if (fileInput) fileInput.value = '';
+            const statusEl = document.getElementById('logo-upload-status');
+            if (statusEl) {
+                statusEl.textContent = rodeo.logo_url && rodeo.logo_url.startsWith('data:') ? '✅ Imagen local' : '';
+                statusEl.style.color = '#4caf50';
+            }
+
             document.getElementById('form-rodeo-toro1').checked = rodeo.toro1 !== false;
             document.getElementById('form-rodeo-toro2').checked = rodeo.toro2 !== false;
             document.getElementById('form-rodeo-toro3').checked = rodeo.toro3 !== false;
@@ -970,6 +997,34 @@
 
         function closeRodeoModal() {
             document.getElementById('modal-rodeo-overlay').classList.remove('active');
+        }
+
+        function handleLogoUpload(input) {
+            const file = input.files[0];
+            const statusEl = document.getElementById('logo-upload-status');
+            if (!file) return;
+
+            if (file.size > 1024 * 1024) {
+                alert("La imagen es demasiado grande. Por favor, sube un logo de tamaño menor a 1MB.");
+                input.value = '';
+                return;
+            }
+
+            statusEl.textContent = "Procesando...";
+            statusEl.style.color = "rgba(255,255,255,0.5)";
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                document.getElementById('form-rodeo-logo').value = base64Data;
+                statusEl.textContent = "✅ Imagen procesada localmente";
+                statusEl.style.color = "#4caf50";
+            };
+            reader.onerror = function() {
+                statusEl.textContent = "❌ Error al leer archivo";
+                statusEl.style.color = "#f44336";
+            };
+            reader.readAsDataURL(file);
         }
 
         async function saveRodeo(e) {
