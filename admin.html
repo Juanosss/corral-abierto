@@ -850,6 +850,23 @@
                 rodeoData = [];
             }
             
+            // AUTO-CURACIÓN: Si no hay colleras registradas para el Champion de Chile, las restaura por defecto automáticamente
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('colleras').select('id').eq('rodeo_id', 'champion-chile-2026').limit(1);
+                    if (!error && (!data || data.length === 0)) {
+                        console.log("🛠️ Auto-curación: Restaurando colleras por defecto del Champion...");
+                        const defaultColleras = defaultRodeoData.map(c => ({ ...c, rodeo_id: 'champion-chile-2026' }));
+                        await supabaseClient.from('colleras').insert(defaultColleras);
+                        if (activeRodeoId === 'champion-chile-2026') {
+                            await loadRodeoColleras('champion-chile-2026');
+                        }
+                    }
+                } catch(e) {
+                    console.error("Error en auto-curación:", e);
+                }
+            }
+
             filteredColleras = [...rodeoData];
             
             renderRodeosTable();
