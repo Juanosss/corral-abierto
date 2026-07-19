@@ -25,16 +25,12 @@
                 </a>
                 
                 <nav class="header-nav">
-                    <a href="champion-chile/index.html#envivo" class="nav-btn btn-live">En Vivo</a>
-                    <a href="champion-chile/index.html#analisis" class="nav-btn">Análisis</a>
+                    <a href="champion-chile/index.html#envivo" class="nav-btn btn-live" id="nav-link-envivo">En Vivo</a>
+                    <a href="champion-chile/index.html#analisis" class="nav-btn" id="nav-link-analisis">Resultados</a>
                     <a href="anuario.html" class="nav-btn active">Anuarios</a>
                     <a href="genealogia.html" class="nav-btn">Genealogía</a>
+                    <a href="champion-chile/index.html#resultados" class="nav-btn" id="nav-link-puntajes">Puntajes</a>
                     <div class="nav-divider"></div>
-                    <a href="champion-chile/toro1.html" class="nav-btn">1er Animal</a>
-                    <a href="champion-chile/toro2.html" class="nav-btn">2do Animal</a>
-                    <a href="champion-chile/toro3.html" class="nav-btn">3er Animal</a>
-                    <a href="champion-chile/toro4.html" class="nav-btn">4to Animal</a>
-                                    <div class="nav-divider"></div>
                     <a href="https://www.flow.cl/btn.php?token=t72149f43e71af43c82f6f67fdf40c375fa191cb" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; font-weight: 700; box-shadow: 0 4px 10px rgba(230,81,0,0.3); white-space: nowrap; flex-shrink: 0;">Hacerse Socio 🐴</a>
                     <a href="#" onclick="sessionStorage.removeItem('selectedRodeo'); window.location.href='index.html';" class="nav-btn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600;">Cambiar Rodeo ⇄</a>
                 </nav>
@@ -294,6 +290,12 @@
                     closeModal();
                 }
             });
+
+            // Configurar los enlaces de navegación dinámicamente según el rodeo seleccionado en sessionStorage
+            const selectedRodeo = sessionStorage.getItem('selectedRodeo') || 'champion-chile';
+            document.getElementById('nav-link-envivo').href = `${selectedRodeo}/index.html#envivo`;
+            document.getElementById('nav-link-analisis').href = `${selectedRodeo}/index.html#analisis`;
+            document.getElementById('nav-link-puntajes').href = `${selectedRodeo}/index.html#resultados`;
         });
     </script>
 </body>
