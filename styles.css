@@ -645,6 +645,11 @@ h1, h2, h3, h4 {
     border-bottom: 3px solid var(--primary-color) !important;
 }
 
+.rodeo-table th.divider-cell,
+.rodeo-table td.divider-cell {
+    border-right: 3.5px solid rgba(0, 0, 0, 0.8) !important;
+}
+
 /* Specific Column Styling */
 .td-jinetes {
     font-weight: 700;

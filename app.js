@@ -547,7 +547,7 @@ function renderTable(data, stage = 4) {
         theadHtml += `<th>1er Animal</th><th>2do Animal</th><th>3er Animal</th><th>Sub Total</th>`;
     } else if (displayStage === 4) {
         if (isTotalMode) {
-            theadHtml += `<th>1er Animal</th><th>2do Animal</th><th>Sub Total</th><th>3er Animal</th><th>Sub Total</th><th>4to Animal</th><th>Resultado</th><th>Empates</th>`;
+            theadHtml += `<th class="divider-cell">1er Animal</th><th>2do Animal</th><th class="divider-cell">Sub Total</th><th>3er Animal</th><th class="divider-cell">Sub Total</th><th>4to Animal</th><th>Resultado</th><th>Empates</th>`;
         } else {
             theadHtml += `<th>1er Animal</th><th>2do Animal</th><th>3er Animal</th><th>4to Animal</th><th>Resultado</th><th>Empates</th>`;
         }
@@ -616,7 +616,7 @@ function renderTable(data, stage = 4) {
             <td data-label="Criadero">${row.criadero}</td>
             <td data-label="Jinetes" class="td-jinetes"><div class="jinetes-list">${jinetesHtml}</div></td>
             <td data-label="Caballos" class="td-caballos"><div class="caballos-list">${caballosHtml}</div></td>
-            <td data-label="1er Animal">${formatScore(row.animal1)}</td>
+            <td data-label="1er Animal" class="${isTotalMode ? 'divider-cell' : ''}">${formatScore(row.animal1)}</td>
         `;
 
         if (displayStage === 2) {
@@ -634,9 +634,9 @@ function renderTable(data, stage = 4) {
             if (isTotalMode) {
                 trHtml += `
                     <td data-label="2do Animal">${formatScore(row.animal2)}</td>
-                    <td data-label="Sub Total">${formatScore(row.sub1)}</td>
+                    <td data-label="Sub Total" class="divider-cell">${formatScore(row.sub1)}</td>
                     <td data-label="3er Animal">${formatScore(row.animal3)}</td>
-                    <td data-label="Sub Total">${formatScore(row.sub2)}</td>
+                    <td data-label="Sub Total" class="divider-cell">${formatScore(row.sub2)}</td>
                     <td data-label="4to Animal">${formatScore(row.animal4)}</td>
                     <td data-label="Resultado" class="td-resultado">${formatScore(getFinalScore(row))}</td>
                     <td data-label="Empates">${formatScore(row.empates)}</td>
