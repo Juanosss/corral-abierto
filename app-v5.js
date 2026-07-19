@@ -857,15 +857,52 @@ async function updateHeaderBranding() {
         if (titleEl) titleEl.innerText = activeRodeo.nombre;
         if (subtitleEl) subtitleEl.innerText = "Resultados & Transmisión";
 
-        if (activeRodeo.logo_url) {
+        let logoUrl = activeRodeo.logo_url || '';
+        let youtubeId = 'fJps5TeZlZw'; // Valor por defecto
+        if (logoUrl.includes('|')) {
+            const parts = logoUrl.split('|');
+            logoUrl = parts[0];
+            youtubeId = parts[1] || '';
+        } else {
+            // Fallback para rodeos preexistentes
+            if (activeRodeo.id === 'clasificatorio-sur-2026') {
+                youtubeId = ''; // No hay transmisión por defecto
+            }
+        }
+
+        if (logoUrl) {
             if (logoEl) {
-                logoEl.src = activeRodeo.logo_url;
+                logoEl.src = logoUrl;
                 logoEl.style.display = 'block';
             }
             if (dividerEl) dividerEl.style.display = 'inline-block';
         } else {
             if (logoEl) logoEl.style.display = 'none';
             if (dividerEl) dividerEl.style.display = 'none';
+        }
+
+        // Configurar sección En Vivo (Youtube Iframe y botón en el Nav)
+        const envivoSection = document.getElementById('envivo');
+        const navLiveBtn = document.querySelector('.btn-live');
+
+        if (youtubeId && youtubeId.trim() !== '' && youtubeId.toLowerCase() !== 'none') {
+            if (envivoSection) {
+                envivoSection.style.display = '';
+                const iframe = envivoSection.querySelector('iframe');
+                if (iframe) {
+                    iframe.src = `https://www.youtube.com/embed/${youtubeId}`;
+                }
+            }
+            if (navLiveBtn) {
+                navLiveBtn.style.display = 'inline-block';
+            }
+        } else {
+            if (envivoSection) {
+                envivoSection.style.display = 'none';
+            }
+            if (navLiveBtn) {
+                navLiveBtn.style.display = 'none';
+            }
         }
 
         // Habilitar o deshabilitar pestañas de animales dinámicamente

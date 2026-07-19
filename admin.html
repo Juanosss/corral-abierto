@@ -269,13 +269,18 @@
                     <div class="admin-input-group" style="margin-bottom: 15px;">
                         <label class="admin-label" for="form-rodeo-logo">Logo del Rodeo (Ingresa una URL o súbelo localmente)</label>
                         <input type="text" id="form-rodeo-logo" class="admin-input" placeholder="ej: https://www.enlace-imagen.png/logo.png" style="margin-bottom: 6px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
                             <label class="admin-btn admin-btn-secondary" style="padding: 0.4rem 0.8rem; font-size: 0.75rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin: 0; background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px;">
                                 📁 Subir Imagen
                                 <input type="file" id="form-rodeo-logo-file" accept="image/*" style="display: none;" onchange="handleLogoUpload(this)">
                             </label>
                             <span id="logo-upload-status" style="font-size: 0.75rem; color: rgba(255,255,255,0.5);"></span>
                         </div>
+                    </div>
+                    <div class="admin-input-group" style="margin-bottom: 18px;">
+                        <label class="admin-label" for="form-rodeo-youtube">ID de Video en Vivo de YouTube (Opcional)</label>
+                        <input type="text" id="form-rodeo-youtube" class="admin-input" placeholder="ej: fJps5TeZlZw (Vacío o 'none' si no hay vivo)">
+                        <div style="font-size: 0.72rem; color: rgba(255,255,255,0.45); margin-top: 4px;">Pega el ID del directo (ej. fJps5TeZlZw). Déjalo vacío si este rodeo no tiene transmisión.</div>
                     </div>
                     <div class="admin-input-group" style="margin-bottom: 18px;">
                         <label class="admin-label" style="display: block; margin-bottom: 8px;">Animales Habilitados para el Público</label>
@@ -1061,6 +1066,7 @@
             document.getElementById('form-rodeo-id').disabled = false;
             document.getElementById('form-rodeo-nombre').value = "";
             document.getElementById('form-rodeo-logo').value = "";
+            document.getElementById('form-rodeo-youtube').value = "";
             
             // Reset local upload file state
             const fileInput = document.getElementById('form-rodeo-logo-file');
@@ -1087,14 +1093,24 @@
             document.getElementById('form-rodeo-id').value = rodeo.id;
             document.getElementById('form-rodeo-id').disabled = true;
             document.getElementById('form-rodeo-nombre').value = rodeo.nombre;
-            document.getElementById('form-rodeo-logo').value = rodeo.logo_url || "";
+            
+            let rawLogo = rodeo.logo_url || "";
+            let logoUrl = rawLogo;
+            let youtubeId = "";
+            if (rawLogo.includes('|')) {
+                const parts = rawLogo.split('|');
+                logoUrl = parts[0];
+                youtubeId = parts[1] || "";
+            }
+            document.getElementById('form-rodeo-logo').value = logoUrl;
+            document.getElementById('form-rodeo-youtube').value = youtubeId;
             
             // Reset local upload file state on edit
             const fileInput = document.getElementById('form-rodeo-logo-file');
             if (fileInput) fileInput.value = '';
             const statusEl = document.getElementById('logo-upload-status');
             if (statusEl) {
-                statusEl.textContent = rodeo.logo_url && rodeo.logo_url.startsWith('data:') ? '✅ Imagen local' : '';
+                statusEl.textContent = logoUrl && logoUrl.startsWith('data:') ? '✅ Imagen local' : '';
                 statusEl.style.color = '#4caf50';
             }
 
@@ -1137,12 +1153,14 @@
             reader.readAsDataURL(file);
         }
 
-        async function saveRodeo(e) {
+         async function saveRodeo(e) {
             e.preventDefault();
             const idOld = document.getElementById('form-rodeo-id-old').value;
             const idVal = document.getElementById('form-rodeo-id').value.trim().toLowerCase().replace(/\s+/g, '-');
             const nombreVal = document.getElementById('form-rodeo-nombre').value.trim();
             const logoVal = document.getElementById('form-rodeo-logo').value.trim();
+            const youtubeVal = document.getElementById('form-rodeo-youtube').value.trim();
+            const finalLogoVal = youtubeVal ? `${logoVal}|${youtubeVal}` : logoVal;
             const t1 = document.getElementById('form-rodeo-toro1').checked;
             const t2 = document.getElementById('form-rodeo-toro2').checked;
             const t3 = document.getElementById('form-rodeo-toro3').checked;
@@ -1152,7 +1170,7 @@
                 const idx = rodeos.findIndex(r => r.id === idOld);
                 if (idx !== -1) {
                     rodeos[idx].nombre = nombreVal;
-                    rodeos[idx].logo_url = logoVal;
+                    rodeos[idx].logo_url = finalLogoVal;
                     rodeos[idx].toro1 = t1;
                     rodeos[idx].toro2 = t2;
                     rodeos[idx].toro3 = t3;
@@ -1167,7 +1185,7 @@
                     id: idVal,
                     nombre: nombreVal,
                     activo: true,
-                    logo_url: logoVal,
+                    logo_url: finalLogoVal,
                     toro1: t1,
                     toro2: t2,
                     toro3: t3,
@@ -1185,8 +1203,8 @@
             if (supabaseClient) {
                 try {
                     const rodeoObj = idOld 
-                        ? { id: idOld, nombre: nombreVal, logo_url: logoVal, toro1: t1, toro2: t2, toro3: t3, toro4: t4 }
-                        : { id: idVal, nombre: nombreVal, activo: true, logo_url: logoVal, toro1: t1, toro2: t2, toro3: t3, toro4: t4 };
+                        ? { id: idOld, nombre: nombreVal, logo_url: finalLogoVal, toro1: t1, toro2: t2, toro3: t3, toro4: t4 }
+                        : { id: idVal, nombre: nombreVal, activo: true, logo_url: finalLogoVal, toro1: t1, toro2: t2, toro3: t3, toro4: t4 };
                     const { error } = await supabaseClient.from('rodeos').upsert(rodeoObj);
                     if (error) {
                         console.error("Error en Supabase:", error);
