@@ -506,6 +506,22 @@ function getScoreForStage(row, stage) {
     return isNaN(score) ? -999 : score;
 }
 
+function getMaxAnimalReached(row) {
+    const isNum = (val) => {
+        if (val === "" || val === null || val === undefined) return false;
+        const clean = val.toString().trim().toUpperCase();
+        if (clean === "X") return false;
+        const num = parseInt(clean);
+        return !isNaN(num);
+    };
+
+    if (isNum(row.animal4)) return 4;
+    if (isNum(row.animal3)) return 3;
+    if (isNum(row.animal2)) return 2;
+    if (isNum(row.animal1)) return 1;
+    return 0;
+}
+
 function renderTable(data, stage = 4) {
     const tbody = document.getElementById('table-body');
     const thead = document.getElementById('table-head');
@@ -514,7 +530,7 @@ function renderTable(data, stage = 4) {
     const isTotalMode = stage === "total";
     const displayStage = isTotalMode ? 4 : stage;
     
-    // 1. Reconstruir encabezados de la tabla dinámicamente según etapa (sin subtotales intermedios)
+    // 1. Reconstruir encabezados de la tabla dinámicamente según etapa
     let theadHtml = `
         <tr>
             <th>Posición</th>
@@ -530,7 +546,11 @@ function renderTable(data, stage = 4) {
     } else if (displayStage === 3) {
         theadHtml += `<th>1er Animal</th><th>2do Animal</th><th>3er Animal</th><th>Sub Total</th>`;
     } else if (displayStage === 4) {
-        theadHtml += `<th>1er Animal</th><th>2do Animal</th><th>3er Animal</th><th>4to Animal</th><th>Resultado</th><th>Empates</th>`;
+        if (isTotalMode) {
+            theadHtml += `<th>1er Animal</th><th>2do Animal</th><th>Sub Total</th><th>3er Animal</th><th>Sub Total</th><th>4to Animal</th><th>Resultado</th><th>Empates</th>`;
+        } else {
+            theadHtml += `<th>1er Animal</th><th>2do Animal</th><th>3er Animal</th><th>4to Animal</th><th>Resultado</th><th>Empates</th>`;
+        }
     }
     theadHtml += `</tr>`;
     
@@ -546,12 +566,26 @@ function renderTable(data, stage = 4) {
     });
 
     const sortedData = filteredData.sort((a, b) => {
-        let scoreA = isTotalMode ? getFinalScore(a) : getScoreForStage(a, stage);
-        let scoreB = isTotalMode ? getFinalScore(b) : getScoreForStage(b, stage);
-        if (scoreA !== scoreB) {
-            return scoreB - scoreA;
+        if (isTotalMode) {
+            let maxA = getMaxAnimalReached(a);
+            let maxB = getMaxAnimalReached(b);
+            if (maxA !== maxB) {
+                return maxB - maxA;
+            }
+            let scoreA = getFinalScore(a);
+            let scoreB = getFinalScore(b);
+            if (scoreA !== scoreB) {
+                return scoreB - scoreA;
+            }
+            return a.n - b.n;
+        } else {
+            let scoreA = getScoreForStage(a, stage);
+            let scoreB = getScoreForStage(b, stage);
+            if (scoreA !== scoreB) {
+                return scoreB - scoreA;
+            }
+            return a.n - b.n;
         }
-        return a.n - b.n;
     });
 
     sortedData.forEach((row, index) => {
@@ -597,16 +631,38 @@ function renderTable(data, stage = 4) {
                 <td data-label="Sub Total">${formatScore(row.sub2)}</td>
             `;
         } else if (displayStage === 4) {
-            trHtml += `
-                <td data-label="2do Animal">${formatScore(row.animal2)}</td>
-                <td data-label="3er Animal">${formatScore(row.animal3)}</td>
-                <td data-label="4to Animal">${formatScore(row.animal4)}</td>
-                <td data-label="Resultado" class="td-resultado">${formatScore(isTotalMode ? getFinalScore(row) : row.resultado)}</td>
-                <td data-label="Empates">${formatScore(row.empates)}</td>
-            `;
+            if (isTotalMode) {
+                trHtml += `
+                    <td data-label="2do Animal">${formatScore(row.animal2)}</td>
+                    <td data-label="Sub Total">${formatScore(row.sub1)}</td>
+                    <td data-label="3er Animal">${formatScore(row.animal3)}</td>
+                    <td data-label="Sub Total">${formatScore(row.sub2)}</td>
+                    <td data-label="4to Animal">${formatScore(row.animal4)}</td>
+                    <td data-label="Resultado" class="td-resultado">${formatScore(getFinalScore(row))}</td>
+                    <td data-label="Empates">${formatScore(row.empates)}</td>
+                `;
+            } else {
+                trHtml += `
+                    <td data-label="2do Animal">${formatScore(row.animal2)}</td>
+                    <td data-label="3er Animal">${formatScore(row.animal3)}</td>
+                    <td data-label="4to Animal">${formatScore(row.animal4)}</td>
+                    <td data-label="Resultado" class="td-resultado">${formatScore(row.resultado)}</td>
+                    <td data-label="Empates">${formatScore(row.empates)}</td>
+                `;
+            }
         }
 
         tr.innerHTML = trHtml;
+        
+        // Agregar clase de división de grupos
+        if (isTotalMode) {
+            const nextRow = sortedData[index + 1];
+            const currentMax = getMaxAnimalReached(row);
+            const nextMax = nextRow ? getMaxAnimalReached(nextRow) : null;
+            if (nextMax !== null && currentMax !== nextMax) {
+                tr.classList.add('group-divider');
+            }
+        }
         
         tbody.appendChild(tr);
     });

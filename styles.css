@@ -178,11 +178,11 @@ h1, h2, h3, h4 {
     text-decoration: none;
     color: rgba(255, 255, 255, 0.85);
     background: rgba(255, 255, 255, 0.05);
-    padding: 0.38rem 0.7rem;
+    padding: 0.42rem 0.85rem;
     border-radius: 22px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     font-weight: 600;
-    font-size: 0.76rem;
+    font-size: 0.9rem;
     transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     white-space: nowrap;
     backdrop-filter: blur(5px);
@@ -234,7 +234,7 @@ h1, h2, h3, h4 {
 }
 
 /* Responsive navigation for Tablet (iPads) */
-@media (min-width: 768px) and (max-width: 1150px) {
+@media (min-width: 768px) and (max-width: 1250px) {
     .header-container {
         display: flex;
         flex-direction: column;
@@ -641,6 +641,10 @@ h1, h2, h3, h4 {
     background-color: var(--row-hover);
 }
 
+.rodeo-table tbody tr.group-divider td {
+    border-bottom: 3px solid var(--primary-color) !important;
+}
+
 /* Specific Column Styling */
 .td-jinetes {
     font-weight: 700;
@@ -749,6 +753,11 @@ h1, h2, h3, h4 {
         padding: 0;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         overflow: hidden;
+    }
+    
+    .rodeo-table tbody tr.group-divider {
+        border-bottom: 4px solid var(--primary-color) !important;
+        margin-bottom: 3.5rem !important;
     }
     
     .rodeo-table td {
