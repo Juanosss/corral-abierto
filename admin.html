@@ -410,7 +410,13 @@
                     <input type="hidden" id="form-genealogia-index">
                     
                     <!-- Detalles del Caballo (Arriba) -->
-                    <div class="admin-section-subtitle" style="margin-top: 0;">Detalles Generales del Caballo</div>
+                    <div class="admin-section-subtitle" style="margin-top: 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <span>Detalles Generales del Caballo</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <input type="text" id="form-auto-scrape-id" class="admin-input" placeholder="ID Caballo (ej. 257423)" style="width: 170px; padding: 0.3rem 0.6rem; font-size: 0.8rem; margin: 0; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; color: #fff;">
+                            <button type="button" class="admin-btn admin-btn-primary" id="btn-auto-scrape" onclick="autoScrapeHorse()" style="padding: 0.3rem 0.8rem; font-size: 0.8rem; margin: 0; border-radius: 4px;">Auto-rellenar 🐴</button>
+                        </div>
+                    </div>
                     <div class="admin-form-row">
                         <div class="admin-input-group">
                             <label class="admin-label" for="form-nombre">Nombre Caballo / Yegua *</label>
@@ -1930,6 +1936,116 @@
                 }
             }
         });
+
+        async function autoScrapeHorse() {
+            const horseId = document.getElementById('form-auto-scrape-id').value.trim();
+            if (!horseId) {
+                alert("Por favor, ingresa el ID/Número de identificación del caballo.");
+                return;
+            }
+            const btn = document.getElementById('btn-auto-scrape');
+            const originalText = btn.innerText;
+            btn.innerText = "Cargando... ⏳";
+            btn.disabled = true;
+            
+            try {
+                const proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
+                const response = await fetch(proxyUrl);
+                if (!response.ok) throw new Error("No se pudo conectar con el portal.");
+                const htmlText = await response.text();
+                
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlText, 'text/html');
+                
+                const infoDiv = doc.querySelector('.info-caballo');
+                if (!infoDiv) {
+                    alert("No se encontró información para el caballo con ID " + horseId + ". Verifica que el ID sea correcto.");
+                    return;
+                }
+                
+                const dts = infoDiv.querySelectorAll('dt');
+                let nombre = "";
+                let criadero = "";
+                let fn = "";
+                let reg = "";
+                let sexo = "";
+                
+                dts.forEach(dt => {
+                    const text = dt.textContent || dt.innerText;
+                    if (text.includes("Nombre:")) {
+                        nombre = text.replace("Nombre:", "").trim();
+                    } else if (text.includes("Criadero:")) {
+                        criadero = text.replace("Criadero:", "").trim();
+                    } else if (text.includes("Nacimiento:")) {
+                        fn = "F.N. " + text.replace("Nacimiento:", "").trim();
+                    } else if (text.includes("Registro SNA:")) {
+                        reg = "SBT N° " + text.replace("Registro SNA:", "").trim();
+                    } else if (text.includes("Sexo:")) {
+                        sexo = text.replace("Sexo:", "").trim();
+                    }
+                });
+                
+                if (nombre) document.getElementById('form-nombre').value = nombre.toUpperCase();
+                if (criadero) document.getElementById('form-criadero-caballo').value = criadero.toUpperCase();
+                if (reg) document.getElementById('form-nacional').value = reg;
+                if (fn) document.getElementById('form-fn').value = fn;
+                document.getElementById('form-alzada').value = "--";
+                document.getElementById('form-cincha').value = "--";
+                document.getElementById('form-cana').value = "--";
+                
+                const treeDiv = doc.querySelector('.arbol-genealogico');
+                if (treeDiv) {
+                    const n1 = treeDiv.querySelector('.n1');
+                    if (n1) {
+                        const padreEl = n1.querySelector('.c1 a');
+                        const madreEl = n1.querySelector('.c2 a');
+                        if (padreEl) document.getElementById('form-padre').value = padreEl.textContent.trim().toUpperCase();
+                        if (madreEl) document.getElementById('form-madre').value = madreEl.textContent.trim().toUpperCase();
+                    }
+                    
+                    const n2 = treeDiv.querySelector('.n2');
+                    if (n2) {
+                        const abueloPEl = n2.querySelector('.c1 a');
+                        const abuelaPEl = n2.querySelector('.c2 a');
+                        const abueloMEl = n2.querySelector('.c3 a');
+                        const abuelaMEl = n2.querySelector('.c4 a');
+                        if (abueloPEl) document.getElementById('form-abueloP').value = abueloPEl.textContent.trim().toUpperCase();
+                        if (abuelaPEl) document.getElementById('form-abuelaP').value = abuelaPEl.textContent.trim().toUpperCase();
+                        if (abueloMEl) document.getElementById('form-abueloM').value = abueloMEl.textContent.trim().toUpperCase();
+                        if (abuelaMEl) document.getElementById('form-abuelaM').value = abuelaMEl.textContent.trim().toUpperCase();
+                    }
+                    
+                    const n3 = treeDiv.querySelector('.n3');
+                    if (n3) {
+                        const bisP1El = n3.querySelector('.c1 a');
+                        const bisP2El = n3.querySelector('.c2 a');
+                        const bisP3El = n3.querySelector('.c3 a');
+                        const bisP4El = n3.querySelector('.c4 a');
+                        const bisM1El = n3.querySelector('.c5 a');
+                        const bisM2El = n3.querySelector('.c6 a');
+                        const bisM3El = n3.querySelector('.c7 a');
+                        const bisM4El = n3.querySelector('.c8 a');
+                        
+                        if (bisP1El) document.getElementById('form-bisP1').value = bisP1El.textContent.trim().toUpperCase();
+                        if (bisP2El) document.getElementById('form-bisP2').value = bisP2El.textContent.trim().toUpperCase();
+                        if (bisP3El) document.getElementById('form-bisP3').value = bisP3El.textContent.trim().toUpperCase();
+                        if (bisP4El) document.getElementById('form-bisP4').value = bisP4El.textContent.trim().toUpperCase();
+                        if (bisM1El) document.getElementById('form-bisM1').value = bisM1El.textContent.trim().toUpperCase();
+                        if (bisM2El) document.getElementById('form-bisM2').value = bisM2El.textContent.trim().toUpperCase();
+                        if (bisM3El) document.getElementById('form-bisM3').value = bisM3El.textContent.trim().toUpperCase();
+                        if (bisM4El) document.getElementById('form-bisM4').value = bisM4El.textContent.trim().toUpperCase();
+                    }
+                }
+                
+                showToast("¡Datos y genealogía cargados correctamente!");
+            } catch (err) {
+                console.error(err);
+                alert("Error al cargar la información: " + err.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        }
 
         function openGenealogiaModal(horseId = null) {
             const overlay = document.getElementById('modal-genealogia-overlay');
