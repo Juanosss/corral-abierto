@@ -86,6 +86,31 @@ const defaultRodeoData = [
 
 const defaultGenealogiaData = [
     {
+        id: "querendona",
+        nombre: "QUERENDONA",
+        criadero: "COLPI",
+        nacional: "SBT N° 257423",
+        fn: "F.N. 15-10-2015",
+        foto: "",
+        alzada: "--",
+        cincha: "--",
+        cana: "--",
+        padre: "Romeral",
+        madre: "Quena",
+        abueloP: "Rotoso",
+        abuelaP: "Orilla",
+        abueloM: "Estiliano",
+        abuelaM: "Que Onda",
+        bisP1: "Huasamaco",
+        bisP2: "Santa Barbara",
+        bisP3: "Ollin",
+        bisP4: "Estopa",
+        bisM1: "Estandarte",
+        bisM2: "Borrachita",
+        bisM3: "Que Pinta",
+        bisM4: "Cabalgata"
+    },
+    {
         id: "carpacho",
         nombre: "CARPACHO",
         criadero: "CRIADERO EL ECO",
@@ -397,6 +422,22 @@ if (!genealogiaData || genealogiaData.length === 0) {
         localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
     } catch(e) {
         console.error("Error al guardar defaultGenealogiaData:", e);
+    }
+} else {
+    // Sincronizar nuevos caballos que no estén en la base de datos de localStorage
+    let dataChanged = false;
+    defaultGenealogiaData.forEach(defHorse => {
+        if (!genealogiaData.some(g => g.id === defHorse.id)) {
+            genealogiaData.unshift(defHorse);
+            dataChanged = true;
+        }
+    });
+    if (dataChanged) {
+        try {
+            localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
+        } catch(e) {
+            console.error("Error al actualizar genealogiaData en localStorage:", e);
+        }
     }
 }
 
