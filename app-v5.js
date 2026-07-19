@@ -987,8 +987,20 @@ function updateHeaderAuthUI() {
                 </div>
             `;
         }
-
+        
         nav.appendChild(authWrapper);
+
+        // Ocultar banner de Club de Socios si ya es un socio activo o administrador
+        const ctaSection = document.querySelector('.section-socio-cta');
+        if (ctaSection) {
+            const isAdmin = currentUser && currentUser.email === 'admin@corralabierto.cl';
+            const isActive = currentUser && currentUser.active;
+            if (isAdmin || isActive) {
+                ctaSection.style.display = 'none';
+            } else {
+                ctaSection.style.display = '';
+            }
+        }
     });
 }
 
