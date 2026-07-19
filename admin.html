@@ -1554,6 +1554,11 @@
                 if (genealogiaModificada) {
                     localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
                     filteredGenealogias = [...genealogiaData];
+                    
+                    if (typeof window.syncGenealogiaDataToSupabase === 'function') {
+                        window.syncGenealogiaDataToSupabase();
+                    }
+                    
                     renderGenealogiasTable();
                 }
             }
@@ -2456,6 +2461,10 @@
             localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
             filteredGenealogias = [...genealogiaData];
 
+            if (typeof window.syncGenealogiaDataToSupabase === 'function') {
+                window.syncGenealogiaDataToSupabase();
+            }
+
             closeGenealogiaModal();
             renderGenealogiasTable();
             showToast("¡El caballo se guardó con éxito!");
@@ -2466,6 +2475,11 @@
                 genealogiaData = genealogiaData.filter(g => g.id !== horseId);
                 localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
                 filteredGenealogias = [...genealogiaData];
+                
+                if (typeof window.syncGenealogiaDataToSupabase === 'function') {
+                    window.syncGenealogiaDataToSupabase();
+                }
+                
                 renderGenealogiasTable();
             }
         }

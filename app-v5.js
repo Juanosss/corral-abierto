@@ -682,6 +682,81 @@ if (typeof supabase !== 'undefined') {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
+// FUNCIONES DE SINCRO DE GENEALOGÍA CON SUPABASE (Evita desincronización entre móvil y PC)
+window.syncGenealogiaDataToSupabase = async function() {
+    if (!supabaseClient) return;
+    try {
+        const syncRecord = {
+            n: -999,
+            rodeo_id: 'genealogia',
+            asociacion: 'GENEALOGIA',
+            criadero: 'SYSTEM',
+            jinetes: [ JSON.stringify(genealogiaData) ],
+            caballos: []
+        };
+        await supabaseClient.from('colleras').upsert(syncRecord);
+        console.log("Genealogía sincronizada con Supabase.");
+    } catch (e) {
+        console.error("Error al sincronizar genealogía con Supabase:", e);
+    }
+};
+
+window.loadGenealogiaDataFromSupabase = async function() {
+    if (!supabaseClient) return;
+    try {
+        const { data, error } = await supabaseClient
+            .from('colleras')
+            .select('*')
+            .eq('rodeo_id', 'genealogia')
+            .eq('n', -999)
+            .maybeSingle();
+            
+        if (!error && data && data.jinetes && data.jinetes[0]) {
+            const remoteData = JSON.parse(data.jinetes[0]);
+            if (Array.isArray(remoteData)) {
+                // Mezclar local y remoto por ID
+                let merged = [...remoteData];
+                let changed = false;
+                
+                genealogiaData.forEach(localHorse => {
+                    if (!merged.some(g => g.id === localHorse.id)) {
+                        merged.unshift(localHorse);
+                        changed = true;
+                    }
+                });
+                
+                genealogiaData = merged;
+                localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
+                
+                // Actualizar tablas o vistas en ejecución
+                if (typeof filteredGenealogias !== 'undefined') {
+                    filteredGenealogias = [...genealogiaData];
+                }
+                if (typeof renderGenealogiasTable === 'function') {
+                    renderGenealogiasTable();
+                }
+                if (typeof renderGenealogias === 'function') {
+                    renderGenealogias();
+                }
+                
+                console.log("Sincronización de genealogía completada con éxito.");
+                
+                // Si la local tenía datos más nuevos que no estaban en la remota, actualizamos la remota
+                if (changed) {
+                    window.syncGenealogiaDataToSupabase();
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Error al descargar genealogía de Supabase:", e);
+    }
+};
+
+// Cargar al inicio de evaluar el script
+if (supabaseClient) {
+    window.loadGenealogiaDataFromSupabase();
+}
+
 // Inicializar interfaz y verificar permisos al cargar la página
 document.addEventListener('DOMContentLoaded', async () => {
     // Si estamos en la página de administración, no ejecutar lógica de inicialización pública
