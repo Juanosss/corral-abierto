@@ -624,7 +624,7 @@
                     </div>
                     <div class="admin-input-group" style="margin-bottom: 12px;">
                         <label class="admin-label">Nueva Contraseña (Dejar en blanco para mantener actual)</label>
-                        <input type="password" id="form-user-pass" class="admin-input" placeholder="Ingresa nueva contraseña si deseas cambiarla">
+                        <input type="text" id="form-user-pass" autocomplete="new-password" class="admin-input" placeholder="Ingresa nueva contraseña si deseas cambiarla" onfocus="this.type='password'" onblur="if(this.value===''){this.type='text';}">
                     </div>
                     <div class="admin-input-group" style="margin-top: 15px; display: flex; align-items: center; gap: 8px;">
                         <input type="checkbox" id="form-user-active" style="width: 18px; height: 18px; cursor: pointer;">
