@@ -167,6 +167,7 @@
                 <div id="tab-genealogias" class="admin-tab-content">
                     <div class="admin-table-actions">
                         <input type="text" id="search-genealogias" class="admin-input admin-search-input" placeholder="Buscar caballo..." style="flex: 1;" oninput="filterGenealogiasTable()">
+                        <button class="admin-btn admin-btn-secondary" onclick="openBulkGenealogiaModal()" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; font-weight: 600;">Carga Masiva 🚀</button>
                         <button class="admin-btn admin-btn-primary" onclick="openGenealogiaModal()">Registrar Caballo</button>
                     </div>
                     
@@ -393,6 +394,34 @@
             <div class="admin-modal-footer">
                 <button class="admin-btn admin-btn-secondary" onclick="closeColleraModal()">Cancelar</button>
                 <button class="admin-btn admin-btn-primary" onclick="saveCollera()">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CARGA MASIVA DE GENEALOGIAS -->
+    <div id="modal-bulk-overlay" class="admin-modal-overlay">
+        <div class="admin-modal" style="max-width: 550px; width: 90%; background: #1a0f0d; border: 2px solid #BA851A; color: #fff;">
+            <div class="admin-modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                <h3 style="color: #BA851A; font-family: var(--font-heading); font-weight: 800;">Carga Masiva de Caballos (SNA) 🚀</h3>
+                <button class="admin-modal-close" onclick="closeBulkGenealogiaModal()" style="color: #fff; opacity: 0.7;">&times;</button>
+            </div>
+            <div class="admin-modal-body" style="padding: 1.5rem 1rem;">
+                <p style="font-size: 0.8rem; color: #ccc; margin-bottom: 15px; line-height: 1.4;">
+                    Ingresa los IDs o números de inscripción de los caballos que deseas cargar, separados por comas, espacios o saltos de línea. El sistema extraerá de forma automática su nombre, criadero, ascendencia y fecha de nacimiento.
+                </p>
+                <div class="admin-input-group">
+                    <label class="admin-label" for="bulk-ids-input" style="font-size: 0.78rem; color: #BA851A; margin-bottom: 6px; display: block;">IDs de los Caballos (ej. 257423, 292553, 306590)</label>
+                    <textarea id="bulk-ids-input" class="admin-input" rows="6" placeholder="257423, 292553&#10;306590" style="font-family: monospace; font-size: 0.88rem; resize: vertical; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; width: 100%; box-sizing: border-box; padding: 12px; outline: none;"></textarea>
+                </div>
+                
+                <!-- Consola / Log de Progreso -->
+                <div id="bulk-log" style="display: none; background: #0c0807; color: #81c784; font-family: monospace; font-size: 0.76rem; padding: 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08); margin-top: 15px; max-height: 180px; overflow-y: auto; line-height: 1.5; white-space: pre-wrap;">
+                    <!-- Mensajes de progreso de carga -->
+                </div>
+            </div>
+            <div class="admin-modal-footer" style="border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: flex-end; gap: 10px; padding-top: 15px;">
+                <button class="admin-btn admin-btn-secondary" onclick="closeBulkGenealogiaModal()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff;">Cerrar</button>
+                <button class="admin-btn admin-btn-primary" id="btn-start-bulk" onclick="startBulkScraping()" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); border: none; color: white;">Iniciar Carga 🚀</button>
             </div>
         </div>
     </div>
@@ -1936,6 +1965,226 @@
                 }
             }
         });
+
+        function openBulkGenealogiaModal() {
+            document.getElementById('modal-bulk-overlay').classList.add('active');
+            document.getElementById('bulk-ids-input').value = "";
+            document.getElementById('bulk-log').style.display = "none";
+            document.getElementById('bulk-log').innerHTML = "";
+            document.getElementById('btn-start-bulk').disabled = false;
+        }
+
+        function closeBulkGenealogiaModal() {
+            document.getElementById('modal-bulk-overlay').classList.remove('active');
+        }
+
+        async function startBulkScraping() {
+            const textarea = document.getElementById('bulk-ids-input');
+            const inputVal = textarea.value.trim();
+            if (!inputVal) {
+                alert("Por favor, ingresa al menos un ID.");
+                return;
+            }
+            
+            const ids = inputVal.split(/[\s,\n]+/).map(s => s.trim()).filter(s => s.length > 0 && !isNaN(s));
+            if (ids.length === 0) {
+                alert("No se encontraron números válidos de ID.");
+                return;
+            }
+            
+            const logDiv = document.getElementById('bulk-log');
+            const btn = document.getElementById('btn-start-bulk');
+            
+            logDiv.style.display = "block";
+            logDiv.innerHTML = `[INICIO] Detectados ${ids.length} caballos para procesar...\n`;
+            btn.disabled = true;
+            textarea.disabled = true;
+            
+            let loadedCount = 0;
+            let successCount = 0;
+            
+            for (const horseId of ids) {
+                logDiv.innerHTML += `\n[PROCESANDO] Buscando ID ${horseId}...`;
+                logDiv.scrollTop = logDiv.scrollHeight;
+                
+                try {
+                    let htmlText = "";
+                    let fetchedOk = false;
+                    
+                    // Intento 1: corsproxy.io
+                    try {
+                        const proxyUrl = `https://corsproxy.io/?` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
+                        const response = await fetch(proxyUrl);
+                        if (response.ok) {
+                            htmlText = await response.text();
+                            fetchedOk = true;
+                        }
+                    } catch(e) {}
+                    
+                    // Intento 2: allorigins
+                    if (!fetchedOk) {
+                        try {
+                            const proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
+                            const response = await fetch(proxyUrl);
+                            if (response.ok) {
+                                htmlText = await response.text();
+                                fetchedOk = true;
+                            }
+                        } catch(e) {}
+                    }
+                    
+                    // Intento 3: codetabs
+                    if (!fetchedOk) {
+                        try {
+                            const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
+                            const response = await fetch(proxyUrl);
+                            if (response.ok) {
+                                htmlText = await response.text();
+                                fetchedOk = true;
+                            }
+                        } catch(e) {}
+                    }
+                    
+                    if (!fetchedOk) {
+                        throw new Error("Error en servidores proxy.");
+                    }
+                    
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+                    const infoDiv = doc.querySelector('.info-caballo');
+                    if (!infoDiv) {
+                        throw new Error("Ficha del caballo no encontrada en el portal.");
+                    }
+                    
+                    const dts = infoDiv.querySelectorAll('dt');
+                    let nombre = "";
+                    let criadero = "";
+                    let fn = "";
+                    let reg = "";
+                    
+                    dts.forEach(dt => {
+                        const text = dt.textContent || dt.innerText;
+                        if (text.includes("Nombre:")) {
+                            nombre = text.replace("Nombre:", "").trim();
+                        } else if (text.includes("Criadero:")) {
+                            criadero = text.replace("Criadero:", "").trim();
+                        } else if (text.includes("Nacimiento:")) {
+                            fn = "F.N. " + text.replace("Nacimiento:", "").trim();
+                        } else if (text.includes("Registro SNA:")) {
+                            reg = "SBT N° " + text.replace("Registro SNA:", "").trim();
+                        }
+                    });
+                    
+                    if (!nombre) {
+                        throw new Error("No se pudo extraer el nombre.");
+                    }
+                    
+                    const horseKey = nombre.toLowerCase().trim().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
+                    
+                    const newHorse = {
+                        id: horseKey,
+                        nombre: nombre.toUpperCase(),
+                        criadero: (criadero || "SIN CRIADERO REGISTRADO").toUpperCase(),
+                        nacional: reg || `SBT N° ${horseId}`,
+                        fn: fn || "F.N. --",
+                        foto: "",
+                        alzada: "--",
+                        cincha: "--",
+                        cana: "--",
+                        padre: "",
+                        madre: "",
+                        abueloP: "",
+                        abuelaP: "",
+                        abueloM: "",
+                        abuelaM: "",
+                        bisP1: "",
+                        bisP2: "",
+                        bisP3: "",
+                        bisP4: "",
+                        bisM1: "",
+                        bisM2: "",
+                        bisM3: "",
+                        bisM4: ""
+                    };
+                    
+                    const treeDiv = doc.querySelector('.arbol-genealogico');
+                    if (treeDiv) {
+                        const n1 = treeDiv.querySelector('.n1');
+                        if (n1) {
+                            const padreEl = n1.querySelector('.c1 a');
+                            const madreEl = n1.querySelector('.c2 a');
+                            if (padreEl) newHorse.padre = padreEl.textContent.trim().toUpperCase();
+                            if (madreEl) newHorse.madre = madreEl.textContent.trim().toUpperCase();
+                        }
+                        
+                        const n2 = treeDiv.querySelector('.n2');
+                        if (n2) {
+                            const abueloPEl = n2.querySelector('.c1 a');
+                            const abuelaPEl = n2.querySelector('.c2 a');
+                            const abueloMEl = n2.querySelector('.c3 a');
+                            const abuelaMEl = n2.querySelector('.c4 a');
+                            if (abueloPEl) newHorse.abueloP = abueloPEl.textContent.trim().toUpperCase();
+                            if (abuelaPEl) newHorse.abuelaP = abuelaPEl.textContent.trim().toUpperCase();
+                            if (abueloMEl) newHorse.abueloM = abueloMEl.textContent.trim().toUpperCase();
+                            if (abuelaMEl) newHorse.abuelaM = abuelaMEl.textContent.trim().toUpperCase();
+                        }
+                        
+                        const n3 = treeDiv.querySelector('.n3');
+                        if (n3) {
+                            const bisP1El = n3.querySelector('.c1 a');
+                            const bisP2El = n3.querySelector('.c2 a');
+                            const bisP3El = n3.querySelector('.c3 a');
+                            const bisP4El = n3.querySelector('.c4 a');
+                            const bisM1El = n3.querySelector('.c5 a');
+                            const bisM2El = n3.querySelector('.c6 a');
+                            const bisM3El = n3.querySelector('.c7 a');
+                            const bisM4El = n3.querySelector('.c8 a');
+                            
+                            if (bisP1El) newHorse.bisP1 = bisP1El.textContent.trim().toUpperCase();
+                            if (bisP2El) newHorse.bisP2 = bisP2El.textContent.trim().toUpperCase();
+                            if (bisP3El) newHorse.bisP3 = bisP3El.textContent.trim().toUpperCase();
+                            if (bisP4El) newHorse.bisP4 = bisP4El.textContent.trim().toUpperCase();
+                            if (bisM1El) newHorse.bisM1 = bisM1El.textContent.trim().toUpperCase();
+                            if (bisM2El) newHorse.bisM2 = bisM2El.textContent.trim().toUpperCase();
+                            if (bisM3El) newHorse.bisM3 = bisM3El.textContent.trim().toUpperCase();
+                            if (bisM4El) newHorse.bisM4 = bisM4El.textContent.trim().toUpperCase();
+                        }
+                    }
+                    
+                    const existingIdx = genealogiaData.findIndex(g => g.id === newHorse.id || g.nacional.includes(horseId));
+                    if (existingIdx !== -1) {
+                        genealogiaData[existingIdx] = { ...genealogiaData[existingIdx], ...newHorse };
+                        logDiv.innerHTML += ` -> ACTUALIZADO: ${newHorse.nombre}`;
+                    } else {
+                        genealogiaData.unshift(newHorse);
+                        logDiv.innerHTML += ` -> NUEVO: ${newHorse.nombre}`;
+                    }
+                    
+                    successCount++;
+                } catch(err) {
+                    logDiv.innerHTML += ` -> ERROR: ${err.message}`;
+                }
+                
+                loadedCount++;
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+            
+            if (successCount > 0) {
+                localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
+                filteredGenealogias = [...genealogiaData];
+                renderGenealogiasTable();
+                
+                if (typeof syncGenealogiaDataToSupabase === 'function') {
+                    syncGenealogiaDataToSupabase();
+                }
+            }
+            
+            logDiv.innerHTML += `\n\n[FIN] Carga completa. Éxito en ${successCount} de ${ids.length} caballos.`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            
+            btn.disabled = false;
+            textarea.disabled = false;
+        }
 
         async function autoScrapeHorse() {
             const horseId = document.getElementById('form-auto-scrape-id').value.trim();
