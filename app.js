@@ -140,14 +140,7 @@ try {
     console.error("Error al leer genealogiaData de localStorage:", e);
 }
 
-if (defaultGenealogiaData.length === 0) {
-    genealogiaData = [];
-    try {
-        localStorage.setItem('genealogiaData', JSON.stringify([]));
-    } catch(e) {
-        console.error("Error al vaciar genealogiaData en localStorage:", e);
-    }
-} else if (!genealogiaData || genealogiaData.length === 0) {
+if (!genealogiaData || genealogiaData.length === 0) {
     genealogiaData = defaultGenealogiaData;
     try {
         localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
