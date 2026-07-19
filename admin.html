@@ -1949,10 +1949,52 @@
             btn.disabled = true;
             
             try {
-                const proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
-                const response = await fetch(proxyUrl);
-                if (!response.ok) throw new Error("No se pudo conectar con el portal.");
-                const htmlText = await response.text();
+                let htmlText = "";
+                let fetchedOk = false;
+                
+                // Intento 1: corsproxy.io (Mucha más estabilidad y velocidad)
+                try {
+                    const proxyUrl = `https://corsproxy.io/?` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
+                    const response = await fetch(proxyUrl);
+                    if (response.ok) {
+                        htmlText = await response.text();
+                        fetchedOk = true;
+                    }
+                } catch(e) {
+                    console.warn("Intento 1 con corsproxy.io falló:", e);
+                }
+                
+                // Intento 2 (Fallback): allorigins.win
+                if (!fetchedOk) {
+                    try {
+                        const proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
+                        const response = await fetch(proxyUrl);
+                        if (response.ok) {
+                            htmlText = await response.text();
+                            fetchedOk = true;
+                        }
+                    } catch(e) {
+                        console.warn("Intento 2 con allorigins falló:", e);
+                    }
+                }
+                
+                // Intento 3 (Fallback): api.codetabs.com
+                if (!fetchedOk) {
+                    try {
+                        const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
+                        const response = await fetch(proxyUrl);
+                        if (response.ok) {
+                            htmlText = await response.text();
+                            fetchedOk = true;
+                        }
+                    } catch(e) {
+                        console.error("Intento 3 con codetabs falló:", e);
+                    }
+                }
+                
+                if (!fetchedOk) {
+                    throw new Error("No se pudo conectar con ningún servidor proxy. Revisa tu conexión a internet o intenta nuevamente.");
+                }
                 
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(htmlText, 'text/html');
