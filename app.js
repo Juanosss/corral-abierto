@@ -1256,13 +1256,19 @@ function createLoginModalDOM() {
     overlay.style.justifyContent = 'center';
     overlay.style.zIndex = '3000';
 
+    const pathname = window.location.pathname;
+    const isRootPage = pathname.endsWith('genealogia.html') || pathname.endsWith('anuario.html') || 
+                       pathname.endsWith('admin.html') || pathname.endsWith('404.html') ||
+                       (!pathname.includes('champion-chile') && !pathname.includes('clasificatorio-'));
+    const rootPrefix = isRootPage ? './' : '../';
+
     overlay.innerHTML = `
         <div class="auth-modal-card" style="background: #1c1412; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; width: 90%; max-width: 820px; height: 550px; box-shadow: 0 25px 60px rgba(0,0,0,0.85); overflow: hidden; position: relative; display: flex; box-sizing: border-box;">
             <!-- Botón de Cerrar (X) -->
             <button onclick="closeLoginModal()" style="position: absolute; right: 16px; top: 16px; background: rgba(0,0,0,0.3); border: none; color: rgba(255,255,255,0.6); cursor: pointer; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; line-height: 1; z-index: 100; transition: all 0.2s;" onmouseover="this.style.background='rgba(0,0,0,0.5)'; this.style.color='#ffb74d'" onmouseout="this.style.background='rgba(0,0,0,0.3)'; this.style.color='rgba(255,255,255,0.6)'">&times;</button>
             
             <!-- Banner de Imagen Izquierdo (Oculto en móvil) -->
-            <div class="auth-banner-left" style="width: 42%; background: linear-gradient(to right, rgba(20,12,10,0.1) 0%, rgba(20,12,10,0.95) 100%), url('champion_huasos.jpg'); background-size: cover; background-position: center; display: block; flex-shrink: 0; position: relative;">
+            <div class="auth-banner-left" style="width: 42%; background: linear-gradient(to right, rgba(20,12,10,0.1) 0%, rgba(20,12,10,0.95) 100%), url('${rootPrefix}champion_huasos.jpg'); background-size: cover; background-position: center; display: block; flex-shrink: 0; position: relative;">
                 <div style="position: absolute; bottom: 30px; left: 35px; right: 25px; z-index: 2;">
                     <h4 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #ff5722; margin: 0 0 8px 0; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.6);">Corral Abierto</h4>
                     <p style="color: #e0d5c1; font-size: 0.85rem; margin: 0; text-shadow: 0 1px 3px rgba(0,0,0,0.8); line-height: 1.45;">Comencemos tu historia con nosotros. Accede a resultados en vivo, genealogía y más.</p>
