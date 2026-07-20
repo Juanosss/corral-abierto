@@ -862,7 +862,30 @@ async function updateHeaderBranding() {
         if (logoUrl.includes('|')) {
             const parts = logoUrl.split('|');
             logoUrl = parts[0];
-            youtubeId = parts[1] || '';
+            let rawYoutubeId = parts[1] || '';
+            
+            // Limpiar ID de YouTube en caso de que sea una URL completa
+            if (rawYoutubeId.includes('/') || rawYoutubeId.includes('?') || rawYoutubeId.includes('=')) {
+                if (rawYoutubeId.includes('embed/live') || rawYoutubeId.includes('channel=')) {
+                    youtubeId = rawYoutubeId;
+                } else {
+                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|live\/)([^#\&\?]*).*/;
+                    const match = rawYoutubeId.match(regExp);
+                    if (match && match[2] && match[2].length === 11) {
+                        youtubeId = match[2];
+                    } else {
+                        const urlParts = rawYoutubeId.split('/');
+                        const lastPart = urlParts[urlParts.length - 1].split('?')[0];
+                        if (lastPart.length === 11) {
+                            youtubeId = lastPart;
+                        } else {
+                            youtubeId = rawYoutubeId;
+                        }
+                    }
+                }
+            } else {
+                youtubeId = rawYoutubeId;
+            }
         } else {
             // Fallback para rodeos preexistentes
             if (activeRodeo.id === 'clasificatorio-sur-2026') {

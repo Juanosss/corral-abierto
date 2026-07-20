@@ -1160,7 +1160,26 @@
             const nombreVal = document.getElementById('form-rodeo-nombre').value.trim();
             const logoVal = document.getElementById('form-rodeo-logo').value.trim();
             const youtubeVal = document.getElementById('form-rodeo-youtube').value.trim();
-            const finalLogoVal = youtubeVal ? `${logoVal}|${youtubeVal}` : logoVal;
+            
+            let cleanYoutubeId = youtubeVal;
+            if (youtubeVal && (youtubeVal.includes('/') || youtubeVal.includes('?') || youtubeVal.includes('='))) {
+                if (youtubeVal.includes('embed/live') || youtubeVal.includes('channel=')) {
+                    // Mantener como está
+                } else {
+                    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|live\/)([^#\&\?]*).*/;
+                    const match = youtubeVal.match(regExp);
+                    if (match && match[2] && match[2].length === 11) {
+                        cleanYoutubeId = match[2];
+                    } else {
+                        const urlParts = youtubeVal.split('/');
+                        const lastPart = urlParts[urlParts.length - 1].split('?')[0];
+                        if (lastPart.length === 11) {
+                            cleanYoutubeId = lastPart;
+                        }
+                    }
+                }
+            }
+            const finalLogoVal = cleanYoutubeId ? `${logoVal}|${cleanYoutubeId}` : logoVal;
             const t1 = document.getElementById('form-rodeo-toro1').checked;
             const t2 = document.getElementById('form-rodeo-toro2').checked;
             const t3 = document.getElementById('form-rodeo-toro3').checked;
