@@ -3023,12 +3023,24 @@
             loadSubscribersList();
         }
 
+        function getTwilioCredentials() {
+            const getVal = (id, key) => {
+                const el = document.getElementById(id);
+                return el ? el.value.trim() : (localStorage.getItem(key) || '');
+            };
+            const accountSid = getVal('sms-account-sid', 'sms_account_sid');
+            const authToken = getVal('sms-auth-token', 'sms_auth_token');
+            const fromNumber = getVal('sms-from-number', 'sms_from_number');
+            
+            const checkbox = document.getElementById('sms-enabled');
+            const enabled = checkbox ? checkbox.checked : (localStorage.getItem('sms_enabled') === 'true');
+            
+            return { accountSid, authToken, fromNumber, enabled };
+        }
+
         async function triggerSmsNotification(messageText) {
-            const accountSid = localStorage.getItem('sms_account_sid');
-            const authToken = localStorage.getItem('sms_auth_token');
-            const fromNumber = localStorage.getItem('sms_from_number');
-            const recipientsRaw = localStorage.getItem('sms_recipient') || '';
-            const enabled = localStorage.getItem('sms_enabled') === 'true';
+            const { accountSid, authToken, fromNumber, enabled } = getTwilioCredentials();
+            const recipientsRaw = document.getElementById('sms-recipient') ? document.getElementById('sms-recipient').value.trim() : (localStorage.getItem('sms_recipient') || '');
 
             if (!enabled || !accountSid || !authToken || !fromNumber) {
                 return;
@@ -3206,9 +3218,7 @@
         }
 
         async function sendCustomSms() {
-            const accountSid = localStorage.getItem('sms_account_sid');
-            const authToken = localStorage.getItem('sms_auth_token');
-            const fromNumber = localStorage.getItem('sms_from_number');
+            const { accountSid, authToken, fromNumber } = getTwilioCredentials();
             const messageText = document.getElementById('sms-custom-body').value.trim();
 
             if (!accountSid || !authToken || !fromNumber) {
