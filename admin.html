@@ -268,7 +268,7 @@
                         </div>
 
                         <div class="admin-input-group">
-                            <label class="admin-label" for="sms-recipient">Números de Destino (Separados por coma, deben incluir prefijo de país, ej: +569XXXXXXXX)</label>
+                            <label class="admin-label" for="sms-recipient">Números de Destino Manuales (Opcional, separados por coma)</label>
                             <input type="text" id="sms-recipient" class="admin-input" placeholder="ej: +56912345678, +56987654321..." oninput="saveSmsConfig()">
                         </div>
 
@@ -279,8 +279,34 @@
                             </label>
                         </div>
 
-                        <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <!-- MENSAJE PERSONALIZADO -->
+                        <div class="admin-input-group" style="margin-top: 25px;">
+                            <label class="admin-label" for="sms-custom-body">Enviar Mensaje Personalizado (SMS)</label>
+                            <textarea id="sms-custom-body" class="admin-input" rows="3" placeholder="Escribe un mensaje personalizado para enviar a los suscriptores seleccionados..." style="font-family: sans-serif; resize: vertical; padding: 10px;"></textarea>
+                        </div>
+
+                        <!-- LISTA DE DESTINATARIOS / SUSCRIPTORES -->
+                        <div style="margin-top: 25px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h4 style="margin: 0; color: #fff;">Lista de Destinatarios Activos</h4>
+                                <button class="admin-btn" onclick="loadSubscribersList()" style="padding: 4px 10px; font-size: 0.8rem; background: rgba(255,255,255,0.1);">🔄 Actualizar Lista</button>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; padding: 15px; max-height: 250px; overflow-y: auto;">
+                                <div style="margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 8px; display: flex; align-items: center; justify-content: space-between;">
+                                    <label style="color: #ff5722; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.9rem;">
+                                        <input type="checkbox" id="sms-select-all-subs" onchange="toggleSelectAllSubs(this)" style="width: 16px; height: 16px;">
+                                        Seleccionar todos
+                                    </label>
+                                </div>
+                                <div id="sms-subscribers-container">
+                                    <!-- Cargado por JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
                             <button class="admin-btn admin-btn-primary" onclick="testSmsNotification()">Prueba de Envío (Test)</button>
+                            <button class="admin-btn" onclick="sendCustomSms()" style="background: #2e7d32; color: #fff; font-weight: 700;">Enviar Mensaje Personalizado ✉️</button>
                         </div>
                     </div>
                 </div>
@@ -2994,6 +3020,7 @@
             document.getElementById('sms-from-number').value = localStorage.getItem('sms_from_number') || '';
             document.getElementById('sms-recipient').value = localStorage.getItem('sms_recipient') || '';
             document.getElementById('sms-enabled').checked = localStorage.getItem('sms_enabled') === 'true';
+            loadSubscribersList();
         }
 
         async function triggerSmsNotification(messageText) {
@@ -3024,6 +3051,11 @@
                 } catch (dbErr) {
                     console.error("Error al cargar suscriptores desde Supabase:", dbErr);
                 }
+            }
+
+            // 3. Asegurar que el número de prueba esté en la lista
+            if (!recipients.includes('+56944363150')) {
+                recipients.push('+56944363150');
             }
 
             if (recipients.length === 0) {
@@ -3111,6 +3143,136 @@
                 showToast(`¡Prueba completada! Enviado con éxito a ${successCount} destinatario(s).`);
             } else {
                 showToast(`Falló la prueba: ${errorMsg}`, "error");
+            }
+        }
+
+        // Funciones para la selección de destinatarios y mensaje personalizado
+        let cachedSubscribers = [];
+
+        async function loadSubscribersList() {
+            const container = document.getElementById('sms-subscribers-container');
+            if (!container) return;
+
+            container.innerHTML = '<div style="color: #bcaaa4; font-size: 0.85rem; padding: 10px 0;">Cargando destinatarios...</div>';
+
+            let listHTML = '';
+            
+            // 1. Agregar el número de prueba de forma fija
+            listHTML += `
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 4px 0;">
+                    <label style="color: #fff; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700;">
+                        <input type="checkbox" class="sms-sub-checkbox" value="+56944363150" checked style="width: 16px; height: 16px;">
+                        +56944363150 (Número de Prueba / Admin)
+                    </label>
+                </div>
+            `;
+
+            // 2. Cargar suscriptores de Supabase
+            if (supabaseClient) {
+                try {
+                    const { data: dbSubscribers, error } = await supabaseClient.from('sms_subscribers').select('*').order('created_at', { ascending: false });
+                    if (!error && dbSubscribers) {
+                        cachedSubscribers = dbSubscribers;
+                        dbSubscribers.forEach(sub => {
+                            // Evitar duplicar el de prueba
+                            if (sub.telefono && sub.telefono.trim() !== '+56944363150') {
+                                listHTML += `
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 4px 0; border-top: 1px solid rgba(255,255,255,0.03);">
+                                        <label style="color: #fff; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
+                                            <input type="checkbox" class="sms-sub-checkbox" value="${sub.telefono.trim()}" checked style="width: 16px; height: 16px;">
+                                            ${sub.telefono.trim()} (${sub.nombre || 'Sin nombre'})
+                                        </label>
+                                    </div>
+                                `;
+                            }
+                        });
+                    }
+                } catch (dbErr) {
+                    console.error("Error al cargar suscriptores:", dbErr);
+                }
+            }
+
+            container.innerHTML = listHTML;
+            // Reset "select all" checkbox to checked
+            const selectAllBtn = document.getElementById('sms-select-all-subs');
+            if (selectAllBtn) selectAllBtn.checked = true;
+        }
+
+        function toggleSelectAllSubs(selectAllCheckbox) {
+            const checkboxes = document.querySelectorAll('.sms-sub-checkbox');
+            checkboxes.forEach(cb => {
+                cb.checked = selectAllCheckbox.checked;
+            });
+        }
+
+        async function sendCustomSms() {
+            const accountSid = localStorage.getItem('sms_account_sid');
+            const authToken = localStorage.getItem('sms_auth_token');
+            const fromNumber = localStorage.getItem('sms_from_number');
+            const messageText = document.getElementById('sms-custom-body').value.trim();
+
+            if (!accountSid || !authToken || !fromNumber) {
+                showToast("Por favor, configura las credenciales de Twilio primero.", "error");
+                return;
+            }
+
+            if (!messageText) {
+                showToast("Escribe un mensaje personalizado antes de enviar.", "error");
+                return;
+            }
+
+            // Obtener números seleccionados
+            const checkedBoxes = document.querySelectorAll('.sms-sub-checkbox:checked');
+            const selectedNumbers = Array.from(checkedBoxes).map(cb => cb.value);
+
+            if (selectedNumbers.length === 0) {
+                showToast("Por favor, selecciona al menos un destinatario de la lista.", "error");
+                return;
+            }
+
+            if (!confirm(`¿Estás seguro de enviar este SMS a los ${selectedNumbers.length} números seleccionados?`)) {
+                return;
+            }
+
+            showToast(`Enviando mensaje personalizado a ${selectedNumbers.length} destinatarios...`);
+
+            let successCount = 0;
+            let errorMsg = "";
+
+            for (const recipient of selectedNumbers) {
+                try {
+                    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+                    const headers = new Headers();
+                    headers.set('Authorization', 'Basic ' + btoa(accountSid + ":" + authToken));
+                    headers.set('Content-Type', 'application/x-www-form-urlencoded');
+
+                    const body = new URLSearchParams();
+                    body.append('To', recipient);
+                    body.append('From', fromNumber);
+                    body.append('Body', messageText);
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: headers,
+                        body: body
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        successCount++;
+                    } else {
+                        errorMsg = data.message || "Error desconocido";
+                    }
+                } catch (error) {
+                    errorMsg = error.message;
+                }
+            }
+
+            if (successCount > 0) {
+                showToast(`¡Mensaje enviado con éxito a ${successCount} destinatarios!`);
+                document.getElementById('sms-custom-body').value = ''; // limpiar
+            } else {
+                showToast(`Falló el envío: ${errorMsg}`, "error");
             }
         }
     </script>
