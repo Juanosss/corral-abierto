@@ -3167,13 +3167,22 @@
 
             container.innerHTML = '<div style="color: #bcaaa4; font-size: 0.85rem; padding: 10px 0;">Cargando destinatarios...</div>';
 
+            const recipientInput = document.getElementById('sms-recipient');
+            if (recipientInput && !recipientInput.value.trim()) {
+                // Valor por defecto inicial
+                recipientInput.value = '+56944363150';
+                saveSmsConfig();
+            }
+
+            const currentRecipients = recipientInput ? recipientInput.value.split(',').map(n => n.trim()).filter(n => n.length > 0) : ['+56944363150'];
             let listHTML = '';
             
             // 1. Agregar el número de prueba de forma fija
+            const isTestChecked = currentRecipients.includes('+56944363150') ? 'checked' : '';
             listHTML += `
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 4px 0;">
                     <label style="color: #fff; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 700;">
-                        <input type="checkbox" class="sms-sub-checkbox" value="+56944363150" checked style="width: 16px; height: 16px;">
+                        <input type="checkbox" class="sms-sub-checkbox" value="+56944363150" ${isTestChecked} onchange="updateRecipientInputFromCheckboxes()" style="width: 16px; height: 16px;">
                         +56944363150 (Número de Prueba / Admin)
                     </label>
                 </div>
@@ -3188,11 +3197,13 @@
                         dbSubscribers.forEach(sub => {
                             // Evitar duplicar el de prueba
                             if (sub.telefono && sub.telefono.trim() !== '+56944363150') {
+                                const phone = sub.telefono.trim();
+                                const isChecked = currentRecipients.includes(phone) ? 'checked' : '';
                                 listHTML += `
                                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding: 4px 0; border-top: 1px solid rgba(255,255,255,0.03);">
                                         <label style="color: #fff; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 0.85rem;">
-                                            <input type="checkbox" class="sms-sub-checkbox" value="${sub.telefono.trim()}" checked style="width: 16px; height: 16px;">
-                                            ${sub.telefono.trim()} (${sub.nombre || 'Sin nombre'})
+                                            <input type="checkbox" class="sms-sub-checkbox" value="${phone}" ${isChecked} onchange="updateRecipientInputFromCheckboxes()" style="width: 16px; height: 16px;">
+                                            ${phone} (${sub.nombre || 'Sin nombre'})
                                         </label>
                                     </div>
                                 `;
@@ -3205,9 +3216,32 @@
             }
 
             container.innerHTML = listHTML;
-            // Reset "select all" checkbox to checked
+            
+            // Sincronizar checkbox "seleccionar todos"
             const selectAllBtn = document.getElementById('sms-select-all-subs');
-            if (selectAllBtn) selectAllBtn.checked = true;
+            if (selectAllBtn) {
+                const totalCheckboxes = container.querySelectorAll('.sms-sub-checkbox').length;
+                const checkedCheckboxes = container.querySelectorAll('.sms-sub-checkbox:checked').length;
+                selectAllBtn.checked = totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes;
+            }
+        }
+
+        function updateRecipientInputFromCheckboxes() {
+            const checkboxes = document.querySelectorAll('.sms-sub-checkbox:checked');
+            const numbers = Array.from(checkboxes).map(cb => cb.value.trim());
+            const input = document.getElementById('sms-recipient');
+            if (input) {
+                input.value = numbers.join(', ');
+                saveSmsConfig(); // guardar
+            }
+            
+            // Sincronizar checkbox "seleccionar todos"
+            const selectAllBtn = document.getElementById('sms-select-all-subs');
+            if (selectAllBtn) {
+                const totalCheckboxes = document.querySelectorAll('.sms-sub-checkbox').length;
+                const checkedCheckboxes = document.querySelectorAll('.sms-sub-checkbox:checked').length;
+                selectAllBtn.checked = totalCheckboxes > 0 && totalCheckboxes === checkedCheckboxes;
+            }
         }
 
         function toggleSelectAllSubs(selectAllCheckbox) {
@@ -3215,6 +3249,7 @@
             checkboxes.forEach(cb => {
                 cb.checked = selectAllCheckbox.checked;
             });
+            updateRecipientInputFromCheckboxes();
         }
 
         async function sendCustomSms() {
@@ -3231,9 +3266,9 @@
                 return;
             }
 
-            // Obtener números seleccionados
-            const checkedBoxes = document.querySelectorAll('.sms-sub-checkbox:checked');
-            const selectedNumbers = Array.from(checkedBoxes).map(cb => cb.value);
+            // Obtener números directamente de la caja de texto (que se sincroniza con los checkboxes)
+            const recipientInput = document.getElementById('sms-recipient');
+            const selectedNumbers = recipientInput ? recipientInput.value.split(',').map(n => n.trim()).filter(n => n.length > 0) : [];
 
             if (selectedNumbers.length === 0) {
                 showToast("Por favor, selecciona al menos un destinatario de la lista.", "error");
