@@ -3003,11 +3003,32 @@
             const recipientsRaw = localStorage.getItem('sms_recipient') || '';
             const enabled = localStorage.getItem('sms_enabled') === 'true';
 
-            if (!enabled || !accountSid || !authToken || !fromNumber || !recipientsRaw) {
+            if (!enabled || !accountSid || !authToken || !fromNumber) {
                 return;
             }
 
-            const recipients = recipientsRaw.split(',').map(n => n.trim()).filter(n => n.length > 0);
+            // 1. Obtener destinatarios manuales
+            let recipients = recipientsRaw.split(',').map(n => n.trim()).filter(n => n.length > 0);
+
+            // 2. Obtener destinatarios dinámicos desde Supabase
+            if (supabaseClient) {
+                try {
+                    const { data: dbSubscribers, error } = await supabaseClient.from('sms_subscribers').select('telefono');
+                    if (!error && dbSubscribers) {
+                        dbSubscribers.forEach(sub => {
+                            if (sub.telefono && !recipients.includes(sub.telefono.trim())) {
+                                recipients.push(sub.telefono.trim());
+                            }
+                        });
+                    }
+                } catch (dbErr) {
+                    console.error("Error al cargar suscriptores desde Supabase:", dbErr);
+                }
+            }
+
+            if (recipients.length === 0) {
+                return;
+            }
 
             for (const recipient of recipients) {
                 try {

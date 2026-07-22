@@ -774,6 +774,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await checkPageAccess();
     createLoginModalDOM();
     await initRodeoData();
+    initSmsSubscriptionDOM();
 });
 
 // Función para inyectar dinámicamente el botón de menú hamburguesa y su funcionalidad en celulares
@@ -1915,6 +1916,104 @@ async function submitEditProfile(e) {
         msg.style.color = '#ff8a80';
         msg.innerText = "Error inesperado.";
         console.error(err);
+    }
+}
+
+// Inyectar formulario de suscripción SMS en la página pública
+function initSmsSubscriptionDOM() {
+    const mainContent = document.querySelector('.main-content');
+    if (!mainContent) return;
+
+    // Crear sección de suscripción
+    const smsSection = document.createElement('section');
+    smsSection.className = 'section-sms-subscription';
+    smsSection.style.cssText = `
+        background: rgba(255, 87, 34, 0.05);
+        border: 1px dashed rgba(255, 87, 34, 0.3);
+        border-radius: 12px;
+        padding: 2rem;
+        margin: 3rem auto;
+        max-width: 600px;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    `;
+
+    smsSection.innerHTML = `
+        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #ff5722; margin-top: 0; margin-bottom: 0.5rem;">📱 Alertas de Resultados por SMS</h3>
+        <p style="color: #bcaaa4; font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.4;">
+            Suscríbete gratis para recibir las actualizaciones y puntajes del rodeo en vivo directamente en tu celular vía mensaje de texto (SMS).
+        </p>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center;">
+            <input type="text" id="sub-name" placeholder="Tu Nombre" style="padding: 10px 15px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; font-size: 0.9rem; width: 140px; box-sizing: border-box;">
+            <input type="tel" id="sub-phone" placeholder="Celular (ej: +56912345678)" style="padding: 10px 15px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; font-size: 0.9rem; width: 220px; box-sizing: border-box;">
+            <button id="btn-subscribe-sms" style="padding: 10px 20px; border-radius: 6px; background: #ff5722; color: #fff; font-weight: 700; border: none; cursor: pointer; transition: background 0.2s; height: 38px;">
+                Suscribirme
+            </button>
+        </div>
+        <div id="sub-message" style="margin-top: 12px; font-size: 0.8rem; height: 16px; font-weight: 600;"></div>
+    `;
+
+    mainContent.appendChild(smsSection);
+
+    // Lógica del botón de suscripción
+    const btn = smsSection.querySelector('#btn-subscribe-sms');
+    const nameInput = smsSection.querySelector('#sub-name');
+    const phoneInput = smsSection.querySelector('#sub-phone');
+    const msgDiv = smsSection.querySelector('#sub-message');
+
+    if (btn && nameInput && phoneInput && msgDiv) {
+        btn.addEventListener('click', async () => {
+            const nombre = nameInput.value.trim();
+            let telefono = phoneInput.value.trim();
+
+            if (!nombre || !telefono) {
+                msgDiv.textContent = "⚠️ Por favor, ingresa tu nombre y número de celular.";
+                msgDiv.style.color = "#ffeb3b";
+                return;
+            }
+
+            // Validar formato del teléfono
+            if (!telefono.startsWith('+') || telefono.length < 10) {
+                msgDiv.textContent = "⚠️ El número debe incluir '+' y el prefijo de país (ej: +56912345678).";
+                msgDiv.style.color = "#ffeb3b";
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = "Procesando...";
+            msgDiv.textContent = "";
+
+            try {
+                if (!supabaseClient) {
+                    throw new Error("Cliente de base de datos no inicializado.");
+                }
+
+                const { error } = await supabaseClient.from('sms_subscribers').insert([
+                    { nombre: nombre, telefono: telefono }
+                ]);
+
+                if (error) {
+                    if (error.code === '23505') { // Duplicado en DB
+                        msgDiv.textContent = "ℹ️ Este número ya se encuentra registrado.";
+                        msgDiv.style.color = "#4caf50";
+                    } else {
+                        throw error;
+                    }
+                } else {
+                    msgDiv.textContent = "✅ ¡Te has suscrito con éxito! Recibirás los puntajes en vivo.";
+                    msgDiv.style.color = "#4caf50";
+                    nameInput.value = "";
+                    phoneInput.value = "";
+                }
+            } catch (err) {
+                console.error("Error al suscribir:", err);
+                msgDiv.textContent = "❌ Ocurrió un error. Inténtalo de nuevo más tarde.";
+                msgDiv.style.color = "#f44336";
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "Suscribirme";
+            }
+        });
     }
 }
 

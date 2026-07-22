@@ -44,3 +44,23 @@ VALUES
 ('clasificatorio-centro-2026', 'Clasificatorio Centro 2026', false, '', true, true, true, true),
 ('clasificatorio-norte-2026', 'Clasificatorio Norte 2026', false, '', true, true, true, true)
 ON CONFLICT (id) DO NOTHING;
+
+-- 3. Crear tabla de suscriptores para recibir alertas SMS
+CREATE TABLE IF NOT EXISTS sms_subscribers (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    telefono TEXT NOT NULL UNIQUE,
+    nombre TEXT DEFAULT '',
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Habilitar RLS en sms_subscribers
+ALTER TABLE sms_subscribers ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Permitir inserción pública" ON sms_subscribers;
+CREATE POLICY "Permitir inserción pública" ON sms_subscribers 
+    FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Permitir lectura a administradores" ON sms_subscribers;
+CREATE POLICY "Permitir lectura a administradores" ON sms_subscribers 
+    FOR SELECT USING (true);
+
