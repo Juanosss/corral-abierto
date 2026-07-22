@@ -67,7 +67,7 @@
                      <button class="admin-tab-btn" id="nav-btn-genealogias" onclick="switchTab('tab-genealogias')">Genealogía & Morfología</button>
                      <button class="admin-tab-btn" id="nav-btn-backup" onclick="switchTab('tab-backup')">Respaldos & Backup</button>
                      <button class="admin-tab-btn" id="nav-btn-usuarios" onclick="switchTab('tab-usuarios')">Control de Socios</button>
-                     <button class="admin-tab-btn" id="nav-btn-whatsapp" onclick="switchTab('tab-whatsapp')">Notificaciones WhatsApp</button>
+                     <button class="admin-tab-btn" id="nav-btn-sms" onclick="switchTab('tab-sms')">Notificaciones SMS</button>
                  </div>
  
                  <!-- CONTENIDO PESTAÑA 0: GESTIÓN DE RODEOS -->
@@ -242,56 +242,45 @@
                     </div>
                 </div>
 
-                <!-- CONTENIDO PESTAÑA 5: WHATSAPP -->
-                <div id="tab-whatsapp" class="admin-tab-content">
+                <!-- CONTENIDO PESTAÑA 5: SMS -->
+                <div id="tab-sms" class="admin-tab-content">
                     <div class="admin-card" style="max-width: 800px; margin: 0 auto; padding: 25px; box-sizing: border-box;">
                         <h3 style="margin-top: 0; color: #ff5722; font-family: 'Playfair Display', serif; font-size: 1.5rem; display: flex; align-items: center; gap: 8px;">
-                            <span>💬 Configuración WhatsApp (Meta Cloud API)</span>
+                            <span>📱 Configuración de Notificaciones por SMS (Twilio)</span>
                         </h3>
                         <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">
-                            Configura las credenciales de la API Oficial de WhatsApp de Meta. Las actualizaciones de los puntajes del rodeo se enviarán automáticamente a los destinatarios configurados.
+                            Configura las credenciales de Twilio para enviar avisos de resultados de rodeos por SMS en tiempo real a tus suscriptores.
                         </p>
                         
                         <div class="admin-input-group">
-                            <label class="admin-label" for="wa-token">Token de Acceso Permanente (System User Token)</label>
-                            <input type="password" id="wa-token" class="admin-input" placeholder="Escribe tu token Bearer de Meta..." oninput="saveWaConfig()">
+                            <label class="admin-label" for="sms-account-sid">Twilio Account SID</label>
+                            <input type="text" id="sms-account-sid" class="admin-input" placeholder="ej: ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX..." oninput="saveSmsConfig()">
                         </div>
 
                         <div class="admin-input-group">
-                            <label class="admin-label" for="wa-phone-id">Identificador del Número de Teléfono (Phone Number ID)</label>
-                            <input type="text" id="wa-phone-id" class="admin-input" placeholder="ej: 104847281923..." oninput="saveWaConfig()">
+                            <label class="admin-label" for="sms-auth-token">Twilio Auth Token</label>
+                            <input type="password" id="sms-auth-token" class="admin-input" placeholder="Escribe tu Auth Token de Twilio..." oninput="saveSmsConfig()">
                         </div>
 
                         <div class="admin-input-group">
-                            <label class="admin-label" for="wa-recipient">Números de Destino (Código de país + número, separados por coma)</label>
-                            <input type="text" id="wa-recipient" class="admin-input" placeholder="ej: 56912345678, 56987654321..." oninput="saveWaConfig()">
+                            <label class="admin-label" for="sms-from-number">Número Remitente Twilio (Twilio Phone Number)</label>
+                            <input type="text" id="sms-from-number" class="admin-input" placeholder="ej: +1864XXXXXXX..." oninput="saveSmsConfig()">
                         </div>
 
                         <div class="admin-input-group">
-                            <label class="admin-label" for="wa-template">Nombre de la Plantilla aprobada en Meta</label>
-                            <input type="text" id="wa-template" class="admin-input" placeholder="ej: rodeo_update..." oninput="saveWaConfig()">
+                            <label class="admin-label" for="sms-recipient">Números de Destino (Separados por coma, deben incluir prefijo de país, ej: +569XXXXXXXX)</label>
+                            <input type="text" id="sms-recipient" class="admin-input" placeholder="ej: +56912345678, +56987654321..." oninput="saveSmsConfig()">
                         </div>
 
                         <div style="display: flex; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
                             <label style="color: #fff; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
-                                <input type="checkbox" id="wa-enabled" onchange="saveWaConfig()" style="width: 18px; height: 18px; accent-color: #ff5722;">
-                                Habilitar notificaciones de WhatsApp en tiempo real
+                                <input type="checkbox" id="sms-enabled" onchange="saveSmsConfig()" style="width: 18px; height: 18px; accent-color: #ff5722;">
+                                Habilitar notificaciones SMS en tiempo real al guardar resultados
                             </label>
                         </div>
 
-                        <div style="margin-top: 30px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 6px; border-left: 4px solid #ff5722;">
-                            <h4 style="margin: 0 0 10px 0; color: #fff;">💡 Guía para la plantilla de Meta</h4>
-                            <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0; line-height: 1.4;">
-                                Tu plantilla de WhatsApp debe aceptar al menos 4 variables en el cuerpo del mensaje:
-                                <br><strong>{{1}}</strong>: Nombre del Rodeo
-                                <br><strong>{{2}}</strong>: Número de Collera
-                                <br><strong>{{3}}</strong>: Jinetes / Caballos
-                                <br><strong>{{4}}</strong>: Puntaje actualizado
-                            </p>
-                        </div>
-
                         <div style="margin-top: 20px; display: flex; gap: 10px;">
-                            <button class="admin-btn admin-btn-primary" onclick="testWhatsAppNotification()">Prueba de Envío (Test)</button>
+                            <button class="admin-btn admin-btn-primary" onclick="testSmsNotification()">Prueba de Envío (Test)</button>
                         </div>
                     </div>
                 </div>
@@ -1674,7 +1663,7 @@
                 }
             }
 
-            // Notificación WhatsApp
+            // Notificación SMS
             try {
                 const activeRodeoObj = rodeos.find(r => r.id === activeRodeoId);
                 const rodeoName = activeRodeoObj ? activeRodeoObj.nombre : "Rodeo";
@@ -1685,11 +1674,13 @@
                 if (colleraObj.animal2 !== "") scoreParts.push(`A2: ${colleraObj.animal2}`);
                 if (colleraObj.animal3 !== "") scoreParts.push(`A3: ${colleraObj.animal3}`);
                 if (colleraObj.animal4 !== "") scoreParts.push(`A4: ${colleraObj.animal4}`);
-                const scoreStr = `${scoreParts.join(', ')} | Total: ${colleraObj.resultado} pts`;
+                const scoreStr = scoreParts.join(', ');
+                
+                const smsText = `Rodeo: ${rodeoName} | Collera N° ${colleraObj.n} (${jinetesStr}) actualizó puntaje: ${scoreStr} | Total: ${colleraObj.resultado} pts`;
 
-                triggerWhatsAppNotification(rodeoName, colleraObj.n, jinetesStr, scoreStr);
-            } catch (waErr) {
-                console.error("Error al disparar WhatsApp:", waErr);
+                triggerSmsNotification(smsText);
+            } catch (smsErr) {
+                console.error("Error al disparar SMS:", smsErr);
             }
 
             filteredColleras = [...rodeoData];
@@ -2984,35 +2975,35 @@
                 });
             }
 
-            // Cargar configuración de WhatsApp al iniciar
-            loadWaConfig();
+            // Cargar configuración de SMS al iniciar
+            loadSmsConfig();
         });
 
-        // Funciones para WhatsApp
-        function saveWaConfig() {
-            localStorage.setItem('wa_token', document.getElementById('wa-token').value.trim());
-            localStorage.setItem('wa_phone_id', document.getElementById('wa-phone-id').value.trim());
-            localStorage.setItem('wa_recipient', document.getElementById('wa-recipient').value.trim());
-            localStorage.setItem('wa_template', document.getElementById('wa-template').value.trim());
-            localStorage.setItem('wa_enabled', document.getElementById('wa-enabled').checked);
+        // Funciones para SMS (Twilio)
+        function saveSmsConfig() {
+            localStorage.setItem('sms_account_sid', document.getElementById('sms-account-sid').value.trim());
+            localStorage.setItem('sms_auth_token', document.getElementById('sms-auth-token').value.trim());
+            localStorage.setItem('sms_from_number', document.getElementById('sms-from-number').value.trim());
+            localStorage.setItem('sms_recipient', document.getElementById('sms-recipient').value.trim());
+            localStorage.setItem('sms_enabled', document.getElementById('sms-enabled').checked);
         }
 
-        function loadWaConfig() {
-            document.getElementById('wa-token').value = localStorage.getItem('wa_token') || '';
-            document.getElementById('wa-phone-id').value = localStorage.getItem('wa_phone_id') || '';
-            document.getElementById('wa-recipient').value = localStorage.getItem('wa_recipient') || '';
-            document.getElementById('wa-template').value = localStorage.getItem('wa_template') || '';
-            document.getElementById('wa-enabled').checked = localStorage.getItem('wa_enabled') === 'true';
+        function loadSmsConfig() {
+            document.getElementById('sms-account-sid').value = localStorage.getItem('sms_account_sid') || '';
+            document.getElementById('sms-auth-token').value = localStorage.getItem('sms_auth_token') || '';
+            document.getElementById('sms-from-number').value = localStorage.getItem('sms_from_number') || '';
+            document.getElementById('sms-recipient').value = localStorage.getItem('sms_recipient') || '';
+            document.getElementById('sms-enabled').checked = localStorage.getItem('sms_enabled') === 'true';
         }
 
-        async function triggerWhatsAppNotification(rodeoName, colleraNumber, jinetesString, scoreString) {
-            const token = localStorage.getItem('wa_token');
-            const phoneId = localStorage.getItem('wa_phone_id');
-            const recipientsRaw = localStorage.getItem('wa_recipient') || '';
-            const template = localStorage.getItem('wa_template');
-            const enabled = localStorage.getItem('wa_enabled') === 'true';
+        async function triggerSmsNotification(messageText) {
+            const accountSid = localStorage.getItem('sms_account_sid');
+            const authToken = localStorage.getItem('sms_auth_token');
+            const fromNumber = localStorage.getItem('sms_from_number');
+            const recipientsRaw = localStorage.getItem('sms_recipient') || '';
+            const enabled = localStorage.getItem('sms_enabled') === 'true';
 
-            if (!enabled || !token || !phoneId || !template || !recipientsRaw) {
+            if (!enabled || !accountSid || !authToken || !fromNumber || !recipientsRaw) {
                 return;
             }
 
@@ -3020,108 +3011,75 @@
 
             for (const recipient of recipients) {
                 try {
-                    const url = `https://graph.facebook.com/v18.0/${phoneId}/messages`;
-                    const payload = {
-                        messaging_product: "whatsapp",
-                        to: recipient,
-                        type: "template",
-                        template: {
-                            name: template,
-                            language: {
-                                code: "es"
-                            },
-                            components: [
-                                {
-                                    type: "body",
-                                    parameters: [
-                                        { type: "text", text: rodeoName },
-                                        { type: "text", text: String(colleraNumber) },
-                                        { type: "text", text: jinetesString },
-                                        { type: "text", text: scoreString }
-                                    ]
-                                }
-                            ]
-                        }
-                    };
+                    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+                    const headers = new Headers();
+                    headers.set('Authorization', 'Basic ' + btoa(accountSid + ":" + authToken));
+                    headers.set('Content-Type', 'application/x-www-form-urlencoded');
+
+                    const body = new URLSearchParams();
+                    body.append('To', recipient);
+                    body.append('From', fromNumber);
+                    body.append('Body', messageText);
 
                     const response = await fetch(url, {
                         method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
+                        headers: headers,
+                        body: body
                     });
 
                     const data = await response.json();
                     if (!response.ok) {
-                        console.error("Error al enviar WhatsApp a " + recipient + ":", data);
+                        console.error("Error al enviar SMS a " + recipient + ":", data);
                     } else {
-                        console.log("WhatsApp enviado con éxito a " + recipient, data);
+                        console.log("SMS enviado con éxito a " + recipient, data);
                     }
                 } catch (error) {
-                    console.error("Error en petición a WhatsApp para " + recipient + ":", error);
+                    console.error("Error en petición a Twilio para " + recipient + ":", error);
                 }
             }
         }
 
-        async function testWhatsAppNotification() {
-            const token = document.getElementById('wa-token').value.trim();
-            const phoneId = document.getElementById('wa-phone-id').value.trim();
-            const recipientsRaw = document.getElementById('wa-recipient').value.trim();
-            const template = document.getElementById('wa-template').value.trim();
+        async function testSmsNotification() {
+            const accountSid = document.getElementById('sms-account-sid').value.trim();
+            const authToken = document.getElementById('sms-auth-token').value.trim();
+            const fromNumber = document.getElementById('sms-from-number').value.trim();
+            const recipientsRaw = document.getElementById('sms-recipient').value.trim();
 
-            if (!token || !phoneId || !template || !recipientsRaw) {
+            if (!accountSid || !authToken || !fromNumber || !recipientsRaw) {
                 showToast("Por favor, completa todos los campos de configuración para realizar la prueba.", "error");
                 return;
             }
 
-            showToast("Enviando WhatsApp de prueba...");
+            showToast("Enviando SMS de prueba...");
             
+            const testMsg = "Prueba de Alerta SMS Rodeo: ¡Conexión con Twilio configurada con éxito!";
             const recipients = recipientsRaw.split(',').map(n => n.trim()).filter(n => n.length > 0);
             let successCount = 0;
             let errorMsg = "";
 
             for (const recipient of recipients) {
                 try {
-                    const url = `https://graph.facebook.com/v18.0/${phoneId}/messages`;
-                    const payload = {
-                        messaging_product: "whatsapp",
-                        to: recipient,
-                        type: "template",
-                        template: {
-                            name: template,
-                            language: {
-                                code: "es"
-                            },
-                            components: [
-                                {
-                                    type: "body",
-                                    parameters: [
-                                        { type: "text", text: "Rodeo de Prueba" },
-                                        { type: "text", text: "99" },
-                                        { type: "text", text: "Jinete A y Jinete B" },
-                                        { type: "text", text: "A1: 4, A2: 5 | Total: 9 pts" }
-                                    ]
-                                }
-                            ]
-                        }
-                    };
+                    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+                    const headers = new Headers();
+                    headers.set('Authorization', 'Basic ' + btoa(accountSid + ":" + authToken));
+                    headers.set('Content-Type', 'application/x-www-form-urlencoded');
+
+                    const body = new URLSearchParams();
+                    body.append('To', recipient);
+                    body.append('From', fromNumber);
+                    body.append('Body', testMsg);
 
                     const response = await fetch(url, {
                         method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(payload)
+                        headers: headers,
+                        body: body
                     });
 
                     const data = await response.json();
                     if (response.ok) {
                         successCount++;
                     } else {
-                        errorMsg = data.error ? data.error.message : "Error desconocido";
+                        errorMsg = data.message || "Error desconocido";
                     }
                 } catch (error) {
                     errorMsg = error.message;
