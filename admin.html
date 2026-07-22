@@ -67,6 +67,7 @@
                      <button class="admin-tab-btn" id="nav-btn-genealogias" onclick="switchTab('tab-genealogias')">Genealogía & Morfología</button>
                      <button class="admin-tab-btn" id="nav-btn-backup" onclick="switchTab('tab-backup')">Respaldos & Backup</button>
                      <button class="admin-tab-btn" id="nav-btn-usuarios" onclick="switchTab('tab-usuarios')">Control de Socios</button>
+                     <button class="admin-tab-btn" id="nav-btn-whatsapp" onclick="switchTab('tab-whatsapp')">Notificaciones WhatsApp</button>
                  </div>
  
                  <!-- CONTENIDO PESTAÑA 0: GESTIÓN DE RODEOS -->
@@ -238,6 +239,60 @@
                                 <!-- Filas dinámicas -->
                             </tbody>
                         </table>
+                    </div>
+                </div>
+
+                <!-- CONTENIDO PESTAÑA 5: WHATSAPP -->
+                <div id="tab-whatsapp" class="admin-tab-content">
+                    <div class="admin-card" style="max-width: 800px; margin: 0 auto; padding: 25px; box-sizing: border-box;">
+                        <h3 style="margin-top: 0; color: #ff5722; font-family: 'Playfair Display', serif; font-size: 1.5rem; display: flex; align-items: center; gap: 8px;">
+                            <span>💬 Configuración WhatsApp (Meta Cloud API)</span>
+                        </h3>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px;">
+                            Configura las credenciales de la API Oficial de WhatsApp de Meta. Las actualizaciones de los puntajes del rodeo se enviarán automáticamente a los destinatarios configurados.
+                        </p>
+                        
+                        <div class="admin-input-group">
+                            <label class="admin-label" for="wa-token">Token de Acceso Permanente (System User Token)</label>
+                            <input type="password" id="wa-token" class="admin-input" placeholder="Escribe tu token Bearer de Meta..." oninput="saveWaConfig()">
+                        </div>
+
+                        <div class="admin-input-group">
+                            <label class="admin-label" for="wa-phone-id">Identificador del Número de Teléfono (Phone Number ID)</label>
+                            <input type="text" id="wa-phone-id" class="admin-input" placeholder="ej: 104847281923..." oninput="saveWaConfig()">
+                        </div>
+
+                        <div class="admin-input-group">
+                            <label class="admin-label" for="wa-recipient">Números de Destino (Código de país + número, separados por coma)</label>
+                            <input type="text" id="wa-recipient" class="admin-input" placeholder="ej: 56912345678, 56987654321..." oninput="saveWaConfig()">
+                        </div>
+
+                        <div class="admin-input-group">
+                            <label class="admin-label" for="wa-template">Nombre de la Plantilla aprobada en Meta</label>
+                            <input type="text" id="wa-template" class="admin-input" placeholder="ej: rodeo_update..." oninput="saveWaConfig()">
+                        </div>
+
+                        <div style="display: flex; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
+                            <label style="color: #fff; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                                <input type="checkbox" id="wa-enabled" onchange="saveWaConfig()" style="width: 18px; height: 18px; accent-color: #ff5722;">
+                                Habilitar notificaciones de WhatsApp en tiempo real
+                            </label>
+                        </div>
+
+                        <div style="margin-top: 30px; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 6px; border-left: 4px solid #ff5722;">
+                            <h4 style="margin: 0 0 10px 0; color: #fff;">💡 Guía para la plantilla de Meta</h4>
+                            <p style="color: var(--text-muted); font-size: 0.8rem; margin: 0; line-height: 1.4;">
+                                Tu plantilla de WhatsApp debe aceptar al menos 4 variables en el cuerpo del mensaje:
+                                <br><strong>{{1}}</strong>: Nombre del Rodeo
+                                <br><strong>{{2}}</strong>: Número de Collera
+                                <br><strong>{{3}}</strong>: Jinetes / Caballos
+                                <br><strong>{{4}}</strong>: Puntaje actualizado
+                            </p>
+                        </div>
+
+                        <div style="margin-top: 20px; display: flex; gap: 10px;">
+                            <button class="admin-btn admin-btn-primary" onclick="testWhatsAppNotification()">Prueba de Envío (Test)</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1619,6 +1674,24 @@
                 }
             }
 
+            // Notificación WhatsApp
+            try {
+                const activeRodeoObj = rodeos.find(r => r.id === activeRodeoId);
+                const rodeoName = activeRodeoObj ? activeRodeoObj.nombre : "Rodeo";
+                const jinetesStr = `${colleraObj.jinetes[0]} y ${colleraObj.jinetes[1]}`;
+                
+                let scoreParts = [];
+                if (colleraObj.animal1 !== "") scoreParts.push(`A1: ${colleraObj.animal1}`);
+                if (colleraObj.animal2 !== "") scoreParts.push(`A2: ${colleraObj.animal2}`);
+                if (colleraObj.animal3 !== "") scoreParts.push(`A3: ${colleraObj.animal3}`);
+                if (colleraObj.animal4 !== "") scoreParts.push(`A4: ${colleraObj.animal4}`);
+                const scoreStr = `${scoreParts.join(', ')} | Total: ${colleraObj.resultado} pts`;
+
+                triggerWhatsAppNotification(rodeoName, colleraObj.n, jinetesStr, scoreStr);
+            } catch (waErr) {
+                console.error("Error al disparar WhatsApp:", waErr);
+            }
+
             filteredColleras = [...rodeoData];
             
             closeColleraModal();
@@ -2910,7 +2983,157 @@
                     }
                 });
             }
+
+            // Cargar configuración de WhatsApp al iniciar
+            loadWaConfig();
         });
+
+        // Funciones para WhatsApp
+        function saveWaConfig() {
+            localStorage.setItem('wa_token', document.getElementById('wa-token').value.trim());
+            localStorage.setItem('wa_phone_id', document.getElementById('wa-phone-id').value.trim());
+            localStorage.setItem('wa_recipient', document.getElementById('wa-recipient').value.trim());
+            localStorage.setItem('wa_template', document.getElementById('wa-template').value.trim());
+            localStorage.setItem('wa_enabled', document.getElementById('wa-enabled').checked);
+        }
+
+        function loadWaConfig() {
+            document.getElementById('wa-token').value = localStorage.getItem('wa_token') || '';
+            document.getElementById('wa-phone-id').value = localStorage.getItem('wa_phone_id') || '';
+            document.getElementById('wa-recipient').value = localStorage.getItem('wa_recipient') || '';
+            document.getElementById('wa-template').value = localStorage.getItem('wa_template') || '';
+            document.getElementById('wa-enabled').checked = localStorage.getItem('wa_enabled') === 'true';
+        }
+
+        async function triggerWhatsAppNotification(rodeoName, colleraNumber, jinetesString, scoreString) {
+            const token = localStorage.getItem('wa_token');
+            const phoneId = localStorage.getItem('wa_phone_id');
+            const recipientsRaw = localStorage.getItem('wa_recipient') || '';
+            const template = localStorage.getItem('wa_template');
+            const enabled = localStorage.getItem('wa_enabled') === 'true';
+
+            if (!enabled || !token || !phoneId || !template || !recipientsRaw) {
+                return;
+            }
+
+            const recipients = recipientsRaw.split(',').map(n => n.trim()).filter(n => n.length > 0);
+
+            for (const recipient of recipients) {
+                try {
+                    const url = `https://graph.facebook.com/v18.0/${phoneId}/messages`;
+                    const payload = {
+                        messaging_product: "whatsapp",
+                        to: recipient,
+                        type: "template",
+                        template: {
+                            name: template,
+                            language: {
+                                code: "es"
+                            },
+                            components: [
+                                {
+                                    type: "body",
+                                    parameters: [
+                                        { type: "text", text: rodeoName },
+                                        { type: "text", text: String(colleraNumber) },
+                                        { type: "text", text: jinetesString },
+                                        { type: "text", text: scoreString }
+                                    ]
+                                }
+                            ]
+                        }
+                    };
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) {
+                        console.error("Error al enviar WhatsApp a " + recipient + ":", data);
+                    } else {
+                        console.log("WhatsApp enviado con éxito a " + recipient, data);
+                    }
+                } catch (error) {
+                    console.error("Error en petición a WhatsApp para " + recipient + ":", error);
+                }
+            }
+        }
+
+        async function testWhatsAppNotification() {
+            const token = document.getElementById('wa-token').value.trim();
+            const phoneId = document.getElementById('wa-phone-id').value.trim();
+            const recipientsRaw = document.getElementById('wa-recipient').value.trim();
+            const template = document.getElementById('wa-template').value.trim();
+
+            if (!token || !phoneId || !template || !recipientsRaw) {
+                showToast("Por favor, completa todos los campos de configuración para realizar la prueba.", "error");
+                return;
+            }
+
+            showToast("Enviando WhatsApp de prueba...");
+            
+            const recipients = recipientsRaw.split(',').map(n => n.trim()).filter(n => n.length > 0);
+            let successCount = 0;
+            let errorMsg = "";
+
+            for (const recipient of recipients) {
+                try {
+                    const url = `https://graph.facebook.com/v18.0/${phoneId}/messages`;
+                    const payload = {
+                        messaging_product: "whatsapp",
+                        to: recipient,
+                        type: "template",
+                        template: {
+                            name: template,
+                            language: {
+                                code: "es"
+                            },
+                            components: [
+                                {
+                                    type: "body",
+                                    parameters: [
+                                        { type: "text", text: "Rodeo de Prueba" },
+                                        { type: "text", text: "99" },
+                                        { type: "text", text: "Jinete A y Jinete B" },
+                                        { type: "text", text: "A1: 4, A2: 5 | Total: 9 pts" }
+                                    ]
+                                }
+                            ]
+                        }
+                    };
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        successCount++;
+                    } else {
+                        errorMsg = data.error ? data.error.message : "Error desconocido";
+                    }
+                } catch (error) {
+                    errorMsg = error.message;
+                }
+            }
+
+            if (successCount > 0) {
+                showToast(`¡Prueba completada! Enviado con éxito a ${successCount} destinatario(s).`);
+            } else {
+                showToast(`Falló la prueba: ${errorMsg}`, "error");
+            }
+        }
     </script>
 </body>
 </html>
