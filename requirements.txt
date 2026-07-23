@@ -1,0 +1,6 @@
+google-generativeai
+supabase
+flask
+gunicorn
+yt-dlp
+postgrest
