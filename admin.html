@@ -307,6 +307,7 @@
                         <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
                             <button class="admin-btn admin-btn-primary" onclick="testSmsNotification()">Prueba de Envío (Test)</button>
                             <button class="admin-btn" onclick="sendCustomSms()" style="background: #2e7d32; color: #fff; font-weight: 700;">Enviar Mensaje Personalizado ✉️</button>
+                            <button class="admin-btn" onclick="sendCutoffSms()" style="background: #0288d1; color: #fff; font-weight: 700;">Notificar Corte de Animal ✂️</button>
                         </div>
                     </div>
                 </div>
@@ -1689,7 +1690,8 @@
                 }
             }
 
-            // Notificación SMS
+            // Notificación SMS automática desactivada (se reemplaza por notificación manual de corte)
+            /*
             try {
                 const activeRodeoObj = rodeos.find(r => r.id === activeRodeoId);
                 const rodeoName = activeRodeoObj ? activeRodeoObj.nombre : "Rodeo";
@@ -1708,6 +1710,7 @@
             } catch (smsErr) {
                 console.error("Error al disparar SMS:", smsErr);
             }
+            */
 
             filteredColleras = [...rodeoData];
             
@@ -3318,6 +3321,105 @@
                 document.getElementById('sms-custom-body').value = ''; // limpiar
             } else {
                 showToast(`Falló el envío: ${errorMsg}`, "error");
+            }
+        }
+
+        async function sendCutoffSms() {
+            const { accountSid, authToken, fromNumber } = getTwilioCredentials();
+
+            if (!accountSid || !authToken || !fromNumber) {
+                showToast("Por favor, configura las credenciales de Twilio primero.", "error");
+                return;
+            }
+
+            const activeRodeoObj = rodeos.find(r => r.id === activeRodeoId);
+            const rodeoName = activeRodeoObj ? activeRodeoObj.nombre : "Rodeo";
+
+            // 1. Filtrar y ordenar colleras con puntaje en animal1
+            const parsedColleras = rodeoData
+                .map(c => {
+                    const pts = parseInt(c.animal1);
+                    const jStr = Array.isArray(c.jinetes) ? c.jinetes.join(' y ') : String(c.jinetes);
+                    return {
+                        n: c.n,
+                        jinetes: jStr,
+                        pts: isNaN(pts) ? -99 : pts
+                    };
+                })
+                .filter(c => c.pts !== -99)
+                .sort((a, b) => b.pts - a.pts);
+
+            if (parsedColleras.length === 0) {
+                showToast("No hay puntajes registrados en el primer animal para calcular los líderes.", "error");
+                return;
+            }
+
+            // Pedir el puntaje de corte al usuario
+            const cutoffPts = prompt("¿Cuál es el puntaje de corte para pasar al segundo animal?", "4");
+            if (cutoffPts === null) return; // cancelado
+
+            // Construir el podio (primeros 3 lugares)
+            let leadersText = '';
+            const top3 = parsedColleras.slice(0, 3);
+            top3.forEach((c, idx) => {
+                leadersText += `${idx + 1}. N° ${c.n} (${c.jinetes}) - ${c.pts} pts\n`;
+            });
+
+            // Armar cuerpo del mensaje
+            const baseDir = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+            const liveUrl = `${window.location.origin}${baseDir}/${activeRodeoId}/index.html`;
+            const messageText = `Rodeo: ${rodeoName} 🐴\nDefinido el corte para el 2do Animal: ¡${cutoffPts} puntos buenos!\n\nLíderes parciales (Animal 1):\n${leadersText}\nSigue la planilla en vivo en:\n${liveUrl}`;
+
+            const recipientInput = document.getElementById('sms-recipient');
+            const selectedNumbers = recipientInput ? recipientInput.value.split(',').map(n => n.trim()).filter(n => n.length > 0) : [];
+
+            if (selectedNumbers.length === 0) {
+                showToast("Por favor, selecciona al menos un destinatario de la lista.", "error");
+                return;
+            }
+
+            if (!confirm(`¿Estás seguro de enviar esta notificación de corte a los ${selectedNumbers.length} números seleccionados?\n\n-- VISTA PREVIA DEL SMS --\n${messageText}`)) {
+                return;
+            }
+
+            showToast(`Enviando notificación de corte a ${selectedNumbers.length} destinatarios...`);
+
+            let successCount = 0;
+            let errorMsg = "";
+
+            for (const recipient of selectedNumbers) {
+                try {
+                    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+                    const headers = new Headers();
+                    headers.set('Authorization', 'Basic ' + btoa(accountSid + ":" + authToken));
+                    headers.set('Content-Type', 'application/x-www-form-urlencoded');
+
+                    const body = new URLSearchParams();
+                    body.append('To', recipient);
+                    body.append('From', fromNumber);
+                    body.append('Body', messageText);
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: headers,
+                        body: body
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        successCount++;
+                    } else {
+                        errorMsg = data.message || "Error desconocido";
+                    }
+                } catch (error) {
+                    errorMsg = error.message;
+                }
+            }
+
+            if (successCount > 0) {
+                showToast(`¡Notificación de corte enviada con éxito a ${successCount} destinatarios!`);
+            } else {
+                showToast(`Falló el envío de corte: ${errorMsg}`, "error");
             }
         }
     </script>
