@@ -45,9 +45,11 @@ def download_audio_chunk(youtube_url, duration_sec=30, output_path="chunk.mp3"):
             "yt-dlp", 
             "--extractor-args", "youtube:player-client=ios,android", 
             "-f", "bestaudio", 
-            "-g", 
-            youtube_url
+            "-g"
         ]
+        if os.getenv("USE_LOCAL_COOKIES") == "all" or os.getenv("USE_LOCAL_COOKIES") == "true":
+            url_cmd.extend(["--cookies-from-browser", "chrome"])
+        url_cmd.append(youtube_url)
         direct_url = subprocess.check_output(url_cmd).decode("utf-8").strip()
         
         ffmpeg_cmd = [
