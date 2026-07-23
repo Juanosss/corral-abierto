@@ -1755,11 +1755,26 @@
                 return;
             }
 
-            const val2 = parseInt(document.getElementById('corte-toro2').value) || 0;
-            const val3 = parseInt(document.getElementById('corte-toro3').value) || 0;
-            const val4 = parseInt(document.getElementById('corte-toro4').value) || 0;
+            const raw2 = document.getElementById('corte-toro2').value.trim();
+            const raw3 = document.getElementById('corte-toro3').value.trim();
+            const raw4 = document.getElementById('corte-toro4').value.trim();
 
-            if (!confirm(`¿Desea aplicar los cortes del jurado en cascada?\n\n• 2° Animal corte: ${val2} puntos (sobre A1)\n• 3° Animal corte: ${val3} puntos (sobre Subtotal 1)\n• 4° Animal corte: ${val4} puntos (sobre Subtotal 2)\n\nLas colleras que queden por debajo recibirán una "X".`)) {
+            const val2 = raw2 !== "" ? parseInt(raw2) : null;
+            const val3 = raw3 !== "" ? parseInt(raw3) : null;
+            const val4 = raw4 !== "" ? parseInt(raw4) : null;
+
+            if (val2 === null && val3 === null && val4 === null) {
+                showToast("Por favor, ingresa al menos un puntaje de corte para aplicar.", "error");
+                return;
+            }
+
+            let confirmMsg = "¿Desea aplicar los cortes del jurado en cascada?\n\n";
+            if (val2 !== null) confirmMsg += `• 2° Animal corte: ${val2} puntos (sobre A1)\n`;
+            if (val3 !== null) confirmMsg += `• 3° Animal corte: ${val3} puntos (sobre Subtotal 1)\n`;
+            if (val4 !== null) confirmMsg += `• 4° Animal corte: ${val4} puntos (sobre Subtotal 2)\n`;
+            confirmMsg += "\nLas colleras que queden por debajo recibirán una \"X\".";
+
+            if (!confirm(confirmMsg)) {
                 return;
             }
 
@@ -1775,8 +1790,10 @@
                 const score1 = getVal(c.animal1);
                 
                 // 1. Corte 2do Animal
-                if (score1 === "X" || score1 === null || score1 < val2) {
-                    c.animal2 = "X";
+                if (val2 !== null) {
+                    if (score1 === "X" || score1 === null || score1 < val2) {
+                        c.animal2 = "X";
+                    }
                 }
 
                 const score2 = getVal(c.animal2);
@@ -1788,8 +1805,10 @@
                 }
 
                 // 2. Corte 3er Animal
-                if (c.animal2 === "X" || c.sub1 === "" || parseInt(c.sub1) < val3) {
-                    c.animal3 = "X";
+                if (val3 !== null) {
+                    if (c.animal2 === "X" || c.sub1 === "" || parseInt(c.sub1) < val3) {
+                        c.animal3 = "X";
+                    }
                 }
 
                 const score3 = getVal(c.animal3);
@@ -1801,8 +1820,10 @@
                 }
 
                 // 3. Corte 4to Animal
-                if (c.animal3 === "X" || c.sub2 === "" || parseInt(c.sub2) < val4) {
-                    c.animal4 = "X";
+                if (val4 !== null) {
+                    if (c.animal3 === "X" || c.sub2 === "" || parseInt(c.sub2) < val4) {
+                        c.animal4 = "X";
+                    }
                 }
 
                 // Recalcular el total
@@ -1842,18 +1863,26 @@
             renderCollerasTable();
             showToast("¡Puntajes de corte aplicados en cascada!");
 
-            // Preguntar si desea enviar notificación SMS de corte
-            const inputAnimal = prompt("¿Deseas enviar una alerta SMS de corte a los suscriptores? Escribe el número del animal que se acaba de cortar (2, 3 o 4), o presiona Cancelar para omitir:", "2");
-            if (inputAnimal !== null && inputAnimal.trim() !== "") {
-                const aNum = parseInt(inputAnimal);
-                if (aNum === 2) {
-                    await triggerCutoffNotification(2, val2);
-                } else if (aNum === 3) {
-                    await triggerCutoffNotification(3, val3);
-                } else if (aNum === 4) {
-                    await triggerCutoffNotification(4, val4);
-                } else {
-                    showToast("Número de animal no válido. No se envió SMS.", "error");
+            // Preguntar si desea enviar notificación SMS de corte únicamente para los animales definidos
+            let activeCortes = [];
+            if (val2 !== null) activeCortes.push("2");
+            if (val3 !== null) activeCortes.push("3");
+            if (val4 !== null) activeCortes.push("4");
+
+            if (activeCortes.length > 0) {
+                const defaultOption = activeCortes[0];
+                const inputAnimal = prompt(`¿Deseas enviar una alerta SMS de corte a los suscriptores? Escribe el número del animal que se acaba de cortar (${activeCortes.join(', ')}), o presiona Cancelar para omitir:`, defaultOption);
+                if (inputAnimal !== null && inputAnimal.trim() !== "") {
+                    const aNum = parseInt(inputAnimal);
+                    if (aNum === 2 && val2 !== null) {
+                        await triggerCutoffNotification(2, val2);
+                    } else if (aNum === 3 && val3 !== null) {
+                        await triggerCutoffNotification(3, val3);
+                    } else if (aNum === 4 && val4 !== null) {
+                        await triggerCutoffNotification(4, val4);
+                    } else {
+                        showToast("Número de animal no válido o no definido. No se envió SMS.", "error");
+                    }
                 }
             }
         }
