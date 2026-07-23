@@ -41,7 +41,13 @@ def download_audio_chunk(youtube_url, duration_sec=30, output_path="chunk.mp3"):
     """
     print(f"Descargando fragmento de audio de {duration_sec}s desde {youtube_url}...")
     try:
-        url_cmd = ["yt-dlp", "-f", "bestaudio", "-g", youtube_url]
+        url_cmd = [
+            "yt-dlp", 
+            "--extractor-args", "youtube:player-client=ios,android", 
+            "-f", "bestaudio", 
+            "-g", 
+            youtube_url
+        ]
         direct_url = subprocess.check_output(url_cmd).decode("utf-8").strip()
         
         ffmpeg_cmd = [
