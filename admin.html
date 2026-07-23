@@ -1690,8 +1690,7 @@
                 }
             }
 
-            // Notificación SMS automática desactivada (se reemplaza por notificación manual de corte)
-            /*
+            // Notificación SMS automática activa
             try {
                 const activeRodeoObj = rodeos.find(r => r.id === activeRodeoId);
                 const rodeoName = activeRodeoObj ? activeRodeoObj.nombre : "Rodeo";
@@ -1710,7 +1709,6 @@
             } catch (smsErr) {
                 console.error("Error al disparar SMS:", smsErr);
             }
-            */
 
             filteredColleras = [...rodeoData];
             
@@ -1974,6 +1972,8 @@
             }
 
             let successCount = 0;
+            let errorMsg = "";
+
             for (const recipient of selectedNumbers) {
                 try {
                     const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
@@ -1987,14 +1987,24 @@
                     body.append('Body', messageText);
 
                     const response = await fetch(url, { method: 'POST', headers, body });
-                    if (response.ok) successCount++;
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        successCount++;
+                    } else {
+                        errorMsg = data.message || "Error desconocido";
+                        console.error("Error al enviar SMS de corte a " + recipient + ":", data);
+                    }
                 } catch (error) {
+                    errorMsg = error.message;
                     console.error("Error al enviar SMS de corte:", error);
                 }
             }
 
             if (successCount > 0) {
                 showToast(`¡Notificación de corte enviada con éxito a ${successCount} destinatarios!`);
+            } else {
+                showToast(`Error al enviar SMS de corte: ${errorMsg}`, "error");
             }
         }
 
@@ -3232,6 +3242,9 @@
                 return;
             }
 
+            let successCount = 0;
+            let errorMsg = "";
+
             for (const recipient of recipients) {
                 try {
                     const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
@@ -3251,14 +3264,22 @@
                     });
 
                     const data = await response.json();
-                    if (!response.ok) {
-                        console.error("Error al enviar SMS a " + recipient + ":", data);
+                    if (response.ok) {
+                        successCount++;
                     } else {
-                        console.log("SMS enviado con éxito a " + recipient, data);
+                        errorMsg = data.message || "Error desconocido";
+                        console.error("Error al enviar SMS a " + recipient + ":", data);
                     }
                 } catch (error) {
+                    errorMsg = error.message;
                     console.error("Error en petición a Twilio para " + recipient + ":", error);
                 }
+            }
+
+            if (successCount === 0) {
+                showToast(`Error al enviar SMS automático: ${errorMsg}`, "error");
+            } else {
+                console.log(`Mensajes enviados con éxito a ${successCount} destinatarios.`);
             }
         }
 
