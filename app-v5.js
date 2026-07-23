@@ -1928,29 +1928,29 @@ function initSmsSubscriptionDOM() {
     const smsSection = document.createElement('section');
     smsSection.className = 'section-sms-subscription';
     smsSection.style.cssText = `
-        background: rgba(255, 87, 34, 0.05);
-        border: 1px dashed rgba(255, 87, 34, 0.3);
-        border-radius: 12px;
-        padding: 2rem;
-        margin: 3rem auto;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-lg);
+        padding: 2.2rem;
+        margin: 3.5rem auto 2.5rem auto;
         max-width: 600px;
         text-align: center;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        box-shadow: var(--shadow-md);
     `;
 
     smsSection.innerHTML = `
-        <h3 style="font-family: 'Playfair Display', serif; font-size: 1.6rem; color: #ff5722; margin-top: 0; margin-bottom: 0.5rem;">📱 Alertas de Resultados por SMS</h3>
-        <p style="color: #bcaaa4; font-size: 0.85rem; margin-bottom: 1.5rem; line-height: 1.4;">
+        <h3 style="font-family: var(--font-heading); font-size: 1.6rem; color: var(--primary-color); margin-top: 0; margin-bottom: 0.5rem; font-weight: 700;">📱 Alertas de Resultados por SMS</h3>
+        <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem; line-height: 1.5;">
             Suscríbete gratis para recibir las actualizaciones y puntajes del rodeo en vivo directamente en tu celular vía mensaje de texto (SMS).
         </p>
         <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center;">
-            <input type="text" id="sub-name" placeholder="Tu Nombre" style="padding: 10px 15px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; font-size: 0.9rem; width: 140px; box-sizing: border-box;">
-            <input type="tel" id="sub-phone" placeholder="Celular (ej: +56912345678)" style="padding: 10px 15px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: #fff; font-size: 0.9rem; width: 220px; box-sizing: border-box;">
-            <button id="btn-subscribe-sms" style="padding: 10px 20px; border-radius: 6px; background: #ff5722; color: #fff; font-weight: 700; border: none; cursor: pointer; transition: background 0.2s; height: 38px;">
+            <input type="text" id="sub-name" placeholder="Tu Nombre" style="padding: 11px 15px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: #ffffff; color: var(--text-main); font-size: 0.9rem; width: 140px; box-sizing: border-box; outline: none; transition: border-color 0.2s;">
+            <input type="tel" id="sub-phone" placeholder="Celular (ej: +56912345678)" style="padding: 11px 15px; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: #ffffff; color: var(--text-main); font-size: 0.9rem; width: 220px; box-sizing: border-box; outline: none; transition: border-color 0.2s;">
+            <button id="btn-subscribe-sms" style="padding: 11px 22px; border-radius: var(--radius-md); background: var(--primary-color); color: #fff; font-weight: 700; border: none; cursor: pointer; transition: background 0.2s, transform 0.1s; height: 40px; box-shadow: var(--shadow-sm);">
                 Suscribirme
             </button>
         </div>
-        <div id="sub-message" style="margin-top: 12px; font-size: 0.8rem; height: 16px; font-weight: 600;"></div>
+        <div id="sub-message" style="margin-top: 12px; font-size: 0.85rem; height: 16px; font-weight: 600;"></div>
     `;
 
     mainContent.appendChild(smsSection);
