@@ -130,7 +130,7 @@ def update_supabase_score(data, active_rodeo_id):
     print(f"Actualizando en Supabase: Collera N° {collera_num}, Animal {toro_num} -> {puntos} pts...")
     
     try:
-        query = supabase.from("colleras").select("*").eq("n", collera_num).eq("rodeo_id", active_rodeo_id).limit(1).execute()
+        query = supabase.table("colleras").select("*").eq("n", collera_num).eq("rodeo_id", active_rodeo_id).limit(1).execute()
         if not query.data:
             print(f"No se encontró la collera N° {collera_num} para el rodeo {active_rodeo_id} en Supabase.")
             return
@@ -164,7 +164,7 @@ def update_supabase_score(data, active_rodeo_id):
         resultado = parse_ptos(a1) + parse_ptos(a2) + parse_ptos(a3) + parse_ptos(a4)
         update_data["resultado"] = resultado
         
-        supabase.from("colleras").update(update_data).eq("n", collera_num).eq("rodeo_id", active_rodeo_id).execute()
+        supabase.table("colleras").update(update_data).eq("n", collera_num).eq("rodeo_id", active_rodeo_id).execute()
         print("✅ Base de datos actualizada con éxito en Supabase.")
     except Exception as e:
         print(f"Error actualizando Supabase: {e}")
