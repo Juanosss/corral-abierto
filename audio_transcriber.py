@@ -47,7 +47,9 @@ def download_audio_chunk(youtube_url, duration_sec=30, output_path="chunk.mp3"):
             "-f", "bestaudio", 
             "-g"
         ]
-        if os.getenv("USE_LOCAL_COOKIES") == "all" or os.getenv("USE_LOCAL_COOKIES") == "true":
+        if os.path.exists("cookies.txt"):
+            url_cmd.extend(["--cookies", "cookies.txt"])
+        elif os.getenv("USE_LOCAL_COOKIES") == "all" or os.getenv("USE_LOCAL_COOKIES") == "true":
             url_cmd.extend(["--cookies-from-browser", "chrome"])
         url_cmd.append(youtube_url)
         direct_url = subprocess.check_output(url_cmd).decode("utf-8").strip()
