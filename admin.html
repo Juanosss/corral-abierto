@@ -1841,6 +1841,132 @@
             filteredColleras = [...rodeoData];
             renderCollerasTable();
             showToast("¡Puntajes de corte aplicados en cascada!");
+
+            // Preguntar si desea enviar notificación SMS de corte
+            const inputAnimal = prompt("¿Deseas enviar una alerta SMS de corte a los suscriptores? Escribe el número del animal que se acaba de cortar (2, 3 o 4), o presiona Cancelar para omitir:", "2");
+            if (inputAnimal !== null && inputAnimal.trim() !== "") {
+                const aNum = parseInt(inputAnimal);
+                if (aNum === 2) {
+                    await triggerCutoffNotification(2, val2);
+                } else if (aNum === 3) {
+                    await triggerCutoffNotification(3, val3);
+                } else if (aNum === 4) {
+                    await triggerCutoffNotification(4, val4);
+                } else {
+                    showToast("Número de animal no válido. No se envió SMS.", "error");
+                }
+            }
+        }
+
+        async function triggerCutoffNotification(animalNum, cutoffValue) {
+            const { accountSid, authToken, fromNumber } = getTwilioCredentials();
+            if (!accountSid || !authToken || !fromNumber) {
+                return;
+            }
+
+            const activeRodeoObj = rodeos.find(r => r.id === activeRodeoId);
+            const rodeoName = activeRodeoObj ? activeRodeoObj.nombre : "Rodeo";
+
+            // 1. Filtrar colleras que pasaron el corte y ordenarlas
+            let collerasFiltradas = [];
+            let stageName = '';
+            
+            if (animalNum === 2) {
+                stageName = "2do Animal";
+                collerasFiltradas = rodeoData
+                    .map(c => {
+                        const pts = parseInt(c.animal1);
+                        const jStr = Array.isArray(c.jinetes) ? c.jinetes.join(' y ') : String(c.jinetes);
+                        return {
+                            n: c.n,
+                            jinetes: jStr,
+                            pts: isNaN(pts) ? -99 : pts
+                        };
+                    })
+                    .filter(c => c.pts !== -99 && c.pts >= cutoffValue)
+                    .sort((a, b) => b.pts - a.pts);
+            } else if (animalNum === 3) {
+                stageName = "3er Animal";
+                collerasFiltradas = rodeoData
+                    .map(c => {
+                        const pts = parseInt(c.sub1);
+                        const jStr = Array.isArray(c.jinetes) ? c.jinetes.join(' y ') : String(c.jinetes);
+                        return {
+                            n: c.n,
+                            jinetes: jStr,
+                            pts: isNaN(pts) ? -99 : pts
+                        };
+                    })
+                    .filter(c => c.pts !== -99 && c.pts >= cutoffValue)
+                    .sort((a, b) => b.pts - a.pts);
+            } else if (animalNum === 4) {
+                stageName = "4to Animal";
+                collerasFiltradas = rodeoData
+                    .map(c => {
+                        const pts = parseInt(c.sub2);
+                        const jStr = Array.isArray(c.jinetes) ? c.jinetes.join(' y ') : String(c.jinetes);
+                        return {
+                            n: c.n,
+                            jinetes: jStr,
+                            pts: isNaN(pts) ? -99 : pts
+                        };
+                    })
+                    .filter(c => c.pts !== -99 && c.pts >= cutoffValue)
+                    .sort((a, b) => b.pts - a.pts);
+            }
+
+            if (collerasFiltradas.length === 0) {
+                showToast("No hay colleras que cumplan con el puntaje mínimo de corte.", "error");
+                return;
+            }
+
+            // Construir top 3
+            let leadersText = '';
+            const top3 = collerasFiltradas.slice(0, 3);
+            top3.forEach((c, idx) => {
+                leadersText += `${idx + 1}. N° ${c.n} (${c.jinetes}) - ${c.pts} pts\n`;
+            });
+
+            // Armar cuerpo del mensaje
+            const baseDir = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/'));
+            const liveUrl = `${window.location.origin}${baseDir}/${activeRodeoId}/index.html`;
+            const messageText = `Rodeo: ${rodeoName} 🐴\nDefinido el corte para el ${stageName}: ¡${cutoffValue} puntos buenos!\n\nLíderes provisionales:\n${leadersText}\nSigue la planilla en vivo en:\n${liveUrl}`;
+
+            const recipientInput = document.getElementById('sms-recipient');
+            const selectedNumbers = recipientInput ? recipientInput.value.split(',').map(n => n.trim()).filter(n => n.length > 0) : [];
+
+            if (selectedNumbers.length === 0) {
+                showToast("Por favor, selecciona al menos un destinatario en la pestaña SMS.", "error");
+                return;
+            }
+
+            if (!confirm(`¿Deseas enviar la alerta de corte para el ${stageName} a los ${selectedNumbers.length} suscriptores?\n\n-- VISTA PREVIA --\n${messageText}`)) {
+                return;
+            }
+
+            let successCount = 0;
+            for (const recipient of selectedNumbers) {
+                try {
+                    const url = `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`;
+                    const headers = new Headers();
+                    headers.set('Authorization', 'Basic ' + btoa(accountSid + ":" + authToken));
+                    headers.set('Content-Type', 'application/x-www-form-urlencoded');
+
+                    const body = new URLSearchParams();
+                    body.append('To', recipient);
+                    body.append('From', fromNumber);
+                    body.append('Body', messageText);
+
+                    const response = await fetch(url, { method: 'POST', headers, body });
+                    if (response.ok) successCount++;
+                } catch (error) {
+                    console.error("Error al enviar SMS de corte:", error);
+                }
+            }
+
+            if (successCount > 0) {
+                showToast(`¡Notificación de corte enviada con éxito a ${successCount} destinatarios!`);
+            }
         }
 
         // ==========================================================================
