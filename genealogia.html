@@ -147,7 +147,7 @@
                         <!-- Cabecera -->
                         <div class="genealogia-header-details">
                             <div class="genealogia-header-left">
-                                <h3>${h.nombre}</h3>
+                                <h3>${h.nombre}${h.puntajes ? ` <span class="horse-points-badge" style="font-size: 0.8rem; font-family: 'Inter', sans-serif; color: #ffab91; font-weight: 500; margin-left: 10px; border: 1px solid rgba(255, 87, 34, 0.3); padding: 2.5px 8px; border-radius: 4px; background: rgba(255, 87, 34, 0.1); vertical-align: middle; white-space: normal; display: inline-block; letter-spacing: normal; text-transform: none;">${h.puntajes}</span>` : ''}</h3>
                                 <span class="criadero-sub">${h.criadero || 'SIN CRIADERO REGISTRADO'}</span>
                             </div>
                             <div class="genealogia-header-right">

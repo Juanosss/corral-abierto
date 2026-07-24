@@ -368,7 +368,14 @@ function renderTable(data, stage = 4) {
         
         // Caballos formatting (como link a su genealogía)
         const caballosHtml = row.caballos.map(c => {
-            const slug = c.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+            const defaultSlug = c.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
+            let slug = defaultSlug;
+            if (typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) {
+                const found = genealogiaData.find(g => g.nombre && g.nombre.toUpperCase().trim() === c.toUpperCase().trim());
+                if (found && found.id) {
+                    slug = found.id;
+                }
+            }
             return `<a href="../genealogia.html#${slug}" class="caballo-item caballo-link">${c}</a>`;
         }).join('');
 

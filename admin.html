@@ -417,12 +417,18 @@
                     </div>
                     <div class="admin-form-row">
                         <div class="admin-input-group">
-                            <label class="admin-label" for="form-caballo1">Caballo 1</label>
-                            <input type="text" id="form-caballo1" class="admin-input" required>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label class="admin-label" for="form-caballo1" style="margin-bottom: 0;">Caballo 1</label>
+                                <button type="button" onclick="scrapeHorseForCollera(1)" style="background: none; border: none; color: #ff5722; font-size: 0.72rem; font-weight: bold; cursor: pointer; padding: 0;">🔍 Cargar por ID SBT</button>
+                            </div>
+                            <input type="text" id="form-caballo1" class="admin-input" required placeholder="Nombre o busca en la lista...">
                         </div>
                         <div class="admin-input-group">
-                            <label class="admin-label" for="form-caballo2">Caballo 2</label>
-                            <input type="text" id="form-caballo2" class="admin-input" required>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <label class="admin-label" for="form-caballo2" style="margin-bottom: 0;">Caballo 2</label>
+                                <button type="button" onclick="scrapeHorseForCollera(2)" style="background: none; border: none; color: #ff5722; font-size: 0.72rem; font-weight: bold; cursor: pointer; padding: 0;">🔍 Cargar por ID SBT</button>
+                            </div>
+                            <input type="text" id="form-caballo2" class="admin-input" required placeholder="Nombre o busca en la lista...">
                         </div>
                     </div>
                     
@@ -542,6 +548,13 @@
                         <div class="admin-input-group">
                             <label class="admin-label" for="form-fn">Fecha / Año Nacimiento (F.N.)</label>
                             <input type="text" id="form-fn" class="admin-input" placeholder="ej. A: 2017 o F.N. 10-10-2015">
+                        </div>
+                    </div>
+                    
+                    <div class="admin-form-row">
+                        <div class="admin-input-group" style="flex: 1;">
+                            <label class="admin-label" for="form-puntajes">Puntajes / Campañas por Rodeo (Figuraciones)</label>
+                            <input type="text" id="form-puntajes" class="admin-input" placeholder="ej. Alborada: 12pts / Champion: 3pts">
                         </div>
                     </div>
                     
@@ -1505,7 +1518,8 @@
                 const maxN = rodeoData.reduce((max, c) => c.n > max ? c.n : max, 0);
                 document.getElementById('form-n').value = maxN + 1;
             }
-
+            
+            updateCaballosDatalist();
             overlay.classList.add('active');
         }
 
@@ -1625,7 +1639,7 @@
                 caballos.forEach(horseName => {
                     if (horseName && horseName.trim() !== '') {
                         const horseId = horseName.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-');
-                        const existe = genealogiaData.some(g => g.id === horseId);
+                        const existe = genealogiaData.some(g => g.id === horseId || g.nombre.toUpperCase() === horseName.toUpperCase());
                         if (!existe) {
                             const newHorse = {
                                 id: horseId,
@@ -2487,6 +2501,218 @@
             textarea.disabled = false;
         }
 
+        async function fetchHorseFromWeb(horseId) {
+            let htmlText = "";
+            let fetchedOk = false;
+            
+            try {
+                const proxyUrl = `https://corsproxy.io/?` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
+                const response = await fetch(proxyUrl);
+                if (response.ok) {
+                    htmlText = await response.text();
+                    fetchedOk = true;
+                }
+            } catch(e) {
+                console.warn("Intento 1 falló:", e);
+            }
+            
+            if (!fetchedOk) {
+                try {
+                    const proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
+                    const response = await fetch(proxyUrl);
+                    if (response.ok) {
+                        htmlText = await response.text();
+                        fetchedOk = true;
+                    }
+                } catch(e) {
+                    console.warn("Intento 2 falló:", e);
+                }
+            }
+            
+            if (!fetchedOk) {
+                try {
+                    const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
+                    const response = await fetch(proxyUrl);
+                    if (response.ok) {
+                        htmlText = await response.text();
+                        fetchedOk = true;
+                    }
+                } catch(e) {
+                    console.error("Intento 3 falló:", e);
+                }
+            }
+            
+            if (!fetchedOk) {
+                throw new Error("No se pudo conectar con ningún servidor proxy. Revisa tu conexión.");
+            }
+            
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, 'text/html');
+            
+            const infoDiv = doc.querySelector('.info-caballo');
+            if (!infoDiv) {
+                throw new Error("No se encontró información para el caballo en la web oficial.");
+            }
+            
+            const dts = infoDiv.querySelectorAll('dt');
+            let nombre = "";
+            let criadero = "";
+            let fn = "";
+            let reg = "";
+            
+            dts.forEach(dt => {
+                const text = dt.textContent || dt.innerText;
+                if (text.includes("Nombre:")) {
+                    nombre = text.replace("Nombre:", "").trim().toUpperCase();
+                } else if (text.includes("Criadero:")) {
+                    criadero = text.replace("Criadero:", "").trim().toUpperCase();
+                } else if (text.includes("Nacimiento:")) {
+                    fn = "F.N. " + text.replace("Nacimiento:", "").trim();
+                } else if (text.includes("Registro SNA:")) {
+                    reg = "SBT N° " + text.replace("Registro SNA:", "").trim();
+                }
+            });
+
+            if (!nombre) {
+                throw new Error("No se pudo determinar el nombre del caballo.");
+            }
+
+            const horseObj = {
+                id: horseId,
+                nombre: nombre,
+                criadero: criadero || 'SIN CRIADERO REGISTRADO',
+                nacional: reg || `SBT N° ${horseId}`,
+                fn: fn || 'F.N. --',
+                alzada: '--',
+                cincha: '--',
+                cana: '--',
+                foto: '',
+                photoPosition: 50,
+                photoFit: 'cover',
+                padre: '--',
+                madre: '--',
+                abueloP: '--',
+                abuelaP: '--',
+                abueloM: '--',
+                abuelaM: '--',
+                bisP1: '--',
+                bisP2: '--',
+                bisP3: '--',
+                bisP4: '--',
+                bisM1: '--',
+                bisM2: '--',
+                bisM3: '--',
+                bisM4: '--'
+            };
+
+            const treeDiv = doc.querySelector('.arbol-genealogico');
+            if (treeDiv) {
+                const n1 = treeDiv.querySelector('.n1');
+                if (n1) {
+                    const padreEl = n1.querySelector('.c1 a');
+                    const madreEl = n1.querySelector('.c2 a');
+                    if (padreEl) horseObj.padre = padreEl.textContent.trim().toUpperCase();
+                    if (madreEl) horseObj.madre = madreEl.textContent.trim().toUpperCase();
+                }
+                
+                const n2 = treeDiv.querySelector('.n2');
+                if (n2) {
+                    const abueloPEl = n2.querySelector('.c1 a');
+                    const abuelaPEl = n2.querySelector('.c2 a');
+                    const abueloMEl = n2.querySelector('.c3 a');
+                    const abuelaMEl = n2.querySelector('.c4 a');
+                    if (abueloPEl) horseObj.abueloP = abueloPEl.textContent.trim().toUpperCase();
+                    if (abuelaPEl) horseObj.abuelaP = abuelaPEl.textContent.trim().toUpperCase();
+                    if (abueloMEl) horseObj.abueloM = abueloMEl.textContent.trim().toUpperCase();
+                    if (abuelaMEl) horseObj.abuelaM = abuelaMEl.textContent.trim().toUpperCase();
+                }
+                
+                const n3 = treeDiv.querySelector('.n3');
+                if (n3) {
+                    const bisP1El = n3.querySelector('.c1 a');
+                    const bisP2El = n3.querySelector('.c2 a');
+                    const bisP3El = n3.querySelector('.c3 a');
+                    const bisP4El = n3.querySelector('.c4 a');
+                    const bisM1El = n3.querySelector('.c5 a');
+                    const bisM2El = n3.querySelector('.c6 a');
+                    const bisM3El = n3.querySelector('.c7 a');
+                    const bisM4El = n3.querySelector('.c8 a');
+                    
+                    if (bisP1El) horseObj.bisP1 = bisP1El.textContent.trim().toUpperCase();
+                    if (bisP2El) horseObj.bisP2 = bisP2El.textContent.trim().toUpperCase();
+                    if (bisP3El) horseObj.bisP3 = bisP3El.textContent.trim().toUpperCase();
+                    if (bisP4El) horseObj.bisP4 = bisP4El.textContent.trim().toUpperCase();
+                    if (bisM1El) horseObj.bisM1 = bisM1El.textContent.trim().toUpperCase();
+                    if (bisM2El) horseObj.bisM2 = bisM2El.textContent.trim().toUpperCase();
+                    if (bisM3El) horseObj.bisM3 = bisM3El.textContent.trim().toUpperCase();
+                    if (bisM4El) horseObj.bisM4 = bisM4El.textContent.trim().toUpperCase();
+                }
+            }
+
+            return horseObj;
+        }
+
+        async function scrapeHorseForCollera(num) {
+            const horseId = prompt(`Ingresa el número de inscripción / ID SBT del Caballo ${num} (ej. 231492):`);
+            if (!horseId) return;
+
+            const input = document.getElementById(`form-caballo${num}`);
+            const originalVal = input.value;
+            input.value = "Cargando desde la web... ⏳";
+            input.disabled = true;
+
+            try {
+                const cleanId = horseId.trim();
+                const existeIdx = genealogiaData.findIndex(g => g.id === cleanId || (g.nacional && g.nacional.includes(cleanId)));
+                
+                let horseObj = null;
+                if (existeIdx !== -1) {
+                    horseObj = genealogiaData[existeIdx];
+                    showToast(`Caballo ya registrado: ${horseObj.nombre}`);
+                } else {
+                    horseObj = await fetchHorseFromWeb(cleanId);
+                    genealogiaData.unshift(horseObj);
+                    localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData));
+                    filteredGenealogias = [...genealogiaData];
+                    
+                    if (typeof window.syncGenealogiaDataToSupabase === 'function') {
+                        window.syncGenealogiaDataToSupabase();
+                    }
+                    
+                    showToast(`Caballo importado exitosamente: ${horseObj.nombre}`);
+                }
+
+                input.value = horseObj.nombre;
+                updateCaballosDatalist();
+
+            } catch (err) {
+                console.error(err);
+                alert("Error al obtener la información del caballo: " + err.message);
+                input.value = originalVal;
+            } finally {
+                input.disabled = false;
+            }
+        }
+
+        function updateCaballosDatalist() {
+            let datalist = document.getElementById('caballos-datalist');
+            if (!datalist) {
+                datalist = document.createElement('datalist');
+                datalist.id = 'caballos-datalist';
+                document.body.appendChild(datalist);
+            }
+            datalist.innerHTML = '';
+            genealogiaData.forEach(h => {
+                const sbtText = h.nacional && h.nacional !== 'SBT N° --' ? ` (${h.nacional})` : '';
+                const option = document.createElement('option');
+                option.value = h.nombre.toUpperCase();
+                option.label = `${h.criadero || 'Sin Criadero'}${sbtText}`;
+                datalist.appendChild(option);
+            });
+            document.getElementById('form-caballo1').setAttribute('list', 'caballos-datalist');
+            document.getElementById('form-caballo2').setAttribute('list', 'caballos-datalist');
+        }
+
         async function autoScrapeHorse() {
             const horseId = document.getElementById('form-auto-scrape-id').value.trim();
             if (!horseId) {
@@ -2499,135 +2725,30 @@
             btn.disabled = true;
             
             try {
-                let htmlText = "";
-                let fetchedOk = false;
+                const horseObj = await fetchHorseFromWeb(horseId);
                 
-                // Intento 1: corsproxy.io (Mucha más estabilidad y velocidad)
-                try {
-                    const proxyUrl = `https://corsproxy.io/?` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
-                    const response = await fetch(proxyUrl);
-                    if (response.ok) {
-                        htmlText = await response.text();
-                        fetchedOk = true;
-                    }
-                } catch(e) {
-                    console.warn("Intento 1 con corsproxy.io falló:", e);
-                }
-                
-                // Intento 2 (Fallback): allorigins.win
-                if (!fetchedOk) {
-                    try {
-                        const proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
-                        const response = await fetch(proxyUrl);
-                        if (response.ok) {
-                            htmlText = await response.text();
-                            fetchedOk = true;
-                        }
-                    } catch(e) {
-                        console.warn("Intento 2 con allorigins falló:", e);
-                    }
-                }
-                
-                // Intento 3 (Fallback): api.codetabs.com
-                if (!fetchedOk) {
-                    try {
-                        const proxyUrl = `https://api.codetabs.com/v1/proxy?quest=` + encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${horseId}`);
-                        const response = await fetch(proxyUrl);
-                        if (response.ok) {
-                            htmlText = await response.text();
-                            fetchedOk = true;
-                        }
-                    } catch(e) {
-                        console.error("Intento 3 con codetabs falló:", e);
-                    }
-                }
-                
-                if (!fetchedOk) {
-                    throw new Error("No se pudo conectar con ningún servidor proxy. Revisa tu conexión a internet o intenta nuevamente.");
-                }
-                
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(htmlText, 'text/html');
-                
-                const infoDiv = doc.querySelector('.info-caballo');
-                if (!infoDiv) {
-                    alert("No se encontró información para el caballo con ID " + horseId + ". Verifica que el ID sea correcto.");
-                    return;
-                }
-                
-                const dts = infoDiv.querySelectorAll('dt');
-                let nombre = "";
-                let criadero = "";
-                let fn = "";
-                let reg = "";
-                let sexo = "";
-                
-                dts.forEach(dt => {
-                    const text = dt.textContent || dt.innerText;
-                    if (text.includes("Nombre:")) {
-                        nombre = text.replace("Nombre:", "").trim();
-                    } else if (text.includes("Criadero:")) {
-                        criadero = text.replace("Criadero:", "").trim();
-                    } else if (text.includes("Nacimiento:")) {
-                        fn = "F.N. " + text.replace("Nacimiento:", "").trim();
-                    } else if (text.includes("Registro SNA:")) {
-                        reg = "SBT N° " + text.replace("Registro SNA:", "").trim();
-                    } else if (text.includes("Sexo:")) {
-                        sexo = text.replace("Sexo:", "").trim();
-                    }
-                });
-                
-                if (nombre) document.getElementById('form-nombre').value = nombre.toUpperCase();
-                if (criadero) document.getElementById('form-criadero-caballo').value = criadero.toUpperCase();
-                if (reg) document.getElementById('form-nacional').value = reg;
-                if (fn) document.getElementById('form-fn').value = fn;
+                document.getElementById('form-nombre').value = horseObj.nombre;
+                document.getElementById('form-criadero-caballo').value = horseObj.criadero;
+                document.getElementById('form-nacional').value = horseObj.nacional;
+                document.getElementById('form-fn').value = horseObj.fn;
                 document.getElementById('form-alzada').value = "--";
                 document.getElementById('form-cincha').value = "--";
                 document.getElementById('form-cana').value = "--";
                 
-                const treeDiv = doc.querySelector('.arbol-genealogico');
-                if (treeDiv) {
-                    const n1 = treeDiv.querySelector('.n1');
-                    if (n1) {
-                        const padreEl = n1.querySelector('.c1 a');
-                        const madreEl = n1.querySelector('.c2 a');
-                        if (padreEl) document.getElementById('form-padre').value = padreEl.textContent.trim().toUpperCase();
-                        if (madreEl) document.getElementById('form-madre').value = madreEl.textContent.trim().toUpperCase();
-                    }
-                    
-                    const n2 = treeDiv.querySelector('.n2');
-                    if (n2) {
-                        const abueloPEl = n2.querySelector('.c1 a');
-                        const abuelaPEl = n2.querySelector('.c2 a');
-                        const abueloMEl = n2.querySelector('.c3 a');
-                        const abuelaMEl = n2.querySelector('.c4 a');
-                        if (abueloPEl) document.getElementById('form-abueloP').value = abueloPEl.textContent.trim().toUpperCase();
-                        if (abuelaPEl) document.getElementById('form-abuelaP').value = abuelaPEl.textContent.trim().toUpperCase();
-                        if (abueloMEl) document.getElementById('form-abueloM').value = abueloMEl.textContent.trim().toUpperCase();
-                        if (abuelaMEl) document.getElementById('form-abuelaM').value = abuelaMEl.textContent.trim().toUpperCase();
-                    }
-                    
-                    const n3 = treeDiv.querySelector('.n3');
-                    if (n3) {
-                        const bisP1El = n3.querySelector('.c1 a');
-                        const bisP2El = n3.querySelector('.c2 a');
-                        const bisP3El = n3.querySelector('.c3 a');
-                        const bisP4El = n3.querySelector('.c4 a');
-                        const bisM1El = n3.querySelector('.c5 a');
-                        const bisM2El = n3.querySelector('.c6 a');
-                        const bisM3El = n3.querySelector('.c7 a');
-                        const bisM4El = n3.querySelector('.c8 a');
-                        
-                        if (bisP1El) document.getElementById('form-bisP1').value = bisP1El.textContent.trim().toUpperCase();
-                        if (bisP2El) document.getElementById('form-bisP2').value = bisP2El.textContent.trim().toUpperCase();
-                        if (bisP3El) document.getElementById('form-bisP3').value = bisP3El.textContent.trim().toUpperCase();
-                        if (bisP4El) document.getElementById('form-bisP4').value = bisP4El.textContent.trim().toUpperCase();
-                        if (bisM1El) document.getElementById('form-bisM1').value = bisM1El.textContent.trim().toUpperCase();
-                        if (bisM2El) document.getElementById('form-bisM2').value = bisM2El.textContent.trim().toUpperCase();
-                        if (bisM3El) document.getElementById('form-bisM3').value = bisM3El.textContent.trim().toUpperCase();
-                        if (bisM4El) document.getElementById('form-bisM4').value = bisM4El.textContent.trim().toUpperCase();
-                    }
-                }
+                document.getElementById('form-padre').value = horseObj.padre;
+                document.getElementById('form-madre').value = horseObj.madre;
+                document.getElementById('form-abueloP').value = horseObj.abueloP;
+                document.getElementById('form-abuelaP').value = horseObj.abuelaP;
+                document.getElementById('form-abueloM').value = horseObj.abueloM;
+                document.getElementById('form-abuelaM').value = horseObj.abuelaM;
+                document.getElementById('form-bisP1').value = horseObj.bisP1;
+                document.getElementById('form-bisP2').value = horseObj.bisP2;
+                document.getElementById('form-bisP3').value = horseObj.bisP3;
+                document.getElementById('form-bisP4').value = horseObj.bisP4;
+                document.getElementById('form-bisM1').value = horseObj.bisM1;
+                document.getElementById('form-bisM2').value = horseObj.bisM2;
+                document.getElementById('form-bisM3').value = horseObj.bisM3;
+                document.getElementById('form-bisM4').value = horseObj.bisM4;
                 
                 showToast("¡Datos y genealogía cargados correctamente!");
             } catch (err) {
@@ -2663,6 +2784,7 @@
                     document.getElementById('form-alzada').value = horse.alzada || '';
                     document.getElementById('form-cincha').value = horse.cincha || '';
                     document.getElementById('form-cana').value = horse.cana || '';
+                    document.getElementById('form-puntajes').value = horse.puntajes || '';
                     document.getElementById('form-foto').value = horse.foto || '';
 
                     const photoPos = horse.photoPosition !== undefined ? horse.photoPosition : 50;
@@ -2690,6 +2812,7 @@
             } else {
                 title.innerText = "Registrar Caballo";
                 document.getElementById('form-genealogia-index').value = '';
+                document.getElementById('form-puntajes').value = '';
             }
 
             renderPhotoSquares();
@@ -2721,6 +2844,7 @@
                 alzada: document.getElementById('form-alzada').value || '--',
                 cincha: document.getElementById('form-cincha').value || '--',
                 cana: document.getElementById('form-cana').value || '--',
+                puntajes: document.getElementById('form-puntajes').value.trim() || '',
                 foto: document.getElementById('form-foto').value || '',
                 photoPosition: parseInt(document.getElementById('form-foto-position').value),
                 photoFit: document.getElementById('form-foto-fit').value,
