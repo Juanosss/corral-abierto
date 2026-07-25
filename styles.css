@@ -2364,4 +2364,63 @@ h1, h2, h3, h4 {
     transform: translateY(-2px);
 }
 
+/* Botón para subir (Scroll to Top) */
+.scroll-to-top-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(216, 67, 21, 0.4);
+    z-index: 2000;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+}
+
+.scroll-to-top-btn.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.scroll-to-top-btn:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-4px) scale(1.05);
+    box-shadow: 0 6px 16px rgba(191, 54, 12, 0.5);
+}
+
+.scroll-to-top-btn svg {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+    transition: transform 0.2s ease;
+}
+
+.scroll-to-top-btn:hover svg {
+    transform: translateY(-2px);
+}
+
+@media (max-width: 767px) {
+    .scroll-to-top-btn {
+        bottom: 16px;
+        right: 16px;
+        width: 42px;
+        height: 42px;
+    }
+    .scroll-to-top-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+}
+
 

@@ -378,6 +378,31 @@
         document.getElementById('nav-link-envivo').href = `${selectedRodeo}/index.html#envivo`;
         document.getElementById('nav-link-analisis').href = `${selectedRodeo}/index.html#analisis`;
         document.getElementById('nav-link-puntajes').href = `${selectedRodeo}/index.html#resultados`;
+
+        // Mostrar / Ocultar botón "Subir" según el scroll
+        const scrollTopBtn = document.getElementById('scroll-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+        });
+
+        // Evento click para subir suavemente
+        scrollTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
     </script>
+
+    <!-- Botón para subir al inicio -->
+    <button id="scroll-to-top" class="scroll-to-top-btn" aria-label="Subir al inicio">
+        <svg viewBox="0 0 24 24">
+            <path d="M4 12l1.41 1.41L11 7.83V20h2V7.83l5.58 5.59L20 12l-8-8-8 8z"/>
+        </svg>
+    </button>
 </body>
 </html>
