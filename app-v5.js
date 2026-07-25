@@ -84,7 +84,36 @@ const defaultRodeoData = [
     { n: 37, asociacion: "MALLECO", criadero: "PELECO", jinetes: ["GUSTAVO VALDEBENITO", "FELIPE GARCES"], caballos: ["MESSI", "EL MAMO"], animal1: 9, animal2: 5, sub1: 14, animal3: -2, sub2: 12, animal4: "X", resultado: "", empates: "", lugar: "" }
 ];
 
-const defaultGenealogiaData = [];
+const defaultGenealogiaData = [
+    {
+        id: "prueba-ptos",
+        nombre: "PRUEBA PTOS",
+        criadero: "CRIADERO TEST",
+        nacional: "SBT N° 999999",
+        fn: "F.N. 12-12-2018",
+        alzada: "1.41 m",
+        cincha: "1.72 m",
+        cana: "19.0 cm",
+        foto: "",
+        photoPosition: 50,
+        photoFit: "cover",
+        puntajes: "Osorno: 12pts / Frutillar: 8pts / Clasificatorio Sur: 24pts",
+        padre: "ESTRIBILLO",
+        madre: "PRUEBA MADRE",
+        abueloP: "TACO",
+        abuelaP: "ESTRIBILLA",
+        abueloM: "BELLANCO",
+        abuelaM: "PRUEBA ABUELA",
+        bisP1: "ANTONIO",
+        bisP2: "--",
+        bisP3: "--",
+        bisP4: "--",
+        bisM1: "--",
+        bisM2: "--",
+        bisM3: "--",
+        bisM4: "--"
+    }
+];
 
 // Persistencia en localStorage
 let rodeoData = null;
