@@ -111,8 +111,60 @@
                  </div>
  
                  <!-- CONTENIDO PESTAÑA 1: COLLERAS -->
-                 <div id="tab-colleras" class="admin-tab-content">
-                    <!-- PANEL DE PUNTAJES DE CORTE DEL JURADO -->
+                  <div id="tab-colleras" class="admin-tab-content">
+                     
+                     <!-- PANEL DE CONTROL EN VIVO Y TRANSMISIÓN DEL RODEO (REFORMA 2) -->
+                     <div class="admin-card" style="margin-bottom: 20px; padding: 20px; background: linear-gradient(145deg, #24140d 0%, #150906 100%); border: 2px solid #ff5722; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); color: #fff;">
+                         <h4 style="margin: 0 0 10px 0; color: #ff5722; font-family: 'Playfair Display', serif; font-size: 1.25rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                             <span style="display: flex; align-items: center; gap: 8px;">
+                                 <span>🔴 Control de Transmisión & Dashboard en Vivo</span>
+                             </span>
+                             <span id="live-admin-status-indicator" style="font-size: 0.78rem; background: #2e7d32; color: #fff; padding: 4px 12px; border-radius: 20px; font-weight: 700; text-transform: uppercase;">Transmisión en Vivo</span>
+                         </h4>
+                         <p style="color: #bcaaa4; font-size: 0.85rem; margin: 0 0 18px 0;">Controla si el rodeo está en vivo o ya finalizó, en qué toro corren y qué collera está actualmente en cancha.</p>
+
+                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; align-items: flex-end;">
+                             
+                             <!-- Control 1: Estado del Evento -->
+                             <div>
+                                 <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #ffab91; margin-bottom: 6px; text-transform: uppercase;">Estado de Transmisión</label>
+                                 <select id="admin-live-status-select" style="width: 100%; padding: 10px; border-radius: 6px; border: 1.5px solid #d5cbbf; background: #fff; color: #2c1810; font-weight: 700; font-size: 0.9rem;" onchange="updateLiveAdminBadge()">
+                                     <option value="envivo">🔴 TRANSMISIÓN EN VIVO (Mostrar Dashboard)</option>
+                                     <option value="finalizado">🏁 EVENTO FINALIZADO / SIN TRANSMISIÓN (Ocultar Dashboard & Mostrar Estadísticas)</option>
+                                 </select>
+                             </div>
+
+                             <!-- Control 2: Toro Actual -->
+                             <div>
+                                 <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #ffab91; margin-bottom: 6px; text-transform: uppercase;">Toro en Curso</label>
+                                 <select id="admin-live-toro-select" style="width: 100%; padding: 10px; border-radius: 6px; border: 1.5px solid #d5cbbf; background: #fff; color: #2c1810; font-weight: 700; font-size: 0.9rem;">
+                                     <option value="1er Toro en Curso">1er Toro en Curso</option>
+                                     <option value="2do Toro en Curso">2do Toro en Curso</option>
+                                     <option value="3er Toro en Curso">3er Toro en Curso</option>
+                                     <option value="4to Toro en Curso">4to Toro en Curso</option>
+                                     <option value="Desempate / Champion">Desempate / Champion</option>
+                                     <option value="4to Toro (Finalizado)">4to Toro (Finalizado)</option>
+                                 </select>
+                             </div>
+
+                             <!-- Control 3: Collera Activa en Cancha -->
+                             <div>
+                                 <label style="display: block; font-size: 0.8rem; font-weight: 700; color: #ffab91; margin-bottom: 6px; text-transform: uppercase;">Collera en Cancha</label>
+                                 <select id="admin-live-collera-select" style="width: 100%; padding: 10px; border-radius: 6px; border: 1.5px solid #d5cbbf; background: #fff; color: #2c1810; font-weight: 700; font-size: 0.9rem;">
+                                     <option value="">-- Cargar Colleras --</option>
+                                 </select>
+                             </div>
+
+                             <!-- Botón Guardar Estado -->
+                             <div>
+                                 <button onclick="saveLiveControlState()" class="admin-btn admin-btn-primary" style="width: 100%; padding: 10px; font-weight: 700; font-size: 0.9rem; background: linear-gradient(135deg, #d84315 0%, #ff5722 100%); border: none; color: #fff; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 12px rgba(216, 67, 21, 0.4);">
+                                     💾 Actualizar Estado en Vivo
+                                 </button>
+                             </div>
+                         </div>
+                     </div>
+
+                     <!-- PANEL DE PUNTAJES DE CORTE DEL JURADO -->
                     <div class="admin-card" style="margin-bottom: 20px; padding: 18px; background: rgba(255, 87, 34, 0.08); border: 1px solid rgba(255, 87, 34, 0.25); border-radius: 8px; box-sizing: border-box;">
                         <h4 style="margin: 0 0 8px 0; color: #ff5722; font-family: 'Playfair Display', serif; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
                             <span>⚡ Corte de Clasificación del Jurado</span>
@@ -2049,6 +2101,98 @@
                 showToast(`Error al enviar SMS de corte: ${errorMsg}`, "error");
             }
         }
+
+        // =========================================================================
+        // REFORMA 2: CONTROL DE TRANSMISIÓN EN VIVO & DASHBOARD (ADMIN)
+        // =========================================================================
+        function populateLiveColleraDropdown() {
+            const selectEl = document.getElementById('admin-live-collera-select');
+            if (!selectEl) return;
+            const currentVal = selectEl.value;
+            selectEl.innerHTML = '<option value="">-- Seleccionar Collera --</option>';
+            if (typeof rodeoData !== 'undefined' && Array.isArray(rodeoData)) {
+                rodeoData.forEach(c => {
+                    const jinetesStr = Array.isArray(c.jinetes) ? c.jinetes.join(' & ') : c.jinetes;
+                    const caballosStr = Array.isArray(c.caballos) ? c.caballos.join(' & ') : c.caballos;
+                    selectEl.innerHTML += `<option value="${c.n}">#${c.n} ${jinetesStr} (${caballosStr})</option>`;
+                });
+            }
+            if (currentVal) selectEl.value = currentVal;
+        }
+
+        function loadLiveControlState() {
+            const activeRodeoId = typeof getActiveRodeoIdFromURL === 'function' ? getActiveRodeoIdFromURL() : (sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026');
+            let liveState = null;
+            try {
+                liveState = JSON.parse(localStorage.getItem(`liveState_${activeRodeoId}`));
+            } catch(e) {}
+
+            populateLiveColleraDropdown();
+
+            const statusSelect = document.getElementById('admin-live-status-select');
+            const toroSelect = document.getElementById('admin-live-toro-select');
+            const colleraSelect = document.getElementById('admin-live-collera-select');
+
+            if (liveState) {
+                if (statusSelect && liveState.estado) statusSelect.value = liveState.estado;
+                if (toroSelect && liveState.toroActual) toroSelect.value = liveState.toroActual;
+                if (colleraSelect && liveState.activeColleraN) colleraSelect.value = liveState.activeColleraN;
+            }
+            updateLiveAdminBadge();
+        }
+
+        function updateLiveAdminBadge() {
+            const statusSelect = document.getElementById('admin-live-status-select');
+            const badgeEl = document.getElementById('live-admin-status-indicator');
+            if (!statusSelect || !badgeEl) return;
+            if (statusSelect.value === 'finalizado') {
+                badgeEl.textContent = '🏁 EVENTO FINALIZADO / SIN TRANSMISIÓN';
+                badgeEl.style.background = '#d32f2f';
+            } else {
+                badgeEl.textContent = '🔴 TRANSMISIÓN EN VIVO ACTIVA';
+                badgeEl.style.background = '#2e7d32';
+            }
+        }
+
+        async function saveLiveControlState() {
+            const activeRodeoId = typeof getActiveRodeoIdFromURL === 'function' ? getActiveRodeoIdFromURL() : (sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026');
+            const statusSelect = document.getElementById('admin-live-status-select');
+            const toroSelect = document.getElementById('admin-live-toro-select');
+            const colleraSelect = document.getElementById('admin-live-collera-select');
+
+            const liveState = {
+                estado: statusSelect ? statusSelect.value : 'envivo',
+                toroActual: toroSelect ? toroSelect.value : '1er Toro en Curso',
+                activeColleraN: colleraSelect && colleraSelect.value ? parseInt(colleraSelect.value) : 1,
+                proximaColleraN: colleraSelect && colleraSelect.value ? parseInt(colleraSelect.value) + 1 : 2,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(liveState));
+            } catch(e) { console.error(e); }
+
+            // Sincronizar con Supabase si está disponible
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    await supabaseClient.from('rodeos').update({
+                        activo: liveState.estado === 'envivo'
+                    }).eq('id', activeRodeoId);
+                } catch(e) { console.warn("No se pudo actualizar rodeo en Supabase:", e); }
+            }
+
+            updateLiveAdminBadge();
+            if (typeof showToast === 'function') {
+                showToast("¡Estado en vivo actualizado con éxito!");
+            } else {
+                alert("¡Estado en vivo actualizado con éxito!");
+            }
+        }
+
+        // Cargar estado live al cambiar de pestaña a colleras
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(loadLiveControlState, 300);
+        });
 
         // ==========================================================================
         // GESTIÓN DE GENEALOGÍAS

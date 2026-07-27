@@ -773,16 +773,29 @@ async function initRodeoData() {
     subscribeSupabaseRealtime();
 }
 
-// REFORMA 2: Renderizar Dashboard en Vivo en Tiempo Real
+// REFORMA 2: Renderizar Dashboard en Vivo en Tiempo Real o Mostrar Estadísticas al Finalizar
 function renderLiveDashboard(data) {
+    const envivoSection = document.getElementById('envivo');
     const jinetesEl = document.getElementById('live-jinetes');
-    if (!jinetesEl) return;
+    if (!envivoSection && !jinetesEl) return;
 
     const activeRodeoId = getActiveRodeoIdFromURL();
     let liveState = null;
     try {
         liveState = JSON.parse(localStorage.getItem(`liveState_${activeRodeoId}`));
     } catch(e) {}
+
+    // SI EL EVENTO HA FINALIZADO O NO TIENE TRANSMISIÓN ACTIVA
+    if (liveState && liveState.estado === 'finalizado') {
+        if (envivoSection) {
+            envivoSection.style.display = 'none';
+        }
+        return;
+    } else {
+        if (envivoSection) {
+            envivoSection.style.display = 'block';
+        }
+    }
 
     let currentCollera = null;
     let nextCollera = null;
@@ -799,7 +812,7 @@ function renderLiveDashboard(data) {
         nextCollera = data[currentIndex + 1] || data[0];
     }
 
-    if (!currentCollera) return;
+    if (!currentCollera || !jinetesEl) return;
 
     // Jinetes
     jinetesEl.textContent = `${currentCollera.jinetes[0]} & ${currentCollera.jinetes[1]}`;
