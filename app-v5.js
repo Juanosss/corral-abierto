@@ -713,23 +713,12 @@ function renderChart(data, stage = 4) {
 
 // Obtiene el ID del rodeo actual basándose en la ruta URL de la carpeta física
 function getActiveRodeoIdFromURL() {
-    const pathParts = window.location.pathname.split('/');
-    if (pathParts.length > 2) {
-        const folderName = pathParts[pathParts.length - 2];
-        const validFolders = [
-            'champion-chile',
-            'clasificatorio-sur-2026',
-            'clasificatorio-norte-2026',
-            'clasificatorio-centro-2026'
-        ];
-        if (validFolders.includes(folderName)) {
-            if (folderName === 'champion-chile') {
-                return 'champion-chile-2026';
-            }
-            return folderName;
-        }
-    }
-    return sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026';
+    const path = (window.location.pathname || '').toLowerCase();
+    if (path.includes('clasificatorio-sur')) return 'clasificatorio-sur-2026';
+    if (path.includes('clasificatorio-centro')) return 'clasificatorio-centro-2026';
+    if (path.includes('clasificatorio-norte')) return 'clasificatorio-norte-2026';
+    if (path.includes('champion-chile')) return 'champion-chile-2026';
+    return localStorage.getItem('activeRodeoId') || sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026';
 }
 
 async function initRodeoData() {
@@ -942,16 +931,46 @@ window.toggleYouTubeStream = function() {
     }
 };
 
+// Función centralizada para actualizar la pantalla del espectador en tiempo real
+function triggerSpectatorLiveUpdate() {
+    const activeRodeoId = getActiveRodeoIdFromURL();
+    try {
+        const localData = JSON.parse(localStorage.getItem(`rodeoData_${activeRodeoId}`));
+        if (localData && Array.isArray(localData) && localData.length > 0) {
+            rodeoData = localData;
+            renderTable(rodeoData, "total");
+        }
+    } catch(err) {}
+
+    if (typeof rodeoData !== 'undefined' && Array.isArray(rodeoData)) {
+        renderLiveDashboard(rodeoData);
+    }
+}
+
 // Subscripción en Tiempo Real con Supabase Realtime
 let realtimeSubscribed = false;
 function subscribeSupabaseRealtime() {
     if (!supabaseClient || realtimeSubscribed) return;
     try {
+        const activeRodeoId = getActiveRodeoIdFromURL();
         supabaseClient
-            .channel('public:colleras_realtime')
+            .channel('public:rodeo_live_updates')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'colleras' }, async () => {
                 console.log('⚡ Actualización en tiempo real recibida para colleras');
                 await initRodeoData();
+                triggerSpectatorLiveUpdate();
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'rodeos' }, async (payload) => {
+                console.log('⚡ Actualización en tiempo real recibida para rodeos:', payload);
+                if (payload.new && payload.new.id === activeRodeoId && payload.new.logo_url) {
+                    try {
+                        const state = JSON.parse(payload.new.logo_url);
+                        if (state) {
+                            localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(state));
+                            triggerSpectatorLiveUpdate();
+                        }
+                    } catch(e) {}
+                }
             })
             .subscribe();
         realtimeSubscribed = true;
@@ -960,35 +979,26 @@ function subscribeSupabaseRealtime() {
     }
 }
 
-// Sincronización instantánea entre la pantalla del Administrador y el Espectador
-let lastLiveStateRaw = '';
+// Sincronización instantánea entre pestañas de administrador y espectador (Storage Event)
 window.addEventListener('storage', (e) => {
-    const activeRodeoId = getActiveRodeoIdFromURL();
-    if (e.key === `liveState_${activeRodeoId}` || e.key === `rodeoData_${activeRodeoId}`) {
-        try {
-            const localData = JSON.parse(localStorage.getItem(`rodeoData_${activeRodeoId}`));
-            if (localData && Array.isArray(localData)) {
-                rodeoData = localData;
-                renderTable(rodeoData, "total");
-            }
-        } catch(err) {}
-        if (typeof rodeoData !== 'undefined') {
-            renderLiveDashboard(rodeoData);
-        }
-    }
+    triggerSpectatorLiveUpdate();
 });
 
-// Ticker de verificación cada 1 segundo para asegurar actualización instantánea del directo
+// Ticker de alta frecuencia (300ms) para garantizar reflejo en vivo instantáneo
+let lastLiveStateRaw = '';
+let lastRodeoDataRaw = '';
+
 setInterval(() => {
     const activeRodeoId = getActiveRodeoIdFromURL();
-    const currentRaw = localStorage.getItem(`liveState_${activeRodeoId}`) || '';
-    if (currentRaw !== lastLiveStateRaw) {
-        lastLiveStateRaw = currentRaw;
-        if (typeof rodeoData !== 'undefined' && Array.isArray(rodeoData)) {
-            renderLiveDashboard(rodeoData);
-        }
+    const currentLiveRaw = localStorage.getItem(`liveState_${activeRodeoId}`) || '';
+    const currentDataRaw = localStorage.getItem(`rodeoData_${activeRodeoId}`) || '';
+
+    if (currentLiveRaw !== lastLiveStateRaw || currentDataRaw !== lastRodeoDataRaw) {
+        lastLiveStateRaw = currentLiveRaw;
+        lastRodeoDataRaw = currentDataRaw;
+        triggerSpectatorLiveUpdate();
     }
-}, 1000);
+}, 300);
 
 function loadBackupLocalRodeoData() {
     const activeRodeoId = getActiveRodeoIdFromURL();
