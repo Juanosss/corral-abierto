@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corral Abierto x Champion de Chile</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=5.0">
+    <link rel="stylesheet" href="styles.css?v=5.2">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐴</text></svg>">
 </head>
 <body>
@@ -46,9 +46,9 @@
                 </p>
 
                 <!-- Buscador Único Dinámico (Estilo claro, formal y de alto contraste) -->
-                <div style="margin-bottom: 1.8rem; max-width: 750px; margin-left: auto; margin-right: auto; padding: 0.9rem 1.2rem; background: #ffffff; border-radius: var(--radius-lg); border: 1.5px solid rgba(141, 110, 99, 0.25); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: space-between;">
+                <div style="margin-bottom: 1.2rem; max-width: 750px; margin-left: auto; margin-right: auto; padding: 0.9rem 1.2rem; background: #ffffff; border-radius: var(--radius-lg); border: 1.5px solid rgba(141, 110, 99, 0.25); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: space-between;">
                     
-                    <!-- Buscador Único (Sin doble lupa, 1 solo icono limpio) -->
+                    <!-- Buscador Único (Sin doble lupa) -->
                     <div style="flex: 1 1 320px; position: relative;">
                         <input type="text" id="search-input" placeholder="Buscar por nombre, criadero, dueño o linaje..." 
                                style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.4rem; border-radius: var(--radius-md); border: 1.5px solid #d5cbbf; background: #fdfbf7; color: #2c1810; font-family: inherit; font-size: 0.92rem; outline: none; box-sizing: border-box; transition: all 0.2s;"
@@ -57,7 +57,7 @@
                         <span style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; color: #8d6e63; pointer-events: none;">🔍</span>
                     </div>
 
-                    <!-- Opciones de Ordenamiento con texto claro y legible -->
+                    <!-- Opciones de Ordenamiento -->
                     <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
                         <label for="sort-by-select" style="font-size: 0.85rem; color: #4e342e; font-weight: 700; white-space: nowrap;">Ordenar por:</label>
                         <select id="sort-by-select" style="padding: 0.7rem 0.9rem; border-radius: var(--radius-md); border: 1.5px solid #d5cbbf; background: #ffffff; color: #2c1810; font-family: inherit; font-size: 0.88rem; font-weight: 600; outline: none; cursor: pointer;">
@@ -72,6 +72,11 @@
                             <span id="sort-order-icon">▼ Descendente</span>
                         </button>
                     </div>
+                </div>
+
+                <!-- CINTA DE NAVEGACIÓN ALFABÉTICA HORIZONTAL (Acceso Rápido A-Z) -->
+                <div id="alphabet-ribbon" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px; max-width: 750px; margin: 0 auto 1.5rem auto; padding: 0.6rem 1rem; background: #ffffff; border-radius: 12px; border: 1px solid rgba(141,110,99,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+                    <!-- Generado dinámicamente -->
                 </div>
 
                 <!-- Contador Dinámico -->
@@ -91,8 +96,8 @@
         </footer>
     </div>
 
-    <!-- NAVEGACIÓN ALFABÉTICA LATERAL DISCRETA (A - Z) -->
-    <nav id="alphabet-index" class="alphabet-index-sidebar" aria-label="Navegación Alfabética A-Z">
+    <!-- NAVEGACIÓN ALFABÉTICA LATERAL FLOTANTE GARANTIZADA (A - Z) -->
+    <nav id="alphabet-sidebar" class="alphabet-index-sidebar" style="position: fixed; right: 10px; top: 50%; transform: translateY(-50%); z-index: 999999; display: flex; flex-direction: column; align-items: center; gap: 2px; background: #2c1810; padding: 8px 4px; border-radius: 18px; border: 2px solid #d84315; box-shadow: 0 8px 30px rgba(0,0,0,0.4); max-height: 85vh; overflow-y: auto;" aria-label="Navegación Alfabética A-Z Lateral">
         <!-- Generado dinámicamente con JS -->
     </nav>
 
@@ -483,12 +488,20 @@
             resetCarouselTimer(horseId);
         };
 
-        // Navegación Alfabética A-Z (Barra Lateral Discreta)
+        // Navegación Alfabética A-Z (Barra Lateral y Cinta Rápida)
         function buildAlphabetIndex() {
-            const nav = document.getElementById('alphabet-index');
-            if (!nav) return;
+            const sidebar = document.getElementById('alphabet-sidebar');
+            const ribbon = document.getElementById('alphabet-ribbon');
             const letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','Ñ','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-            nav.innerHTML = letters.map(l => `<button class="alphabet-letter-btn" onclick="scrollToLetter('${l}')" title="Ir a letra ${l}">${l}</button>`).join('');
+            
+            if (sidebar) {
+                sidebar.innerHTML = letters.map(l => `<button class="alphabet-letter-btn" onclick="scrollToLetter('${l}')" style="background: none; border: none; color: #ffffff; font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 700; padding: 3px 6px; cursor: pointer; border-radius: 4px; line-height: 1; transition: all 0.15s ease;" title="Ir a letra ${l}">${l}</button>`).join('');
+            }
+
+            if (ribbon) {
+                ribbon.innerHTML = `<span style="font-size: 0.8rem; font-weight: 700; color: #4e342e; margin-right: 6px; align-self: center;">Ir a inicial:</span>` + 
+                    letters.map(l => `<button class="alphabet-ribbon-btn" onclick="scrollToLetter('${l}')" style="background: #f5f0ea; border: 1px solid #d5cbbf; color: #3d2d24; font-family: 'Inter', sans-serif; font-size: 0.75rem; font-weight: 700; padding: 3px 8px; cursor: pointer; border-radius: 4px; transition: all 0.15s ease;" title="Filtrar por ${l}">${l}</button>`).join('');
+            }
         }
 
         window.scrollToLetter = function(letter) {
