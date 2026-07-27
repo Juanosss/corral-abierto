@@ -45,11 +45,11 @@
                     Consulta el origen, linaje, medidas y árbol genealógico completo de los caballos participantes (Padres, Abuelos y Bisabuelos).
                 </p>
 
-                <!-- Buscador Único Dinámico (Estilo claro, formal y de alto contraste) -->
-                <div style="margin-bottom: 1.2rem; max-width: 750px; margin-left: auto; margin-right: auto; padding: 0.9rem 1.2rem; background: #ffffff; border-radius: var(--radius-lg); border: 1.5px solid rgba(141, 110, 99, 0.25); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: space-between;">
+                <!-- Buscador Único Dinámico (Optimizado para Móvil / iPhone) -->
+                <div style="margin-bottom: 1.2rem; max-width: 750px; margin-left: auto; margin-right: auto; padding: 0.9rem 1.2rem; background: #ffffff; border-radius: var(--radius-lg); border: 1.5px solid rgba(141, 110, 99, 0.25); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; gap: 0.8rem;">
                     
                     <!-- Buscador Único (Sin doble lupa) -->
-                    <div style="flex: 1 1 320px; position: relative;">
+                    <div style="width: 100%; position: relative;">
                         <input type="text" id="search-input" placeholder="Buscar por nombre, criadero, dueño o linaje..." 
                                style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.4rem; border-radius: var(--radius-md); border: 1.5px solid #d5cbbf; background: #fdfbf7; color: #2c1810; font-family: inherit; font-size: 0.92rem; outline: none; box-sizing: border-box; transition: all 0.2s;"
                                onfocus="this.style.borderColor='#d84315'; this.style.boxShadow='0 0 0 3px rgba(216,67,21,0.1)';" 
@@ -58,24 +58,26 @@
                     </div>
 
                     <!-- Opciones de Ordenamiento -->
-                    <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
-                        <label for="sort-by-select" style="font-size: 0.85rem; color: #4e342e; font-weight: 700; white-space: nowrap;">Ordenar por:</label>
-                        <select id="sort-by-select" style="padding: 0.7rem 0.9rem; border-radius: var(--radius-md); border: 1.5px solid #d5cbbf; background: #ffffff; color: #2c1810; font-family: inherit; font-size: 0.88rem; font-weight: 600; outline: none; cursor: pointer;">
-                            <option value="nombre">Nombre (A - Z)</option>
-                            <option value="puntaje">Puntaje / Rendimiento</option>
-                            <option value="criadero">Criadero</option>
-                            <option value="dueno">Dueño</option>
-                            <option value="padre">Ascendencia (Padre)</option>
-                        </select>
+                    <div style="display: flex; gap: 0.6rem; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap;">
+                        <div style="display: flex; gap: 0.5rem; align-items: center; flex: 1 1 auto; min-width: 200px;">
+                            <label for="sort-by-select" style="font-size: 0.85rem; color: #4e342e; font-weight: 700; white-space: nowrap;">Ordenar por:</label>
+                            <select id="sort-by-select" style="flex: 1; padding: 0.65rem 0.8rem; border-radius: var(--radius-md); border: 1.5px solid #d5cbbf; background: #ffffff; color: #2c1810; font-family: inherit; font-size: 0.85rem; font-weight: 600; outline: none; cursor: pointer;">
+                                <option value="nombre">Nombre (A - Z)</option>
+                                <option value="puntaje">Puntaje / Rendimiento</option>
+                                <option value="criadero">Criadero</option>
+                                <option value="dueno">Dueño</option>
+                                <option value="padre">Ascendencia (Padre)</option>
+                            </select>
+                        </div>
 
-                        <button id="sort-order-btn" title="Cambiar dirección de orden (Ascendente / Descendente)" style="padding: 0.7rem 0.9rem; border-radius: var(--radius-md); border: none; background: linear-gradient(135deg, #d84315 0%, #ff5722 100%); color: #ffffff; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 8px rgba(216,67,21,0.25); transition: all 0.2s;">
+                        <button id="sort-order-btn" title="Cambiar dirección de orden" style="padding: 0.65rem 0.9rem; border-radius: var(--radius-md); border: none; background: linear-gradient(135deg, #d84315 0%, #ff5722 100%); color: #ffffff; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 8px rgba(216,67,21,0.25); transition: all 0.2s;">
                             <span id="sort-order-icon">▼ Descendente</span>
                         </button>
                     </div>
                 </div>
 
-                <!-- CINTA DE NAVEGACIÓN ALFABÉTICA HORIZONTAL (Acceso Rápido A-Z) -->
-                <div id="alphabet-ribbon" style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px; max-width: 750px; margin: 0 auto 1.5rem auto; padding: 0.6rem 1rem; background: #ffffff; border-radius: 12px; border: 1px solid rgba(141,110,99,0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.04);">
+                <!-- CINTA DE NAVEGACIÓN ALFABÉTICA HORIZONTAL (Deslizable al tacto en iPhone) -->
+                <div id="alphabet-ribbon" class="alphabet-ribbon-container">
                     <!-- Generado dinámicamente -->
                 </div>
 
