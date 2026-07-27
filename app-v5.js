@@ -838,14 +838,30 @@ function renderLiveDashboard(data) {
         toroTagEl.textContent = toroStr;
     }
 
-    // Score Numeral
+    // Score Numeral & Distintivo Puntos de Carrera
     const scoreNumEl = document.getElementById('live-score-num');
     const scoreLblEl = document.getElementById('live-score-lbl');
+    const carreraBadgeEl = document.getElementById('live-carrera-pts-badge');
+
     if (scoreNumEl) {
-        const totalPts = currentCollera.resultado || currentCollera.sub2 || currentCollera.sub1 || currentCollera.animal1 || 0;
-        scoreNumEl.textContent = typeof totalPts === 'number' && totalPts > 0 ? `+${totalPts}` : totalPts;
+        const acumPrevio = currentCollera.sub2 || currentCollera.sub1 || currentCollera.animal1 || 0;
+        const details = liveState?.runDetails;
+        const ptsCarrera = details && typeof details.totalToro === 'number' ? details.totalToro : 0;
+
+        const totalAcumulado = (typeof acumPrevio === 'number' ? acumPrevio : 0) + ptsCarrera;
+        scoreNumEl.textContent = totalAcumulado >= 0 ? `+${totalAcumulado}` : totalAcumulado;
+
         if (scoreLblEl) {
-            scoreLblEl.textContent = currentCollera.lugar ? `PUNTOS TOTALES (${currentCollera.lugar} LUGAR)` : 'PUNTOS ACUMULADOS';
+            scoreLblEl.textContent = currentCollera.lugar ? `PUNTOS TOTALES (${currentCollera.lugar} LUGAR)` : 'PUNTOS TOTALES ACUMULADOS';
+        }
+
+        if (carreraBadgeEl) {
+            if (details) {
+                carreraBadgeEl.textContent = `⚡ Carrera en Cancha: ${ptsCarrera >= 0 ? '+' + ptsCarrera : ptsCarrera} Pts`;
+                carreraBadgeEl.style.display = 'inline-block';
+            } else {
+                carreraBadgeEl.style.display = 'none';
+            }
         }
     }
 
