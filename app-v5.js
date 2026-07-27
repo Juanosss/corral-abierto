@@ -897,6 +897,36 @@ function subscribeSupabaseRealtime() {
     }
 }
 
+// Sincronización instantánea entre la pantalla del Administrador y el Espectador
+let lastLiveStateRaw = '';
+window.addEventListener('storage', (e) => {
+    const activeRodeoId = getActiveRodeoIdFromURL();
+    if (e.key === `liveState_${activeRodeoId}` || e.key === `rodeoData_${activeRodeoId}`) {
+        try {
+            const localData = JSON.parse(localStorage.getItem(`rodeoData_${activeRodeoId}`));
+            if (localData && Array.isArray(localData)) {
+                rodeoData = localData;
+                renderTable(rodeoData, "total");
+            }
+        } catch(err) {}
+        if (typeof rodeoData !== 'undefined') {
+            renderLiveDashboard(rodeoData);
+        }
+    }
+});
+
+// Ticker de verificación cada 1 segundo para asegurar actualización instantánea del directo
+setInterval(() => {
+    const activeRodeoId = getActiveRodeoIdFromURL();
+    const currentRaw = localStorage.getItem(`liveState_${activeRodeoId}`) || '';
+    if (currentRaw !== lastLiveStateRaw) {
+        lastLiveStateRaw = currentRaw;
+        if (typeof rodeoData !== 'undefined' && Array.isArray(rodeoData)) {
+            renderLiveDashboard(rodeoData);
+        }
+    }
+}, 1000);
+
 function loadBackupLocalRodeoData() {
     const activeRodeoId = getActiveRodeoIdFromURL();
     let localData = null;

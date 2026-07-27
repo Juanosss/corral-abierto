@@ -172,7 +172,7 @@
                                  <!-- Salida Apiñadero -->
                                  <div>
                                      <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #d7ccc8; margin-bottom: 5px;">Salida Apiñadero</label>
-                                     <select id="calc-salida" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #8d6e63; background: #1a0e0a; color: #fff; font-weight: 700; font-size: 0.85rem;" onchange="updateLiveScoreCalculator()">
+                                     <select id="calc-salida" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #8d6e63; background: #1a0e0a; color: #fff; font-weight: 700; font-size: 0.85rem;" onchange="transmitLivePartialProgress()">
                                          <option value="1">+1 (Salida Buena)</option>
                                          <option value="0">0 (Salida Neutra)</option>
                                          <option value="-1">-1 (Salida Mala)</option>
@@ -183,7 +183,7 @@
                                  <!-- 1° Atajada -->
                                  <div>
                                      <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #d7ccc8; margin-bottom: 5px;">1° Atajada</label>
-                                     <select id="calc-atajada1" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #8d6e63; background: #1a0e0a; color: #fff; font-weight: 700; font-size: 0.85rem;" onchange="updateLiveScoreCalculator()">
+                                     <select id="calc-atajada1" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #8d6e63; background: #1a0e0a; color: #fff; font-weight: 700; font-size: 0.85rem;" onchange="transmitLivePartialProgress()">
                                          <option value="4">+4 Puntos</option>
                                          <option value="3">+3 Puntos</option>
                                          <option value="2">+2 Puntos</option>
@@ -195,7 +195,7 @@
                                  <!-- 2° Atajada -->
                                  <div>
                                      <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #d7ccc8; margin-bottom: 5px;">2° Atajada</label>
-                                     <select id="calc-atajada2" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #8d6e63; background: #1a0e0a; color: #fff; font-weight: 700; font-size: 0.85rem;" onchange="updateLiveScoreCalculator()">
+                                     <select id="calc-atajada2" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #8d6e63; background: #1a0e0a; color: #fff; font-weight: 700; font-size: 0.85rem;" onchange="transmitLivePartialProgress()">
                                          <option value="4">+4 Puntos</option>
                                          <option value="3">+3 Puntos</option>
                                          <option value="2">+2 Puntos</option>
@@ -207,7 +207,7 @@
                                  <!-- 3° Atajada -->
                                  <div>
                                      <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #d7ccc8; margin-bottom: 5px;">3° Atajada</label>
-                                     <select id="calc-atajada3" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #8d6e63; background: #1a0e0a; color: #fff; font-weight: 700; font-size: 0.85rem;" onchange="updateLiveScoreCalculator()">
+                                     <select id="calc-atajada3" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #8d6e63; background: #1a0e0a; color: #fff; font-weight: 700; font-size: 0.85rem;" onchange="transmitLivePartialProgress()">
                                          <option value="4">+4 Puntos</option>
                                          <option value="3">+3 Puntos</option>
                                          <option value="2">+2 Puntos</option>
@@ -219,18 +219,18 @@
                                  <!-- Descuentos / Faltas -->
                                  <div>
                                      <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #d7ccc8; margin-bottom: 5px;">Descuentos / Faltas</label>
-                                     <input type="number" id="calc-descuentos" value="0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #8d6e63; background: #1a0e0a; color: #fff; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;" oninput="updateLiveScoreCalculator()">
+                                     <input type="number" id="calc-descuentos" value="0" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #8d6e63; background: #1a0e0a; color: #fff; font-weight: 700; font-size: 0.85rem; box-sizing: border-box;" oninput="transmitLivePartialProgress()">
                                  </div>
                              </div>
                          </div>
 
-                         <!-- BOTÓN GUARDAR Y TRANSMITIR EN VIVO -->
+                         <!-- BOTÓN GUARDAR TORO Y PASAR A SIGUIENTE COLLERA -->
                          <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                             <button onclick="registrarCarreraEnVivo()" class="admin-btn admin-btn-primary" style="flex: 2; min-width: 250px; padding: 13px 20px; font-weight: 800; font-size: 1rem; background: linear-gradient(135deg, #d84315 0%, #ff5722 100%); border: none; color: #fff; border-radius: 8px; cursor: pointer; box-shadow: 0 6px 20px rgba(216, 67, 21, 0.4); text-transform: uppercase; letter-spacing: 0.02em;">
-                                 🚀 Registrar Carrera y Transmitir en Vivo
+                             <button onclick="guardarToroYSiguienteCollera()" class="admin-btn admin-btn-primary" style="flex: 2; min-width: 250px; padding: 13px 20px; font-weight: 800; font-size: 1rem; background: linear-gradient(135deg, #d84315 0%, #ff5722 100%); border: none; color: #fff; border-radius: 8px; cursor: pointer; box-shadow: 0 6px 20px rgba(216, 67, 21, 0.4); text-transform: uppercase; letter-spacing: 0.02em;">
+                                 💾 Guardar Toro Completo y Pasar a Siguiente Collera ➔
                              </button>
                              <button onclick="saveLiveControlState()" class="admin-btn" style="flex: 1; min-width: 180px; padding: 13px 15px; font-weight: 700; font-size: 0.88rem; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 8px; cursor: pointer;">
-                                 💾 Guardar Solo Estado
+                                 ⚙️ Solo Actualizar Estado
                              </button>
                          </div>
                      </div>
@@ -2290,14 +2290,78 @@
         }
 
         function onColleraSelectChange() {
-            updateLiveScoreCalculator();
+            transmitLivePartialProgress();
         }
 
         function onToroSelectChange() {
-            updateLiveScoreCalculator();
+            transmitLivePartialProgress();
         }
 
-        async function registrarCarreraEnVivo() {
+        // Transmitir cada atajada o punto en vivo a medida que el jurado la selecciona
+        function transmitLivePartialProgress() {
+            updateLiveScoreCalculator();
+
+            const activeRodeoId = typeof getActiveRodeoIdFromURL === 'function' ? getActiveRodeoIdFromURL() : (sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026');
+            const colleraSelect = document.getElementById('admin-live-collera-select');
+            const toroSelect = document.getElementById('admin-live-toro-select');
+
+            if (!colleraSelect || !colleraSelect.value) return;
+
+            const nCollera = parseInt(colleraSelect.value);
+            const collera = rodeoData.find(c => c.n === nCollera);
+            if (!collera) return;
+
+            const salidaEl = document.getElementById('calc-salida');
+            const a1El = document.getElementById('calc-atajada1');
+            const a2El = document.getElementById('calc-atajada2');
+            const a3El = document.getElementById('calc-atajada3');
+            const descEl = document.getElementById('calc-descuentos');
+
+            const isLesion = salidaEl.value === 'LESION';
+            let puntajeToro = 0;
+            let desgloseStr = "";
+
+            if (isLesion) {
+                puntajeToro = "X";
+                desgloseStr = "NO CORRE POR LESIÓN";
+            } else {
+                const valSalida = parseInt(salidaEl.value) || 0;
+                const valA1 = parseInt(a1El.value) || 0;
+                const valA2 = parseInt(a2El.value) || 0;
+                const valA3 = parseInt(a3El.value) || 0;
+                const valDesc = parseInt(descEl.value) || 0;
+                puntajeToro = valSalida + valA1 + valA2 + valA3 + valDesc;
+                desgloseStr = `Salida: ${valSalida >= 0 ? '+' + valSalida : valSalida} | 1° Atajada: ${valA1 >= 0 ? '+' + valA1 : valA1} | 2° Atajada: ${valA2 >= 0 ? '+' + valA2 : valA2} | 3° Atajada: ${valA3 >= 0 ? '+' + valA3 : valA3}${valDesc !== 0 ? ' | Faltas: ' + valDesc : ''}`;
+            }
+
+            const toroStr = toroSelect ? toroSelect.value : '1er Toro';
+
+            // Calcular puntaje parcial previo acumulado de la collera
+            const scorePrevio = collera.sub2 || collera.sub1 || collera.animal1 || 0;
+            const partialAccumulated = (typeof scorePrevio === 'number' ? scorePrevio : 0) + (typeof puntajeToro === 'number' ? puntajeToro : 0);
+
+            const liveState = {
+                estado: 'envivo',
+                toroActual: toroStr,
+                activeColleraN: nCollera,
+                proximaColleraN: nCollera + 1,
+                desgloseCarrera: desgloseStr,
+                partialScore: partialAccumulated,
+                updatedAt: new Date().toISOString()
+            };
+
+            try {
+                localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(liveState));
+            } catch(e) {}
+
+            // Transmitir cambio via Supabase
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('rodeos').update({ logo_url: JSON.stringify(liveState) }).eq('id', activeRodeoId).then(()=>{}).catch(()=>{});
+            }
+        }
+
+        // Al finalizar la carrera de la collera, guardar el toro completo y avanzar a la siguiente collera
+        async function guardarToroYSiguienteCollera() {
             const activeRodeoId = typeof getActiveRodeoIdFromURL === 'function' ? getActiveRodeoIdFromURL() : (sessionStorage.getItem('selectedRodeo') || 'champion-chile-2026');
             const colleraSelect = document.getElementById('admin-live-collera-select');
             const toroSelect = document.getElementById('admin-live-toro-select');
@@ -2323,11 +2387,9 @@
 
             const isLesion = salidaEl.value === 'LESION';
             let puntajeToro = 0;
-            let desgloseStr = "";
 
             if (isLesion) {
                 puntajeToro = "X";
-                desgloseStr = "NO CORRE POR LESIÓN";
             } else {
                 const valSalida = parseInt(salidaEl.value) || 0;
                 const valA1 = parseInt(a1El.value) || 0;
@@ -2335,10 +2397,9 @@
                 const valA3 = parseInt(a3El.value) || 0;
                 const valDesc = parseInt(descEl.value) || 0;
                 puntajeToro = valSalida + valA1 + valA2 + valA3 + valDesc;
-                desgloseStr = `Salida: ${valSalida >= 0 ? '+' + valSalida : valSalida} | 1° Atajada: ${valA1 >= 0 ? '+' + valA1 : valA1} | 2° Atajada: ${valA2 >= 0 ? '+' + valA2 : valA2} | 3° Atajada: ${valA3 >= 0 ? '+' + valA3 : valA3}${valDesc !== 0 ? ' | Faltas: ' + valDesc : ''}`;
             }
 
-            // Identificar qué toro se está corriendo
+            // Asignar al toro correspondiente en la planilla oficial
             const toroStr = toroSelect ? toroSelect.value : '1er Toro';
             if (toroStr.includes('1er')) {
                 collera.animal1 = puntajeToro;
@@ -2359,43 +2420,53 @@
                 }
             }
 
-            // Guardar localmente
+            // Guardar localmente y en Supabase
             try {
                 localStorage.setItem(`rodeoData_${activeRodeoId}`, JSON.stringify(rodeoData));
             } catch(e) { console.error(e); }
 
-            // Guardar en Supabase si está disponible
             if (typeof syncRecordToSupabase === 'function') {
                 syncRecordToSupabase(collera);
             }
 
-            // Actualizar estado en vivo (LiveState)
+            // Avanzar a la siguiente collera
+            const nextN = nCollera + 1;
             const liveState = {
                 estado: 'envivo',
                 toroActual: toroStr,
-                activeColleraN: nCollera,
-                proximaColleraN: nCollera + 1,
-                desgloseCarrera: desgloseStr,
-                puntosToro: puntajeToro,
+                activeColleraN: nextN,
+                proximaColleraN: nextN + 1,
+                desgloseCarrera: '',
+                partialScore: undefined,
                 updatedAt: new Date().toISOString()
             };
+
             try {
                 localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(liveState));
             } catch(e) {}
 
-            // Refrescar tabla en admin
+            // Resetear la calculadora para la nueva collera
+            if (salidaEl) salidaEl.value = "1";
+            if (a1El) a1El.value = "4";
+            if (a2El) a2El.value = "4";
+            if (a3El) a3El.value = "3";
+            if (descEl) descEl.value = "0";
+
+            // Refrescar la tabla en admin
             if (typeof renderCollerasTable === 'function') {
                 renderCollerasTable(rodeoData);
             }
 
-            // Pasar automáticamente a la siguiente collera
-            const nextOption = Array.from(colleraSelect.options).find(opt => parseInt(opt.value) === nCollera + 1);
+            // Avanzar dropdown de collera
+            const nextOption = Array.from(colleraSelect.options).find(opt => parseInt(opt.value) === nextN);
             if (nextOption) {
-                colleraSelect.value = (nCollera + 1).toString();
+                colleraSelect.value = nextN.toString();
             }
 
+            updateLiveScoreCalculator();
+
             const jinetesTxt = Array.isArray(collera.jinetes) ? collera.jinetes.join(' & ') : collera.jinetes;
-            showToast(`¡Carrera de Collera #${collera.n} (${jinetesTxt}) registrada (${typeof puntajeToro === 'number' && puntajeToro >= 0 ? '+' + puntajeToro : puntajeToro} pts) y transmitida en vivo!`);
+            showToast(`¡Toro de Collera #${collera.n} (${jinetesTxt}) guardado (${typeof puntajeToro === 'number' && puntajeToro >= 0 ? '+' + puntajeToro : puntajeToro} pts)! Avanzando a la collera #${nextN}...`);
         }
 
         // Cargar estado live al cambiar de pestaña a colleras
