@@ -45,11 +45,11 @@
                     Consulta el origen, linaje, medidas y árbol genealógico completo de los caballos participantes (Padres, Abuelos y Bisabuelos).
                 </p>
 
-                <!-- Buscador Único Dinámico (Optimizado para Móvil / iPhone) -->
-                <div style="margin-bottom: 1.2rem; max-width: 750px; margin-left: auto; margin-right: auto; padding: 0.9rem 1.2rem; background: #ffffff; border-radius: var(--radius-lg); border: 1.5px solid rgba(141, 110, 99, 0.25); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; gap: 0.8rem;">
+                <!-- Buscador Único Dinámico (Adaptable a PC y Móvil) -->
+                <div class="genealogia-controls-box" style="margin-bottom: 1.2rem; max-width: 750px; margin-left: auto; margin-right: auto; padding: 0.9rem 1.2rem; background: #ffffff; border-radius: var(--radius-lg); border: 1.5px solid rgba(141, 110, 99, 0.25); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: space-between;">
                     
                     <!-- Buscador Único (Sin doble lupa) -->
-                    <div style="width: 100%; position: relative;">
+                    <div class="genealogia-search-wrap" style="position: relative;">
                         <input type="text" id="search-input" placeholder="Buscar por nombre, criadero, dueño o linaje..." 
                                style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.4rem; border-radius: var(--radius-md); border: 1.5px solid #d5cbbf; background: #fdfbf7; color: #2c1810; font-family: inherit; font-size: 0.92rem; outline: none; box-sizing: border-box; transition: all 0.2s;"
                                onfocus="this.style.borderColor='#d84315'; this.style.boxShadow='0 0 0 3px rgba(216,67,21,0.1)';" 
@@ -58,10 +58,10 @@
                     </div>
 
                     <!-- Opciones de Ordenamiento -->
-                    <div style="display: flex; gap: 0.6rem; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap;">
-                        <div style="display: flex; gap: 0.5rem; align-items: center; flex: 1 1 auto; min-width: 200px;">
+                    <div class="genealogia-sorter-wrap" style="display: flex; gap: 0.6rem; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+                        <div style="display: flex; gap: 0.5rem; align-items: center; flex: 1 1 auto;">
                             <label for="sort-by-select" style="font-size: 0.85rem; color: #4e342e; font-weight: 700; white-space: nowrap;">Ordenar por:</label>
-                            <select id="sort-by-select" style="flex: 1; padding: 0.65rem 0.8rem; border-radius: var(--radius-md); border: 1.5px solid #d5cbbf; background: #ffffff; color: #2c1810; font-family: inherit; font-size: 0.85rem; font-weight: 600; outline: none; cursor: pointer;">
+                            <select id="sort-by-select" style="padding: 0.65rem 0.8rem; border-radius: var(--radius-md); border: 1.5px solid #d5cbbf; background: #ffffff; color: #2c1810; font-family: inherit; font-size: 0.85rem; font-weight: 600; outline: none; cursor: pointer;">
                                 <option value="nombre">Nombre (A - Z)</option>
                                 <option value="puntaje">Puntaje / Rendimiento</option>
                                 <option value="criadero">Criadero</option>

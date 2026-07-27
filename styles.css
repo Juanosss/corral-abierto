@@ -960,12 +960,12 @@ h1, h2, h3, h4 {
 }
 
 .stat-label-txt {
-    font-size: 0.7rem;
-    color: var(--text-muted);
+    font-size: 0.72rem;
+    color: #d7ccc8;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-top: 3px;
-    font-weight: 600;
+    letter-spacing: 0.05em;
+    margin-top: 4px;
+    font-weight: 700;
 }
 
 .dueno-badge {
@@ -978,25 +978,91 @@ h1, h2, h3, h4 {
     margin-top: 2px;
 }
 
-/* Barra Lateral de Abecedario (Solo Desktop > 900px) */
-.alphabet-index-sidebar {
-    position: fixed;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 1000;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    background: rgba(44, 24, 16, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 8px 4px;
-    border-radius: 20px;
-    border: 1.5px solid #d84315;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-    max-height: 82vh;
-    overflow-y: auto;
+/* ==========================================================================
+   DESKTOP / PC ( > 768px ): Restaurar diseño de 1 fila y abecedario lateral único
+   ========================================================================== */
+@media (min-width: 769px) {
+    .genealogia-controls-box {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+    }
+    
+    .genealogia-search-wrap {
+        flex: 1 1 320px !important;
+        width: auto !important;
+    }
+
+    .genealogia-sorter-wrap {
+        width: auto !important;
+    }
+
+    /* En PC se oculta la cinta horizontal para NO duplicar el abecedario */
+    .alphabet-ribbon-container {
+        display: none !important;
+    }
+
+    /* En PC se muestra la barra lateral flotante en la derecha */
+    .alphabet-index-sidebar {
+        display: flex !important;
+        position: fixed;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 1000;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        background: rgba(44, 24, 16, 0.95);
+        backdrop-filter: blur(10px);
+        padding: 8px 4px;
+        border-radius: 20px;
+        border: 1.5px solid #d84315;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        max-height: 82vh;
+        overflow-y: auto;
+    }
+}
+
+/* ==========================================================================
+   MÓVIL / IPHONE ( <= 768px ): Diseño apilado cómodo y cinta horizontal única
+   ========================================================================== */
+@media (max-width: 768px) {
+    .genealogia-controls-box {
+        flex-direction: column !important;
+        gap: 0.8rem !important;
+    }
+
+    .genealogia-search-wrap {
+        width: 100% !important;
+    }
+
+    .genealogia-sorter-wrap {
+        width: 100% !important;
+    }
+
+    /* En Móvil se oculta la barra lateral fija para no tapar contenido */
+    .alphabet-index-sidebar {
+        display: none !important;
+    }
+
+    /* En Móvil se muestra la cinta horizontal deslizable */
+    .alphabet-ribbon-container {
+        display: flex !important;
+        align-items: center;
+        gap: 4px;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 8px 12px;
+        background: #ffffff;
+        border-radius: 12px;
+        border: 1px solid rgba(141, 110, 99, 0.2);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+        margin: 0 auto 1.5rem auto;
+        max-width: 750px;
+    }
 }
 
 .alphabet-letter-btn {
@@ -1018,29 +1084,6 @@ h1, h2, h3, h4 {
     background: #d84315;
     color: #ffffff;
     transform: scale(1.2);
-}
-
-/* Ocultar barra lateral en móviles para no obstruir las fichas en iPhone */
-@media (max-width: 900px) {
-    .alphabet-index-sidebar {
-        display: none !important;
-    }
-}
-
-/* Estilos de la Cinta Horizontal Alfabética para Móvil (iPhone) */
-.alphabet-ribbon-container {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    overflow-x: auto;
-    white-space: nowrap;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding: 8px 12px;
-    background: #ffffff;
-    border-radius: 12px;
-    border: 1px solid rgba(141, 110, 99, 0.2);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
 }
 
 .alphabet-ribbon-container::-webkit-scrollbar {
