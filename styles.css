@@ -979,111 +979,24 @@ h1, h2, h3, h4 {
 }
 
 /* ==========================================================================
-   DESKTOP / PC ( > 768px ): Restaurar diseño de 1 fila y abecedario lateral único
+   ABECEDARIO ÚNICO ESTILO PÍLDORA OSCURA (Buscador + A-Z Centrado)
    ========================================================================== */
-@media (min-width: 769px) {
-    .genealogia-controls-box {
-        flex-direction: row !important;
-        align-items: center !important;
-        justify-content: space-between !important;
-    }
-    
-    .genealogia-search-wrap {
-        flex: 1 1 320px !important;
-        width: auto !important;
-    }
-
-    .genealogia-sorter-wrap {
-        width: auto !important;
-    }
-
-    /* En PC se oculta la cinta horizontal para NO duplicar el abecedario */
-    .alphabet-ribbon-container {
-        display: none !important;
-    }
-
-    /* En PC se muestra la barra lateral flotante en la derecha */
-    .alphabet-index-sidebar {
-        display: flex !important;
-        position: fixed;
-        right: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 1000;
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
-        background: rgba(44, 24, 16, 0.95);
-        backdrop-filter: blur(10px);
-        padding: 8px 4px;
-        border-radius: 20px;
-        border: 1.5px solid #d84315;
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        max-height: 82vh;
-        overflow-y: auto;
-    }
-}
-
-/* ==========================================================================
-   MÓVIL / IPHONE ( <= 768px ): Diseño apilado cómodo y cinta horizontal única
-   ========================================================================== */
-@media (max-width: 768px) {
-    .genealogia-controls-box {
-        flex-direction: column !important;
-        gap: 0.8rem !important;
-    }
-
-    .genealogia-search-wrap {
-        width: 100% !important;
-    }
-
-    .genealogia-sorter-wrap {
-        width: 100% !important;
-    }
-
-    /* En Móvil se oculta la barra lateral fija para no tapar contenido */
-    .alphabet-index-sidebar {
-        display: none !important;
-    }
-
-    /* En Móvil se muestra la cinta horizontal deslizable */
-    .alphabet-ribbon-container {
-        display: flex !important;
-        align-items: center;
-        gap: 4px;
-        overflow-x: auto;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding: 8px 12px;
-        background: #ffffff;
-        border-radius: 12px;
-        border: 1px solid rgba(141, 110, 99, 0.2);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.04);
-        margin: 0 auto 1.5rem auto;
-        max-width: 750px;
-    }
-}
-
-.alphabet-letter-btn {
-    background: none;
-    border: none;
-    color: #ffffff;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.68rem;
-    font-weight: 700;
-    padding: 2px 5px;
-    cursor: pointer;
-    border-radius: 4px;
-    line-height: 1;
-    transition: all 0.15s ease;
-}
-
-.alphabet-letter-btn:hover,
-.alphabet-letter-btn.active {
-    background: #d84315;
-    color: #ffffff;
-    transform: scale(1.2);
+.alphabet-ribbon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 8px 16px;
+    background: linear-gradient(145deg, #2c1810 0%, #1c0e09 100%);
+    border-radius: 30px;
+    border: 1.5px solid #d84315;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+    margin: 0 auto 1.8rem auto;
+    max-width: 750px;
 }
 
 .alphabet-ribbon-container::-webkit-scrollbar {
@@ -1092,25 +1005,44 @@ h1, h2, h3, h4 {
 
 .alphabet-ribbon-btn {
     flex: 0 0 auto;
-    background: #f5f0ea;
-    border: 1px solid #d5cbbf;
-    color: #3d2d24;
+    background: transparent;
+    border: none;
+    color: #ffffff;
     font-family: 'Inter', sans-serif;
-    font-size: 0.78rem;
+    font-size: 0.8rem;
     font-weight: 700;
-    padding: 5px 9px;
-    min-width: 30px;
+    padding: 4px 7px;
+    min-width: 26px;
     text-align: center;
     cursor: pointer;
     border-radius: 6px;
     transition: all 0.15s ease;
 }
 
+.alphabet-ribbon-btn:hover,
 .alphabet-ribbon-btn:active,
 .alphabet-ribbon-btn.active {
     background: #d84315;
     color: #ffffff;
-    border-color: #d84315;
+    transform: scale(1.15);
+    box-shadow: 0 2px 8px rgba(216, 67, 21, 0.4);
+}
+
+@media (max-width: 768px) {
+    .genealogia-controls-box {
+        flex-direction: column !important;
+        gap: 0.8rem !important;
+    }
+
+    .genealogia-search-wrap,
+    .genealogia-sorter-wrap {
+        width: 100% !important;
+    }
+
+    .alphabet-ribbon-container {
+        justify-content: flex-start !important;
+        padding: 8px 12px;
+    }
 }
 
 .genealogia-tree-grid {
