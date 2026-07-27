@@ -979,24 +979,25 @@ h1, h2, h3, h4 {
 }
 
 /* ==========================================================================
-   ABECEDARIO ÚNICO ESTILO PÍLDORA OSCURA (Buscador + A-Z Centrado)
+   ABECEDARIO ÚNICO CENTRADO - PÍLDORA OSCURA RÚSTICA CON BORDE NARANJO
    ========================================================================== */
 .alphabet-ribbon-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 3px;
-    overflow-x: auto;
-    white-space: nowrap;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    width: fit-content !important;
+    max-width: 92% !important;
+    margin: 0 auto 1.8rem auto !important;
+    padding: 8px 18px !important;
+    background: linear-gradient(145deg, #2c1810 0%, #150b07 100%) !important;
+    border-radius: 35px !important;
+    border: 2px solid #ff5722 !important;
+    box-shadow: 0 10px 30px rgba(255, 87, 34, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    scrollbar-width: none !important;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding: 8px 16px;
-    background: linear-gradient(145deg, #2c1810 0%, #1c0e09 100%);
-    border-radius: 30px;
-    border: 1.5px solid #d84315;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
-    margin: 0 auto 1.8rem auto;
-    max-width: 750px;
 }
 
 .alphabet-ribbon-container::-webkit-scrollbar {
@@ -1005,27 +1006,27 @@ h1, h2, h3, h4 {
 
 .alphabet-ribbon-btn {
     flex: 0 0 auto;
-    background: transparent;
-    border: none;
-    color: #ffffff;
-    font-family: 'Inter', sans-serif;
-    font-size: 0.8rem;
-    font-weight: 700;
-    padding: 4px 7px;
-    min-width: 26px;
-    text-align: center;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: all 0.15s ease;
+    background: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 0.85rem !important;
+    font-weight: 800 !important;
+    padding: 5px 8px !important;
+    min-width: 26px !important;
+    text-align: center !important;
+    cursor: pointer !important;
+    border-radius: 20px !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
 .alphabet-ribbon-btn:hover,
 .alphabet-ribbon-btn:active,
 .alphabet-ribbon-btn.active {
-    background: #d84315;
-    color: #ffffff;
-    transform: scale(1.15);
-    box-shadow: 0 2px 8px rgba(216, 67, 21, 0.4);
+    background: linear-gradient(135deg, #ff5722 0%, #d84315 100%) !important;
+    color: #ffffff !important;
+    transform: translateY(-2px) scale(1.2) !important;
+    box-shadow: 0 4px 15px rgba(255, 87, 34, 0.5) !important;
 }
 
 @media (max-width: 768px) {
@@ -1041,7 +1042,8 @@ h1, h2, h3, h4 {
 
     .alphabet-ribbon-container {
         justify-content: flex-start !important;
-        padding: 8px 12px;
+        padding: 6px 12px !important;
+        max-width: 95% !important;
     }
 }
 
