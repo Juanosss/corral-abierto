@@ -854,6 +854,18 @@ function renderLiveDashboard(data) {
     if (proximaEl && nextCollera) {
         proximaEl.textContent = `#${nextCollera.n} ${nextCollera.jinetes[0]} & ${nextCollera.jinetes[1]} (${nextCollera.caballos[0]} & ${nextCollera.caballos[1]}) — ${nextCollera.asociacion}`;
     }
+
+    // Desglose de Carrera en Cancha (Atajadas en vivo)
+    const desgloseContainer = document.getElementById('live-desglose-container');
+    const desgloseTxt = document.getElementById('live-desglose-txt');
+    if (desgloseContainer && desgloseTxt) {
+        if (liveState && liveState.desgloseCarrera) {
+            desgloseTxt.textContent = liveState.desgloseCarrera;
+            desgloseContainer.style.display = 'flex';
+        } else {
+            desgloseContainer.style.display = 'none';
+        }
+    }
 }
 
 // Toggle Desplegable para Stream de YouTube
