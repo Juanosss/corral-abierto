@@ -64,3 +64,8 @@ DROP POLICY IF EXISTS "Permitir lectura a administradores" ON sms_subscribers;
 CREATE POLICY "Permitir lectura a administradores" ON sms_subscribers 
     FOR SELECT USING (true);
 
+-- 4. HABILITAR SUPABASE REALTIME (Para actualización en tiempo real sin recargar F5)
+-- Copia y ejecuta estas dos líneas en el SQL Editor de tu panel de Supabase:
+ALTER PUBLICATION supabase_realtime ADD TABLE colleras;
+ALTER PUBLICATION supabase_realtime ADD TABLE rodeos;
+
