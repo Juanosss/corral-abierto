@@ -45,24 +45,31 @@
                     Consulta el origen, linaje, medidas y árbol genealógico completo de los caballos participantes (Padres, Abuelos y Bisabuelos).
                 </p>
 
-                <!-- Buscador Único Dinámico (Caballos, Criaderos, Dueños, Linaje) -->
-                <div style="margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.8rem; max-width: 650px; margin-left: auto; margin-right: auto; padding: 0 1rem;">
-                    <div style="display: flex; gap: 0.6rem; align-items: center; width: 100%;">
-                        <input type="text" id="search-input" placeholder="Buscar por caballo, criadero, dueño o linaje..." 
-                               style="flex: 1; padding: 0.85rem 1.2rem; border-radius: var(--radius-md); border: 2px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 0.95rem; box-shadow: var(--shadow-sm); outline: none; transition: all 0.2s;"
-                               onfocus="this.style.borderColor='var(--primary-color)'" 
-                               onblur="this.style.borderColor='var(--border-color)'">
-                        
-                        <select id="sort-by-select" style="padding: 0.85rem 0.9rem; border-radius: var(--radius-md); border: 2px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 0.88rem; outline: none; cursor: pointer;">
-                            <option value="nombre">Orden: A-Z</option>
-                            <option value="puntaje">Orden: Puntaje</option>
-                            <option value="criadero">Orden: Criadero</option>
-                            <option value="dueno">Orden: Dueño</option>
-                            <option value="padre">Orden: Linaje</option>
+                <!-- Buscador Único Dinámico (Estilo claro, formal y de alto contraste) -->
+                <div style="margin-bottom: 1.8rem; max-width: 750px; margin-left: auto; margin-right: auto; padding: 0.9rem 1.2rem; background: #ffffff; border-radius: var(--radius-lg); border: 1.5px solid rgba(141, 110, 99, 0.25); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05); display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: space-between;">
+                    
+                    <!-- Buscador Único (Sin doble lupa, 1 solo icono limpio) -->
+                    <div style="flex: 1 1 320px; position: relative;">
+                        <input type="text" id="search-input" placeholder="Buscar por nombre, criadero, dueño o linaje..." 
+                               style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.4rem; border-radius: var(--radius-md); border: 1.5px solid #d5cbbf; background: #fdfbf7; color: #2c1810; font-family: inherit; font-size: 0.92rem; outline: none; box-sizing: border-box; transition: all 0.2s;"
+                               onfocus="this.style.borderColor='#d84315'; this.style.boxShadow='0 0 0 3px rgba(216,67,21,0.1)';" 
+                               onblur="this.style.borderColor='#d5cbbf'; this.style.boxShadow='none';">
+                        <span style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); font-size: 0.9rem; color: #8d6e63; pointer-events: none;">🔍</span>
+                    </div>
+
+                    <!-- Opciones de Ordenamiento con texto claro y legible -->
+                    <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+                        <label for="sort-by-select" style="font-size: 0.85rem; color: #4e342e; font-weight: 700; white-space: nowrap;">Ordenar por:</label>
+                        <select id="sort-by-select" style="padding: 0.7rem 0.9rem; border-radius: var(--radius-md); border: 1.5px solid #d5cbbf; background: #ffffff; color: #2c1810; font-family: inherit; font-size: 0.88rem; font-weight: 600; outline: none; cursor: pointer;">
+                            <option value="nombre">Nombre (A - Z)</option>
+                            <option value="puntaje">Puntaje / Rendimiento</option>
+                            <option value="criadero">Criadero</option>
+                            <option value="dueno">Dueño</option>
+                            <option value="padre">Ascendencia (Padre)</option>
                         </select>
 
-                        <button id="sort-order-btn" title="Cambiar dirección de orden (Ascendente / Descendente)" style="padding: 0.85rem 1rem; border-radius: var(--radius-md); border: 2px solid var(--border-color); background: var(--card-bg); color: #ffab91; font-family: inherit; font-weight: 700; font-size: 0.9rem; cursor: pointer; white-space: nowrap; transition: all 0.2s;">
-                            <span id="sort-order-icon">▲</span>
+                        <button id="sort-order-btn" title="Cambiar dirección de orden (Ascendente / Descendente)" style="padding: 0.7rem 0.9rem; border-radius: var(--radius-md); border: none; background: linear-gradient(135deg, #d84315 0%, #ff5722 100%); color: #ffffff; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; box-shadow: 0 2px 8px rgba(216,67,21,0.25); transition: all 0.2s;">
+                            <span id="sort-order-icon">▼ Descendente</span>
                         </button>
                     </div>
                 </div>
@@ -83,6 +90,11 @@
             <p>&copy; 2026 Caballo y Rodeo - Tradición y Deporte</p>
         </footer>
     </div>
+
+    <!-- NAVEGACIÓN ALFABÉTICA LATERAL DISCRETA (A - Z) -->
+    <nav id="alphabet-index" class="alphabet-index-sidebar" aria-label="Navegación Alfabética A-Z">
+        <!-- Generado dinámicamente con JS -->
+    </nav>
 
     <!-- Botón para subir al inicio -->
     <button id="scroll-to-top" class="scroll-to-top-btn" aria-label="Subir al inicio">
@@ -193,7 +205,7 @@
             if (filtered.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 3rem; color: var(--text-muted); background: rgba(0,0,0,0.2); border-radius: 12px;">
-                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">🔍 No se encontraron caballos que coincidan con "${term}"</p>
+                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">No se encontraron caballos que coincidan con "${term}"</p>
                         <p style="font-size: 0.85rem; color: rgba(255,255,255,0.4);">Intenta buscando por nombre del caballo, nombre del criadero o apellido del dueño.</p>
                     </div>
                 `;
@@ -233,7 +245,7 @@
                     }
                 }
 
-                // Palmarés / Participaciones destacadas
+                // Palmarés / Participaciones destacadas (formal, sin emojis)
                 let palmaresHtml = '';
                 if (h.participaciones) {
                     const chips = typeof h.participaciones === 'string' 
@@ -243,16 +255,16 @@
                     if (chips.length > 0) {
                         palmaresHtml = `
                             <div class="genealogia-palmares-container">
-                                <div class="palmares-title">🏆 Participaciones Importantes & Palmarés</div>
+                                <div class="palmares-title">PARTICIPACIONES IMPORTANTES Y PALMARÉS</div>
                                 <div class="palmares-chips-group">
-                                    ${chips.map(c => `<span class="palmares-chip">🎖️ ${c}</span>`).join('')}
+                                    ${chips.map(c => `<span class="palmares-chip">${c}</span>`).join('')}
                                 </div>
                             </div>
                         `;
                     }
                 }
 
-                // Grilla de Estadísticas de Atajadas
+                // Grilla de Estadísticas de Atajadas (formal, sin emojis)
                 const statsHtml = `
                     <div class="genealogia-stats-grid">
                         <div class="stat-card-box">
@@ -280,9 +292,9 @@
                         <div class="genealogia-header-details">
                             <div class="genealogia-header-left">
                                 <h3>${h.nombre}${h.puntajes ? ` <span class="horse-points-badge" style="font-size: 0.8rem; font-family: 'Inter', sans-serif; color: #ffab91; font-weight: 500; margin-left: 10px; border: 1px solid rgba(255, 87, 34, 0.3); padding: 2.5px 8px; border-radius: 4px; background: rgba(255, 87, 34, 0.1); vertical-align: middle; white-space: normal; display: inline-block; letter-spacing: normal; text-transform: none;">${h.puntajes}</span>` : ''}</h3>
-                                <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 4px;">
-                                    <span class="criadero-sub">🏰 Criadero: <strong>${h.criadero || 'SIN REGISTRO'}</strong></span>
-                                    <span class="dueno-badge">👤 Dueño: <strong>${h.dueno || 'SIN REGISTRO'}</strong></span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 14px; align-items: center; margin-top: 4px;">
+                                    <span class="criadero-sub">CRIADERO: <strong>${h.criadero || 'SIN REGISTRO'}</strong></span>
+                                    <span class="dueno-badge">DUEÑO: <strong>${h.dueno || 'SIN REGISTRO'}</strong></span>
                                 </div>
                             </div>
                             <div class="genealogia-header-right">
@@ -471,8 +483,54 @@
             resetCarouselTimer(horseId);
         };
 
-        // Cargar datos
+        // Navegación Alfabética A-Z (Barra Lateral Discreta)
+        function buildAlphabetIndex() {
+            const nav = document.getElementById('alphabet-index');
+            if (!nav) return;
+            const letters = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','Ñ','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+            nav.innerHTML = letters.map(l => `<button class="alphabet-letter-btn" onclick="scrollToLetter('${l}')" title="Ir a letra ${l}">${l}</button>`).join('');
+        }
+
+        window.scrollToLetter = function(letter) {
+            // Actualizar clase activa en botones del abecedario
+            document.querySelectorAll('.alphabet-letter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.innerText === letter);
+            });
+
+            // Si el orden actual no es Nombre A-Z, cambiarlo a Nombre A-Z
+            if (currentSortField !== 'nombre') {
+                currentSortField = 'nombre';
+                const sortBySelect = document.getElementById('sort-by-select');
+                if (sortBySelect) sortBySelect.value = 'nombre';
+            }
+
+            // Buscar la primera tarjeta que comience con la letra seleccionada
+            const cards = Array.from(document.querySelectorAll('.genealogia-card'));
+            const targetCard = cards.find(card => {
+                const titleEl = card.querySelector('h3');
+                if (!titleEl) return false;
+                const name = titleEl.childNodes[0]?.textContent?.trim()?.toUpperCase() || '';
+                return name.startsWith(letter);
+            });
+
+            if (targetCard) {
+                const headerHeight = document.querySelector('.app-header')?.offsetHeight || 80;
+                const targetTop = targetCard.getBoundingClientRect().top + window.pageYOffset - headerHeight - 20;
+                window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+            } else {
+                // Si no hay tarjeta visible en el scroll actual, filtrar el buscador por esa letra
+                const input = document.getElementById('search-input');
+                if (input) {
+                    input.value = letter;
+                    renderGenealogias();
+                    window.scrollTo({ top: 160, behavior: 'smooth' });
+                }
+            }
+        };
+
+        // Cargar datos y construir abecedario
         renderGenealogias();
+        buildAlphabetIndex();
 
         // Eventos de Buscador y Ordenamiento Dinámico
         const searchInputEl = document.getElementById('search-input');
