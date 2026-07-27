@@ -2698,11 +2698,76 @@ h1, h2, h3, h4 {
     border-radius: 16px;
     padding: 1.2rem;
     text-align: center;
+    box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+}
+
+/* REFORMA 2: MARCADOR DE ATAJADAS EN TIEMPO REAL PARA EL ESPECTADOR */
+.live-run-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 1.2rem;
+    margin-bottom: 0.8rem;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 87, 34, 0.3);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.live-run-step {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 6px 4px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.live-step-label {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #ffab91;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 2px;
+    white-space: nowrap;
+}
+
+.live-step-val {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #ffffff;
+    font-family: 'Playfair Display', serif;
+}
+
+.live-run-step.live-step-total {
+    background: linear-gradient(135deg, rgba(216, 67, 21, 0.3) 0%, rgba(255, 87, 34, 0.3) 100%);
+    border: 1px solid #ff5722;
+}
+
+.live-run-step.live-step-total .live-step-label {
+    color: #ffd54f;
+}
+
+.live-run-step.live-step-total .live-step-val {
+    color: #ffeb3b;
+    font-size: 1.2rem;
+}
+
+@media (max-width: 600px) {
+    .live-run-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+    }
+    .live-step-label {
+        font-size: 0.6rem;
+    }
+    .live-step-val {
+        font-size: 0.95rem;
+    }
 }
 
 .live-score-number {

@@ -855,15 +855,27 @@ function renderLiveDashboard(data) {
         proximaEl.textContent = `#${nextCollera.n} ${nextCollera.jinetes[0]} & ${nextCollera.jinetes[1]} (${nextCollera.caballos[0]} & ${nextCollera.caballos[1]}) — ${nextCollera.asociacion}`;
     }
 
-    // Desglose de Carrera en Cancha (Atajadas en vivo)
-    const desgloseContainer = document.getElementById('live-desglose-container');
-    const desgloseTxt = document.getElementById('live-desglose-txt');
-    if (desgloseContainer && desgloseTxt) {
-        if (liveState && liveState.desgloseCarrera) {
-            desgloseTxt.textContent = liveState.desgloseCarrera;
-            desgloseContainer.style.display = 'flex';
+    // Marcador Visual de Atajadas en Vivo (Live Run Grid)
+    const salidaEl = document.getElementById('live-step-salida');
+    const a1El = document.getElementById('live-step-a1');
+    const a2El = document.getElementById('live-step-a2');
+    const a3El = document.getElementById('live-step-a3');
+    const totalToroEl = document.getElementById('live-step-totaltoro');
+
+    if (salidaEl && a1El && a2El && a3El && totalToroEl) {
+        const details = liveState?.runDetails;
+        if (details) {
+            salidaEl.textContent = details.salida === 'LESION' ? 'X' : (details.salida >= 0 ? `+${details.salida}` : details.salida);
+            a1El.textContent = details.a1 >= 0 ? `+${details.a1}` : details.a1;
+            a2El.textContent = details.a2 >= 0 ? `+${details.a2}` : details.a2;
+            a3El.textContent = details.a3 >= 0 ? `+${details.a3}` : details.a3;
+            totalToroEl.textContent = typeof details.totalToro === 'number' ? (details.totalToro >= 0 ? `+${details.totalToro}` : details.totalToro) : details.totalToro;
         } else {
-            desgloseContainer.style.display = 'none';
+            salidaEl.textContent = '--';
+            a1El.textContent = '--';
+            a2El.textContent = '--';
+            a3El.textContent = '--';
+            totalToroEl.textContent = '--';
         }
     }
 }

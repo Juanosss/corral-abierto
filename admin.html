@@ -2388,6 +2388,14 @@
                 toroActual: toroStr,
                 activeColleraN: nCollera,
                 proximaColleraN: nCollera + 1,
+                runDetails: {
+                    salida: isLesion ? 'LESION' : valSalida,
+                    a1: valA1,
+                    a2: valA2,
+                    a3: valA3,
+                    descuentos: valDesc,
+                    totalToro: isLesion ? 'X' : puntajeToro
+                },
                 desgloseCarrera: desgloseStr,
                 partialScore: partialAccumulated,
                 updatedAt: new Date().toISOString()
