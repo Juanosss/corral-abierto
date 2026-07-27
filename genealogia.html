@@ -45,12 +45,36 @@
                     Consulta el origen, linaje, medidas y árbol genealógico completo de los caballos participantes (Padres, Abuelos y Bisabuelos).
                 </p>
 
-                <!-- Buscador Dinámico -->
-                <div style="margin-bottom: 2rem; display: flex; gap: 1rem; max-width: 500px; margin-left: auto; margin-right: auto; padding: 0 1rem;">
-                    <input type="text" id="search-input" placeholder="Buscar caballo o ancestro..." 
-                           style="flex: 1; padding: 0.8rem 1.2rem; border-radius: var(--radius-md); border: 2px solid var(--border-color); background: var(--card-bg); color: var(--text-main); font-family: inherit; font-size: 0.95rem; box-shadow: var(--shadow-sm); outline: none; transition: all 0.2s;"
-                           onfocus="this.style.borderColor='var(--primary-color)'" 
-                           onblur="this.style.borderColor='var(--border-color)'">
+                <!-- Panel de Control: Buscador y Ordenamiento Dinámico -->
+                <div class="genealogia-controls-wrapper" style="max-width: 900px; margin: 0 auto 1.5rem auto; padding: 1.2rem; background: rgba(30, 18, 14, 0.7); backdrop-filter: blur(10px); border-radius: var(--radius-lg); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; justify-content: space-between;">
+                    
+                    <!-- Buscador Avanzado (Nombre, Criadero, Dueño, Padre, Madre, Registro) -->
+                    <div style="flex: 1 1 280px; position: relative;">
+                        <input type="text" id="search-input" placeholder="🔍 Buscar por nombre, criadero, dueño o padre..." 
+                               style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.4rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: rgba(0,0,0,0.4); color: var(--text-main); font-family: inherit; font-size: 0.92rem; outline: none; box-sizing: border-box; transition: border-color 0.2s;">
+                        <span style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); opacity: 0.5;">🔍</span>
+                    </div>
+
+                    <!-- Opciones de Ordenamiento -->
+                    <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+                        <label style="font-size: 0.85rem; color: var(--text-muted); font-weight: 600;">Ordenar por:</label>
+                        <select id="sort-by-select" style="padding: 0.65rem 0.9rem; border-radius: var(--radius-md); border: 1px solid var(--border-color); background: rgba(0,0,0,0.6); color: #fff; font-family: inherit; font-size: 0.88rem; outline: none; cursor: pointer;">
+                            <option value="nombre">Nombre (A - Z)</option>
+                            <option value="puntaje">Puntaje / Rendimiento</option>
+                            <option value="criadero">Criadero</option>
+                            <option value="dueno">Dueño</option>
+                            <option value="padre">Ascendencia (Padre)</option>
+                        </select>
+
+                        <button id="sort-order-btn" title="Cambiar dirección de orden" style="padding: 0.65rem 0.9rem; border-radius: var(--radius-md); border: 1px solid rgba(255,87,34,0.3); background: rgba(255,87,34,0.15); color: #ffab91; font-family: inherit; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 4px;">
+                            <span id="sort-order-icon">▲ Ascendente</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Contador Dinámico -->
+                <div id="genealogia-counter" style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.8rem; font-weight: 500;">
+                    Cargando catálogo...
                 </div>
 
                 <!-- Lista de Genealogías (Dinámica) -->
@@ -76,6 +100,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="app-v5.js"></script>
     <script>
+        // ESTADO GLOBAL DE ORDEN Y FILTRADO
+        let currentSortField = 'nombre';
+        let currentSortOrder = 'asc'; // 'asc' o 'desc'
+
         // FUNCIÓN GLOBAL PARA SEPARAR FOTOS SOPORTANDO BASE64 SIN ROMPERSE POR LAS COMAS
         function splitPhotos(str) {
             if (!str) return [];
@@ -98,12 +126,20 @@
             return result.filter(p => p !== '');
         }
 
-                // Renderizar la genealogía dinámica leyendo desde localStorage
+        // Extractor numérico de puntajes para ordenamiento
+        function extractMaxPoints(scoreStr) {
+            if (!scoreStr) return 0;
+            const matches = scoreStr.match(/\d+/g);
+            if (!matches) return 0;
+            return Math.max(...matches.map(Number));
+        }
+
+        // Renderizar la genealogía dinámica leyendo desde localStorage / app-v5
         function renderGenealogias() {
             const container = document.getElementById('genealogias-container');
+            const counter = document.getElementById('genealogia-counter');
             if (!container) return;
 
-            // Limpiar contenido
             container.innerHTML = '';
 
             if (!genealogiaData || genealogiaData.length === 0) {
@@ -112,12 +148,65 @@
                         <p>No hay registros de genealogía disponibles.</p>
                     </div>
                 `;
+                if (counter) counter.innerText = '0 caballos mostrados';
                 return;
             }
 
+            const term = (document.getElementById('search-input')?.value || '').toLowerCase().trim();
 
-            genealogiaData.forEach(h => {
-                // Estructura de la foto (carrusel animado si hay más de una)
+            // 1. Filtrar
+            let filtered = genealogiaData.filter(h => {
+                if (!term) return true;
+                const searchableText = [
+                    h.nombre, h.criadero, h.dueno, h.padre, h.madre, 
+                    h.abueloP, h.abueloM, h.nacional, h.participaciones
+                ].map(v => (v || '').toLowerCase()).join(' ');
+                return searchableText.includes(term);
+            });
+
+            // 2. Ordenar
+            filtered.sort((a, b) => {
+                let valA = '', valB = '';
+                if (currentSortField === 'nombre') {
+                    valA = (a.nombre || '').toLowerCase();
+                    valB = (b.nombre || '').toLowerCase();
+                } else if (currentSortField === 'criadero') {
+                    valA = (a.criadero || '').toLowerCase();
+                    valB = (b.criadero || '').toLowerCase();
+                } else if (currentSortField === 'dueno') {
+                    valA = (a.dueno || '').toLowerCase();
+                    valB = (b.dueno || '').toLowerCase();
+                } else if (currentSortField === 'padre') {
+                    valA = (a.padre || '').toLowerCase();
+                    valB = (b.padre || '').toLowerCase();
+                } else if (currentSortField === 'puntaje') {
+                    const numA = extractMaxPoints(a.puntajes);
+                    const numB = extractMaxPoints(b.puntajes);
+                    return currentSortOrder === 'asc' ? numA - numB : numB - numA;
+                }
+
+                if (valA < valB) return currentSortOrder === 'asc' ? -1 : 1;
+                if (valA > valB) return currentSortOrder === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            // Actualizar contador
+            if (counter) {
+                counter.innerHTML = `Mostrando <strong>${filtered.length}</strong> de <strong>${genealogiaData.length}</strong> caballos en catálogo`;
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: var(--text-muted); background: rgba(0,0,0,0.2); border-radius: 12px;">
+                        <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">🔍 No se encontraron caballos que coincidan con "${term}"</p>
+                        <p style="font-size: 0.85rem; color: rgba(255,255,255,0.4);">Intenta buscando por nombre del caballo, nombre del criadero o apellido del dueño.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.forEach(h => {
+                // Estructura de la foto
                 let fotoHtml = `
                     <div class="genealogia-photo-placeholder">
                         <svg viewBox="0 0 24 24">
@@ -149,13 +238,57 @@
                     }
                 }
 
+                // Palmarés / Participaciones destacadas
+                let palmaresHtml = '';
+                if (h.participaciones) {
+                    const chips = typeof h.participaciones === 'string' 
+                        ? h.participaciones.split(',').map(p => p.trim()).filter(Boolean)
+                        : (Array.isArray(h.participaciones) ? h.participaciones : []);
+
+                    if (chips.length > 0) {
+                        palmaresHtml = `
+                            <div class="genealogia-palmares-container">
+                                <div class="palmares-title">🏆 Participaciones Importantes & Palmarés</div>
+                                <div class="palmares-chips-group">
+                                    ${chips.map(c => `<span class="palmares-chip">🎖️ ${c}</span>`).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+
+                // Grilla de Estadísticas de Atajadas
+                const statsHtml = `
+                    <div class="genealogia-stats-grid">
+                        <div class="stat-card-box">
+                            <div class="stat-val-num" style="color: #ff7043;">+${h.atajadas4 || 0}</div>
+                            <div class="stat-label-txt">Atajadas de +4</div>
+                        </div>
+                        <div class="stat-card-box">
+                            <div class="stat-val-num" style="color: #ffb74d;">+${h.atajadas3 || 0}</div>
+                            <div class="stat-label-txt">Atajadas de +3</div>
+                        </div>
+                        <div class="stat-card-box">
+                            <div class="stat-val-num" style="color: #81c784;">${h.efectividad || '0%'}</div>
+                            <div class="stat-label-txt">Efectividad</div>
+                        </div>
+                        <div class="stat-card-box">
+                            <div class="stat-val-num" style="color: #64b5f6;">${h.promedioPuntos || '0.0'}</div>
+                            <div class="stat-label-txt">Promedio Pts/Toro</div>
+                        </div>
+                    </div>
+                `;
+
                 const cardHtml = `
                     <div class="genealogia-card" id="${h.id}">
                         <!-- Cabecera -->
                         <div class="genealogia-header-details">
                             <div class="genealogia-header-left">
                                 <h3>${h.nombre}${h.puntajes ? ` <span class="horse-points-badge" style="font-size: 0.8rem; font-family: 'Inter', sans-serif; color: #ffab91; font-weight: 500; margin-left: 10px; border: 1px solid rgba(255, 87, 34, 0.3); padding: 2.5px 8px; border-radius: 4px; background: rgba(255, 87, 34, 0.1); vertical-align: middle; white-space: normal; display: inline-block; letter-spacing: normal; text-transform: none;">${h.puntajes}</span>` : ''}</h3>
-                                <span class="criadero-sub">${h.criadero || 'SIN CRIADERO REGISTRADO'}</span>
+                                <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-top: 4px;">
+                                    <span class="criadero-sub">🏰 Criadero: <strong>${h.criadero || 'SIN REGISTRO'}</strong></span>
+                                    <span class="dueno-badge">👤 Dueño: <strong>${h.dueno || 'SIN REGISTRO'}</strong></span>
+                                </div>
                             </div>
                             <div class="genealogia-header-right">
                                 <span class="genealogia-pill">${h.nacional || 'SBT N° --'}</span>
@@ -174,6 +307,12 @@
                             <div class="measurement-item">• CINCHA ${h.cincha || '--'}</div>
                             <div class="measurement-item">• CAÑA ${h.cana || '--'}</div>
                         </div>
+
+                        <!-- Palmarés y Participaciones Importantes -->
+                        ${palmaresHtml}
+
+                        <!-- Estadísticas de Atajadas -->
+                        ${statsHtml}
 
                         <!-- Árbol Genealógico -->
                         <div class="genealogia-tree-container">
@@ -340,16 +479,33 @@
         // Cargar datos
         renderGenealogias();
 
-        // Buscador Dinámico
-        document.getElementById('search-input').addEventListener('input', function(e) {
-            const term = e.target.value.toLowerCase().trim();
-            const cards = document.querySelectorAll('.genealogia-card');
-            
-            cards.forEach(card => {
-                const text = card.textContent.toLowerCase();
-                card.style.display = text.includes(term) ? '' : 'none';
+        // Eventos de Buscador y Ordenamiento Dinámico
+        const searchInputEl = document.getElementById('search-input');
+        if (searchInputEl) {
+            searchInputEl.addEventListener('input', () => {
+                renderGenealogias();
             });
-        });
+        }
+
+        const sortBySelectEl = document.getElementById('sort-by-select');
+        if (sortBySelectEl) {
+            sortBySelectEl.addEventListener('change', (e) => {
+                currentSortField = e.target.value;
+                renderGenealogias();
+            });
+        }
+
+        const sortOrderBtnEl = document.getElementById('sort-order-btn');
+        if (sortOrderBtnEl) {
+            sortOrderBtnEl.addEventListener('click', () => {
+                currentSortOrder = currentSortOrder === 'asc' ? 'desc' : 'asc';
+                const iconEl = document.getElementById('sort-order-icon');
+                if (iconEl) {
+                    iconEl.innerText = currentSortOrder === 'asc' ? '▲ Ascendente' : '▼ Descendente';
+                }
+                renderGenealogias();
+            });
+        }
 
         // Suavizar y centrar el scroll al acceder mediante un enlace de caballo
         window.addEventListener('load', () => {

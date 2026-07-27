@@ -538,6 +538,10 @@
                             <label class="admin-label" for="form-criadero-caballo">Criadero</label>
                             <input type="text" id="form-criadero-caballo" class="admin-input" placeholder="ej. SANTA BERNARDITA">
                         </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label" for="form-dueno">Dueño Actual</label>
+                            <input type="text" id="form-dueno" class="admin-input" placeholder="ej. JUAN ANTONIO REHBEIN">
+                        </div>
                     </div>
                     
                     <div class="admin-form-row">
@@ -554,7 +558,31 @@
                     <div class="admin-form-row">
                         <div class="admin-input-group" style="flex: 1;">
                             <label class="admin-label" for="form-puntajes">Puntajes / Campañas por Rodeo (Figuraciones)</label>
-                            <input type="text" id="form-puntajes" class="admin-input" placeholder="ej. Alborada: 12pts / Champion: 3pts">
+                            <input type="text" id="form-puntajes" class="admin-input" placeholder="ej. Alborada: 12pts / Champion: 34pts">
+                        </div>
+                        <div class="admin-input-group" style="flex: 1;">
+                            <label class="admin-label" for="form-participaciones">Participaciones Destacadas / Palmarés (Separadas por coma)</label>
+                            <input type="text" id="form-participaciones" class="admin-input" placeholder="ej. Campeón de Chile 2017, Finalista Rancagua 2024">
+                        </div>
+                    </div>
+
+                    <!-- Estadísticas de Atajadas -->
+                    <div class="admin-form-row">
+                        <div class="admin-input-group">
+                            <label class="admin-label" for="form-atajadas4">Atajadas de +4</label>
+                            <input type="number" id="form-atajadas4" class="admin-input" placeholder="ej. 28">
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label" for="form-atajadas3">Atajadas de +3</label>
+                            <input type="number" id="form-atajadas3" class="admin-input" placeholder="ej. 19">
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label" for="form-efectividad">Efectividad (%)</label>
+                            <input type="text" id="form-efectividad" class="admin-input" placeholder="ej. 88%">
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label" for="form-promedio">Promedio Pts/Toro</label>
+                            <input type="text" id="form-promedio" class="admin-input" placeholder="ej. 8.6">
                         </div>
                     </div>
                     
@@ -2067,9 +2095,10 @@
                 filteredGenealogias = [...genealogiaData];
             } else {
                 filteredGenealogias = genealogiaData.filter(g => 
-                    g.nombre.toLowerCase().includes(query) ||
-                    g.criadero.toLowerCase().includes(query) ||
-                    g.nacional.toLowerCase().includes(query)
+                    (g.nombre || '').toLowerCase().includes(query) ||
+                    (g.criadero || '').toLowerCase().includes(query) ||
+                    (g.dueno || '').toLowerCase().includes(query) ||
+                    (g.nacional || '').toLowerCase().includes(query)
                 );
             }
             renderGenealogiasTable();
@@ -2779,12 +2808,18 @@
                     document.getElementById('form-genealogia-index').value = horse.id;
                     document.getElementById('form-nombre').value = horse.nombre;
                     document.getElementById('form-criadero-caballo').value = horse.criadero || '';
+                    document.getElementById('form-dueno').value = horse.dueno || '';
                     document.getElementById('form-nacional').value = horse.nacional || '';
                     document.getElementById('form-fn').value = horse.fn || '';
                     document.getElementById('form-alzada').value = horse.alzada || '';
                     document.getElementById('form-cincha').value = horse.cincha || '';
                     document.getElementById('form-cana').value = horse.cana || '';
                     document.getElementById('form-puntajes').value = horse.puntajes || '';
+                    document.getElementById('form-participaciones').value = horse.participaciones || '';
+                    document.getElementById('form-atajadas4').value = horse.atajadas4 !== undefined ? horse.atajadas4 : '';
+                    document.getElementById('form-atajadas3').value = horse.atajadas3 !== undefined ? horse.atajadas3 : '';
+                    document.getElementById('form-efectividad').value = horse.efectividad || '';
+                    document.getElementById('form-promedio').value = horse.promedioPuntos || '';
                     document.getElementById('form-foto').value = horse.foto || '';
 
                     const photoPos = horse.photoPosition !== undefined ? horse.photoPosition : 50;
@@ -2813,6 +2848,12 @@
                 title.innerText = "Registrar Caballo";
                 document.getElementById('form-genealogia-index').value = '';
                 document.getElementById('form-puntajes').value = '';
+                document.getElementById('form-dueno').value = '';
+                document.getElementById('form-participaciones').value = '';
+                document.getElementById('form-atajadas4').value = '';
+                document.getElementById('form-atajadas3').value = '';
+                document.getElementById('form-efectividad').value = '';
+                document.getElementById('form-promedio').value = '';
             }
 
             renderPhotoSquares();
@@ -2839,12 +2880,18 @@
                 id: idVal,
                 nombre: nameVal.toUpperCase(),
                 criadero: document.getElementById('form-criadero-caballo').value.toUpperCase() || 'SIN CRIADERO REGISTRADO',
+                dueno: document.getElementById('form-dueno').value.trim() || '',
                 nacional: document.getElementById('form-nacional').value || 'SBT N° --',
                 fn: document.getElementById('form-fn').value || 'F.N. --',
                 alzada: document.getElementById('form-alzada').value || '--',
                 cincha: document.getElementById('form-cincha').value || '--',
                 cana: document.getElementById('form-cana').value || '--',
                 puntajes: document.getElementById('form-puntajes').value.trim() || '',
+                participaciones: document.getElementById('form-participaciones').value.trim() || '',
+                atajadas4: parseInt(document.getElementById('form-atajadas4').value) || 0,
+                atajadas3: parseInt(document.getElementById('form-atajadas3').value) || 0,
+                efectividad: document.getElementById('form-efectividad').value.trim() || '0%',
+                promedioPuntos: document.getElementById('form-promedio').value.trim() || '0.0',
                 foto: document.getElementById('form-foto').value || '',
                 photoPosition: parseInt(document.getElementById('form-foto-position').value),
                 photoFit: document.getElementById('form-foto-fit').value,

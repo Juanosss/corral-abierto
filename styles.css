@@ -888,6 +888,96 @@ h1, h2, h3, h4 {
     border: 1px solid rgba(218, 67, 21, 0.25);
 }
 
+/* Palmarés y Participaciones Importantes */
+.genealogia-palmares-container {
+    margin: 1.2rem 0;
+    padding: 1rem 1.2rem;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.palmares-title {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    font-weight: 700;
+    margin-bottom: 0.6rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.palmares-chips-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.palmares-chip {
+    background: linear-gradient(135deg, rgba(255, 87, 34, 0.15) 0%, rgba(218, 67, 21, 0.05) 100%);
+    border: 1px solid rgba(255, 87, 34, 0.3);
+    color: #ffab91;
+    font-size: 0.82rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Grilla de Estadísticas de Atajadas */
+.genealogia-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin: 1.2rem 0;
+}
+
+.stat-card-box {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    text-align: center;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.stat-card-box:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 87, 34, 0.4);
+    background: rgba(255, 87, 34, 0.05);
+}
+
+.stat-val-num {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #ffffff;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.2;
+}
+
+.stat-label-txt {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-top: 3px;
+    font-weight: 600;
+}
+
+.dueno-badge {
+    color: #ffcc80;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+}
+
 .genealogia-tree-grid {
     display: grid;
     grid-template-columns: 1fr 1.2fr 1.2fr;
