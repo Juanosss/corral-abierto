@@ -767,6 +767,109 @@ async function initRodeoData() {
         renderChart(rodeoData, "total");
         renderTable(rodeoData, "total");
     }
+
+    // Renderizar Dashboard en Vivo Hero (Reforma 2)
+    renderLiveDashboard(rodeoData);
+    subscribeSupabaseRealtime();
+}
+
+// REFORMA 2: Renderizar Dashboard en Vivo en Tiempo Real
+function renderLiveDashboard(data) {
+    const jinetesEl = document.getElementById('live-jinetes');
+    if (!jinetesEl) return;
+
+    const activeRodeoId = getActiveRodeoIdFromURL();
+    let liveState = null;
+    try {
+        liveState = JSON.parse(localStorage.getItem(`liveState_${activeRodeoId}`));
+    } catch(e) {}
+
+    let currentCollera = null;
+    let nextCollera = null;
+
+    if (liveState && liveState.activeColleraN) {
+        currentCollera = data.find(c => c.n === liveState.activeColleraN);
+        nextCollera = data.find(c => c.n === (liveState.proximaColleraN || liveState.activeColleraN + 1));
+    }
+
+    if (!currentCollera && data && data.length > 0) {
+        // Fallback: Mostrar collera líder o activa en cancha
+        currentCollera = data.find(c => c.lugar === "1°") || data[0];
+        const currentIndex = data.indexOf(currentCollera);
+        nextCollera = data[currentIndex + 1] || data[0];
+    }
+
+    if (!currentCollera) return;
+
+    // Jinetes
+    jinetesEl.textContent = `${currentCollera.jinetes[0]} & ${currentCollera.jinetes[1]}`;
+
+    // Caballos
+    const caballosTxt = document.getElementById('live-caballos-txt');
+    if (caballosTxt) {
+        caballosTxt.textContent = `${currentCollera.caballos[0]} & ${currentCollera.caballos[1]}`;
+    }
+
+    // Criadero & Asociación
+    const criaderoEl = document.getElementById('live-criadero');
+    if (criaderoEl) {
+        const criaderoTxt = currentCollera.criadero ? `CRIADERO: ${currentCollera.criadero}` : `CRIADERO: SIN REGISTRO`;
+        const asocTxt = currentCollera.asociacion ? ` — ASOC. ${currentCollera.asociacion}` : '';
+        criaderoEl.textContent = `${criaderoTxt}${asocTxt}`;
+    }
+
+    // Toro Tag
+    const toroTagEl = document.getElementById('live-toro-tag');
+    if (toroTagEl) {
+        const toroStr = liveState?.toroActual || (currentCollera.resultado ? '4to Toro (Finalizado)' : (currentCollera.sub2 ? '4to Toro en Curso' : (currentCollera.sub1 ? '3er Toro en Curso' : '1er Toro en Curso')));
+        toroTagEl.textContent = toroStr;
+    }
+
+    // Score Numeral
+    const scoreNumEl = document.getElementById('live-score-num');
+    const scoreLblEl = document.getElementById('live-score-lbl');
+    if (scoreNumEl) {
+        const totalPts = currentCollera.resultado || currentCollera.sub2 || currentCollera.sub1 || currentCollera.animal1 || 0;
+        scoreNumEl.textContent = typeof totalPts === 'number' && totalPts > 0 ? `+${totalPts}` : totalPts;
+        if (scoreLblEl) {
+            scoreLblEl.textContent = currentCollera.lugar ? `PUNTOS TOTALES (${currentCollera.lugar} LUGAR)` : 'PUNTOS ACUMULADOS';
+        }
+    }
+
+    // Próxima Collera
+    const proximaEl = document.getElementById('live-proxima-txt');
+    if (proximaEl && nextCollera) {
+        proximaEl.textContent = `#${nextCollera.n} ${nextCollera.jinetes[0]} & ${nextCollera.jinetes[1]} (${nextCollera.caballos[0]} & ${nextCollera.caballos[1]}) — ${nextCollera.asociacion}`;
+    }
+}
+
+// Toggle Desplegable para Stream de YouTube
+window.toggleYouTubeStream = function() {
+    const wrapper = document.getElementById('stream-wrapper');
+    const icon = document.getElementById('stream-chevron-icon');
+    if (!wrapper) return;
+    wrapper.classList.toggle('expanded');
+    if (icon) {
+        icon.style.transform = wrapper.classList.contains('expanded') ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+};
+
+// Subscripción en Tiempo Real con Supabase Realtime
+let realtimeSubscribed = false;
+function subscribeSupabaseRealtime() {
+    if (!supabaseClient || realtimeSubscribed) return;
+    try {
+        supabaseClient
+            .channel('public:colleras_realtime')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'colleras' }, async () => {
+                console.log('⚡ Actualización en tiempo real recibida para colleras');
+                await initRodeoData();
+            })
+            .subscribe();
+        realtimeSubscribed = true;
+    } catch(e) {
+        console.warn("Supabase Realtime subscription error:", e);
+    }
 }
 
 function loadBackupLocalRodeoData() {

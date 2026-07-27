@@ -42,14 +42,50 @@
 
         <main class="main-content">
             
-            <!-- SECTION 0: En Vivo -->
-            <section id="envivo" class="section-envivo" style="margin-bottom: 4rem;">
-                <h2 class="section-title">
-                    <span class="live-dot" style="color: #ff0000; font-size: 1.2rem; vertical-align: middle; margin-right: 0.4rem; position: relative; top: -1px;">●</span>Transmisión en Vivo
-                </h2>
-                <div style="max-width: 750px; margin: 0 auto;">
-                    <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 2px solid var(--primary-dark); background: #000;">
-                        <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://www.youtube.com/embed/fJps5TeZlZw" title="Champion de Chile en Vivo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            <!-- SECTION 0: Dashboard en Vivo & Transmisión Desplegable (Reforma 2) -->
+            <section id="envivo" class="section-envivo" style="margin-bottom: 3.5rem;">
+                <div class="live-hero-container">
+                    <!-- HERO PRINCIPAL: DASHBOARD EN VIVO -->
+                    <div id="live-dashboard-hero" class="live-dashboard-hero">
+                        <div class="live-badge-header">
+                            <div class="live-status-pill">
+                                <span class="live-dot-pulsing"></span>
+                                <span>EN VIVO EN CANCHA</span>
+                            </div>
+                            <span id="live-toro-tag" class="live-toro-tag">Cargando Estado...</span>
+                        </div>
+
+                        <div class="live-main-grid">
+                            <div class="live-collera-info">
+                                <div id="live-jinetes" class="live-jinetes-names">Cargando Collera...</div>
+                                <div id="live-caballos" class="live-caballos-names">
+                                    <span>🐴</span> <span id="live-caballos-txt">--</span>
+                                </div>
+                                <div id="live-criadero" class="live-criadero-asoc">--</div>
+                            </div>
+
+                            <div class="live-score-box">
+                                <div id="live-score-num" class="live-score-number">--</div>
+                                <div id="live-score-lbl" class="live-score-label">PUNTOS ACUMULADOS</div>
+                            </div>
+                        </div>
+
+                        <div class="live-proxima-bar">
+                            <span class="live-proxima-label">PRÓXIMA COLLERA EN TURNO:</span>
+                            <span id="live-proxima-txt" class="live-proxima-data">Cargando próxima collera...</span>
+                        </div>
+                    </div>
+
+                    <!-- BOTÓN Y PANEL DESPLEGABLE DE TRANSMISIÓN DE YOUTUBE -->
+                    <button id="toggle-stream-btn" class="stream-toggle-btn" onclick="toggleYouTubeStream()">
+                        <span>📺 Ver / Ocultar Transmisión de YouTube en Vivo</span>
+                        <span id="stream-chevron-icon" style="transition: transform 0.3s; font-size: 0.9rem;">▼</span>
+                    </button>
+
+                    <div id="stream-wrapper" class="stream-collapsible-wrapper">
+                        <div class="video-container" style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; width: 100%; border-radius: var(--radius-lg); box-shadow: var(--shadow-md); border: 2px solid var(--primary-dark); background: #000; margin-top: 0.5rem;">
+                            <iframe style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" src="https://www.youtube.com/embed/fJps5TeZlZw" title="Champion de Chile en Vivo" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                        </div>
                     </div>
                 </div>
             </section>
