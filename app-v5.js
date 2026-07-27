@@ -871,7 +871,7 @@ function renderLiveDashboard(data) {
         proximaEl.textContent = `#${nextCollera.n} ${nextCollera.jinetes[0]} & ${nextCollera.jinetes[1]} (${nextCollera.caballos[0]} & ${nextCollera.caballos[1]}) — ${nextCollera.asociacion}`;
     }
 
-    // Marcador Visual de Atajadas en Vivo (Live Run Grid)
+    // Marcador Visual de Atajadas en Vivo (Live Run Grid - Estilo Tarjetas Genealogía)
     const salidaEl = document.getElementById('live-step-salida');
     const a1El = document.getElementById('live-step-a1');
     const a2El = document.getElementById('live-step-a2');
@@ -881,18 +881,53 @@ function renderLiveDashboard(data) {
     if (salidaEl && a1El && a2El && a3El && totalToroEl) {
         const details = liveState?.runDetails;
         if (details) {
-            salidaEl.textContent = details.salida === 'LESION' ? 'X' : (details.salida >= 0 ? `+${details.salida}` : details.salida);
-            a1El.textContent = details.a1 >= 0 ? `+${details.a1}` : details.a1;
-            a2El.textContent = details.a2 >= 0 ? `+${details.a2}` : details.a2;
-            a3El.textContent = details.a3 >= 0 ? `+${details.a3}` : details.a3;
-            totalToroEl.textContent = typeof details.totalToro === 'number' ? (details.totalToro >= 0 ? `+${details.totalToro}` : details.totalToro) : details.totalToro;
+            setStepValAndColor(salidaEl, details.salida);
+            setStepValAndColor(a1El, details.a1);
+            setStepValAndColor(a2El, details.a2);
+            setStepValAndColor(a3El, details.a3);
+            setStepValAndColor(totalToroEl, details.totalToro);
         } else {
-            salidaEl.textContent = '--';
-            a1El.textContent = '--';
-            a2El.textContent = '--';
-            a3El.textContent = '--';
-            totalToroEl.textContent = '--';
+            setStepValAndColor(salidaEl, '--');
+            setStepValAndColor(a1El, '--');
+            setStepValAndColor(a2El, '--');
+            setStepValAndColor(a3El, '--');
+            setStepValAndColor(totalToroEl, '--');
         }
+    }
+}
+
+// Función auxiliar para aplicar valores y colores dinámicos en las tarjetas de atajadas (Verde +, Rojo -)
+function setStepValAndColor(el, rawValue) {
+    if (!el) return;
+    el.classList.remove('step-positive', 'step-negative', 'step-neutral');
+
+    if (rawValue === null || rawValue === undefined || rawValue === '--') {
+        el.textContent = '--';
+        el.classList.add('step-neutral');
+        return;
+    }
+
+    if (rawValue === 'LESION' || rawValue === 'X') {
+        el.textContent = 'X';
+        el.classList.add('step-negative');
+        return;
+    }
+
+    const num = typeof rawValue === 'number' ? rawValue : parseInt(rawValue);
+    if (!isNaN(num)) {
+        if (num > 0) {
+            el.textContent = `+${num}`;
+            el.classList.add('step-positive');
+        } else if (num < 0) {
+            el.textContent = `${num}`;
+            el.classList.add('step-negative');
+        } else {
+            el.textContent = '0';
+            el.classList.add('step-neutral');
+        }
+    } else {
+        el.textContent = rawValue;
+        el.classList.add('step-neutral');
     }
 }
 
