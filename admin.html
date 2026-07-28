@@ -2285,6 +2285,9 @@
                 localStorage.setItem(`liveState_${rId}`, JSON.stringify(liveState));
             } catch(e) { console.error(e); }
 
+            // Transmitir inmediatamente vía WebSocket a otros dispositivos
+            broadcastLiveStateToSpectators(rId, liveState);
+
             // Sincronizar con Supabase si está disponible
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
@@ -2405,9 +2408,36 @@
                 localStorage.setItem(`liveState_${rId}`, JSON.stringify(liveState));
             } catch(e) {}
 
-            // Transmitir cambio via Supabase
+            // Transmitir cambio en tiempo real vía WebSocket a todos los dispositivos espectadores
+            broadcastLiveStateToSpectators(rId, liveState, collera);
+            
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 supabaseClient.from('rodeos').update({ logo_url: JSON.stringify(liveState) }).eq('id', rId).then(()=>{}).catch(()=>{});
+            }
+        }
+
+        // Función de Transmisión WebSocket en tiempo real para todos los dispositivos espectadores
+        let liveAdminBroadcastChannel = null;
+        function broadcastLiveStateToSpectators(rodeoId, liveState, colleraData) {
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    if (!liveAdminBroadcastChannel) {
+                        liveAdminBroadcastChannel = supabaseClient.channel('public:rodeo_live_stream');
+                        liveAdminBroadcastChannel.subscribe();
+                    }
+                    liveAdminBroadcastChannel.send({
+                        type: 'broadcast',
+                        event: 'live_update',
+                        payload: {
+                            rodeoId: rodeoId,
+                            liveState: liveState,
+                            collera: colleraData,
+                            timestamp: Date.now()
+                        }
+                    });
+                } catch(e) {
+                    console.warn("Error enviando Supabase broadcast:", e);
+                }
             }
         }
 
@@ -2495,6 +2525,9 @@
             try {
                 localStorage.setItem(`liveState_${rId}`, JSON.stringify(liveState));
             } catch(e) {}
+
+            // Transmitir inmediatamente vía WebSocket a otros dispositivos
+            broadcastLiveStateToSpectators(rId, liveState, collera);
 
             // Resetear la calculadora para la nueva collera
             if (salidaEl) salidaEl.value = "1";
