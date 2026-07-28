@@ -512,6 +512,7 @@
             const overlay = document.getElementById('rodeo-modal-overlay');
 
             const gCalUrl = createGoogleCalendarLink(rodeo);
+            const liveTargetUrl = (rodeo.linkUrl && rodeo.linkUrl.trim() !== '') ? rodeo.linkUrl : '404.html';
 
             modalBody.innerHTML = `
                 <div style="text-align: center; margin-bottom: 1.5rem;">
@@ -546,11 +547,9 @@
                     <button onclick="downloadICSFile('${rodeo.id}')" class="btn-cal-action btn-cal-secondary" style="padding: 12px; font-size: 0.95rem;">
                         🍏 Descargar para iPhone / iCal / Outlook (.ics)
                     </button>
-                    ${rodeo.linkUrl ? `
-                        <a href="${rodeo.linkUrl}" class="btn-cal-action" style="padding: 12px; font-size: 0.95rem; background: #2e7d32; color: #fff;">
-                            🔴 Ir a la Transmisión / Planilla En Vivo
-                        </a>
-                    ` : ''}
+                    <a href="${liveTargetUrl}" class="btn-cal-action" style="padding: 12px; font-size: 0.95rem; background: ${rodeo.linkUrl && rodeo.linkUrl.trim() !== '' ? '#2e7d32' : '#d84315'}; color: #fff;">
+                        🔴 Ir a la Transmisión / Planilla En Vivo
+                    </a>
                 </div>
             `;
 
