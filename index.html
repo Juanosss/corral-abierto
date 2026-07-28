@@ -8,6 +8,26 @@
     <link rel="stylesheet" href="styles.css?v=4.9">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
+        /* Desactivar selección accidental de texto en el fondo del lobby */
+        body, #lobby-screen {
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            cursor: default !important;
+        }
+        
+        .lobby-profile-card {
+            user-select: none !important;
+            -webkit-user-select: none !important;
+        }
+        .lobby-profile-card.active {
+            cursor: pointer !important;
+        }
+        .lobby-profile-card.locked {
+            cursor: not-allowed !important;
+        }
+
         /* Estilo Netflix - Perfiles */
         .lobby-profile-card:hover .lobby-profile-image {
             border-color: #ff5722 !important;
@@ -26,7 +46,7 @@
     </style>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐴</text></svg>">
 </head>
-<body style="margin: 0; padding: 0; background: #0d0604; overflow: hidden; width: 100vw; height: 100vh;">
+<body style="margin: 0; padding: 0; background: #0d0604; overflow: hidden; width: 100vw; height: 100vh; user-select: none; -webkit-user-select: none; cursor: default;">
 
     <!-- PANTALLA LOBBY SELECCIÓN DE EVENTOS (ESTILO NETFLIX) -->
     <div id="lobby-screen" style="width: 100%; height: 100%; background: radial-gradient(circle at center, #1b0e0a 0%, #0d0604 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; font-family: 'Inter', sans-serif;">
