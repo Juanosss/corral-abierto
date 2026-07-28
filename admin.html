@@ -64,6 +64,7 @@
                  <div class="admin-tabs-nav">
                      <button class="admin-tab-btn active" id="nav-btn-rodeos" onclick="switchTab('tab-rodeos')">Gestión de Rodeos</button>
                      <button class="admin-tab-btn" id="nav-btn-colleras" onclick="switchTab('tab-colleras')">Colleras & Resultados</button>
+                     <button class="admin-tab-btn" id="nav-btn-calendario" onclick="switchTab('tab-calendario')">📅 Calendario de Rodeos</button>
                      <button class="admin-tab-btn" id="nav-btn-genealogias" onclick="switchTab('tab-genealogias')">Genealogía & Morfología</button>
                      <button class="admin-tab-btn" id="nav-btn-backup" onclick="switchTab('tab-backup')">Respaldos & Backup</button>
                      <button class="admin-tab-btn" id="nav-btn-usuarios" onclick="switchTab('tab-usuarios')">Control de Socios</button>
@@ -294,6 +295,38 @@
                             </thead>
                             <tbody id="colleras-tbody">
                                 <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CONTENIDO PESTAÑA CALENDARIO DE RODEOS -->
+                <div id="tab-calendario" class="admin-tab-content">
+                    <div class="admin-table-actions" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif; font-size: 1.5rem;">📅 Calendario de Rodeos Futuros</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Publica, edita o elimina rodeos del calendario oficial. Los usuarios podrán agendarlos a su Google Calendar o iCal.</p>
+                        </div>
+                        <button class="admin-btn admin-btn-primary" onclick="openAdminCalendarModal()" style="display: flex; align-items: center; gap: 6px; padding: 0.5rem 1rem;">
+                            <span>➕ Agregar Evento al Calendario</span>
+                        </button>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <table class="admin-data-table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Nombre del Rodeo</th>
+                                    <th>Lugar / Medialuna</th>
+                                    <th>Zona / Asoc.</th>
+                                    <th>Tipo</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendar-admin-tbody">
+                                <!-- Filas dinámicas del calendario -->
                             </tbody>
                         </table>
                     </div>
@@ -4274,9 +4307,264 @@
             if (successCount > 0) {
                 showToast(`¡Notificación de corte enviada con éxito a ${successCount} destinatarios!`);
             } else {
-                showToast(`Falló el envío de corte: ${errorMsg}`, "error");
+    <!-- MODAL EVENTO CALENDARIO -->
+    <div id="modal-cal-event-overlay" class="admin-modal-overlay">
+        <div class="admin-modal" style="max-width: 600px;">
+            <div class="admin-modal-header">
+                <h3 id="modal-cal-event-title">Agregar Evento al Calendario</h3>
+                <button class="admin-modal-close" onclick="closeAdminCalendarModal()">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <form id="form-cal-event" onsubmit="saveAdminCalendarEvent(event)">
+                    <input type="hidden" id="form-cal-id">
+                    
+                    <div class="admin-input-group">
+                        <label class="admin-label">Nombre del Rodeo / Evento</label>
+                        <input type="text" id="form-cal-nombre" class="admin-input" required placeholder="ej: Rodeo Clasificatorio Sur Valdivia 2026">
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="admin-input-group">
+                            <label class="admin-label">Fecha Inicio</label>
+                            <input type="date" id="form-cal-fechainicio" class="admin-input" required>
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Fecha Término</label>
+                            <input type="date" id="form-cal-fechafin" class="admin-input" required>
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Texto Fecha (ej: 06 - 08 MAR)</label>
+                            <input type="text" id="form-cal-displayfecha" class="admin-input" required placeholder="06 - 08 MAR">
+                        </div>
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="admin-input-group">
+                            <label class="admin-label">Medialuna / Lugar</label>
+                            <input type="text" id="form-cal-medialuna" class="admin-input" required placeholder="ej: Medialuna Parque Saval">
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Ciudad</label>
+                            <input type="text" id="form-cal-ciudad" class="admin-input" required placeholder="ej: Valdivia">
+                        </div>
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="admin-input-group">
+                            <label class="admin-label">Zona / Región</label>
+                            <select id="form-cal-region" class="admin-input" required>
+                                <option value="Norte">Zona Norte</option>
+                                <option value="Centro">Zona Centro</option>
+                                <option value="Sur">Zona Sur</option>
+                                <option value="Austral">Zona Austral</option>
+                            </select>
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Asociación</label>
+                            <input type="text" id="form-cal-asociacion" class="admin-input" required placeholder="ej: Valdivia">
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Tipo de Rodeo</label>
+                            <select id="form-cal-tipo" class="admin-input" required>
+                                <option value="Champion de Chile">Champion de Chile</option>
+                                <option value="Clasificatorio">Clasificatorio</option>
+                                <option value="Zonal">Zonal</option>
+                                <option value="Primera con Puntos">Primera con Puntos</option>
+                                <option value="Provincial">Provincial</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="admin-input-group">
+                            <label class="admin-label">Estado</label>
+                            <select id="form-cal-estado" class="admin-input" required>
+                                <option value="proximo">Próximamente</option>
+                                <option value="envivo">🔴 En Transmisión Vivo</option>
+                                <option value="finalizado">🏁 Finalizado</option>
+                            </select>
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Link En Vivo (Ruta)</label>
+                            <input type="text" id="form-cal-linkurl" class="admin-input" placeholder="ej: clasificatorio-sur-2026/index.html">
+                        </div>
+                    </div>
+
+                    <div class="admin-input-group">
+                        <label class="admin-label">Descripción o Notas Adicionales</label>
+                        <textarea id="form-cal-descripcion" class="admin-input" rows="3" placeholder="Información del evento..."></textarea>
+                    </div>
+
+                    <div class="admin-modal-actions" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px;">
+                        <button type="button" class="admin-btn admin-btn-secondary" onclick="closeAdminCalendarModal()">Cancelar</button>
+                        <button type="submit" class="admin-btn admin-btn-primary">Guardar Evento</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // GESTIÓN DEL CALENDARIO DE RODEOS FUTUROS (REFORMA 4)
+        let adminCalendarEvents = [];
+
+        async function loadAdminCalendarEvents() {
+            let loaded = null;
+            try {
+                loaded = JSON.parse(localStorage.getItem('rodeoCalendarEvents'));
+            } catch(e) {}
+
+            if (!loaded || loaded.length === 0) {
+                loaded = [
+                    { id: 'champion-chile-2026', nombre: '77° Campeonato Nacional Champion de Chile 2026', fechaInicio: '2026-04-09', fechaFin: '2026-04-12', displayFecha: '09 - 12 ABR', medialuna: 'Medialuna Monumental de Rancagua', ciudad: 'Rancagua', region: 'Centro', asociacion: 'O\'Higgins', tipo: 'Champion de Chile', estado: 'envivo', linkUrl: 'champion-chile/index.html', descripcion: 'Campeonato Nacional.' },
+                    { id: 'clasificatorio-sur-2026', nombre: 'Rodeo Clasificatorio Zona Sur 2026', fechaInicio: '2026-03-06', fechaFin: '2026-03-08', displayFecha: '06 - 08 MAR', medialuna: 'Medialuna Parque Saval', ciudad: 'Valdivia', region: 'Sur', asociacion: 'Valdivia', tipo: 'Clasificatorio', estado: 'proximo', linkUrl: 'clasificatorio-sur-2026/index.html', descripcion: 'Clasificatorio Zona Sur.' },
+                    { id: 'clasificatorio-centro-2026', nombre: 'Rodeo Clasificatorio Zona Centro 2026', fechaInicio: '2026-03-13', fechaFin: '2026-03-15', displayFecha: '13 - 15 MAR', medialuna: 'Medialuna de San Fernando', ciudad: 'San Fernando', region: 'Centro', asociacion: 'Colchagua', tipo: 'Clasificatorio', estado: 'proximo', linkUrl: 'clasificatorio-centro-2026/index.html', descripcion: 'Clasificatorio Zona Centro.' },
+                    { id: 'clasificatorio-norte-2026', nombre: 'Rodeo Clasificatorio Zona Norte 2026', fechaInicio: '2026-03-20', fechaFin: '2026-03-22', displayFecha: '20 - 22 MAR', medialuna: 'Medialuna de Nos', ciudad: 'San Bernardo', region: 'Norte', asociacion: 'Maipo', tipo: 'Clasificatorio', estado: 'proximo', linkUrl: 'clasificatorio-norte-2026/index.html', descripcion: 'Clasificatorio Zona Norte.' }
+                ];
             }
+
+            adminCalendarEvents = loaded;
+            renderAdminCalendarTable();
         }
+
+        function renderAdminCalendarTable() {
+            const tbody = document.getElementById('calendar-admin-tbody');
+            if (!tbody) return;
+
+            if (adminCalendarEvents.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #aaa; padding: 20px;">No hay eventos agendados.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = adminCalendarEvents.map(e => `
+                <tr>
+                    <td><strong>${e.displayFecha || e.fechaInicio}</strong></td>
+                    <td><strong style="color: #fff;">${e.nombre}</strong></td>
+                    <td>📍 ${e.medialuna}, ${e.ciudad}</td>
+                    <td>${e.region} / ${e.asociacion}</td>
+                    <td><span class="badge" style="background: rgba(255,255,255,0.1); font-size: 0.75rem;">${e.tipo}</span></td>
+                    <td><span style="color: ${e.estado === 'envivo' ? '#4caf50' : '#ffa726'}; font-weight: 700;">${e.estado === 'envivo' ? '🔴 En Vivo' : '⏳ Próximo'}</span></td>
+                    <td>
+                        <button class="admin-btn admin-btn-sm" onclick="openAdminCalendarModal('${e.id}')" style="background: #0288d1; color: #fff;">✏️ Editar</button>
+                        <button class="admin-btn admin-btn-sm admin-btn-danger" onclick="deleteAdminCalendarEvent('${e.id}')">🗑️ Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openAdminCalendarModal(eventId) {
+            const overlay = document.getElementById('modal-cal-event-overlay');
+            const title = document.getElementById('modal-cal-event-title');
+            if (!overlay) return;
+
+            if (eventId) {
+                const event = adminCalendarEvents.find(e => e.id === eventId);
+                if (event) {
+                    title.textContent = 'Editar Evento del Calendario';
+                    document.getElementById('form-cal-id').value = event.id;
+                    document.getElementById('form-cal-nombre').value = event.nombre;
+                    document.getElementById('form-cal-fechainicio').value = event.fechaInicio;
+                    document.getElementById('form-cal-fechafin').value = event.fechaFin;
+                    document.getElementById('form-cal-displayfecha').value = event.displayFecha;
+                    document.getElementById('form-cal-medialuna').value = event.medialuna;
+                    document.getElementById('form-cal-ciudad').value = event.ciudad;
+                    document.getElementById('form-cal-region').value = event.region;
+                    document.getElementById('form-cal-asociacion').value = event.asociacion;
+                    document.getElementById('form-cal-tipo').value = event.tipo;
+                    document.getElementById('form-cal-estado').value = event.estado;
+                    document.getElementById('form-cal-linkurl').value = event.linkUrl || '';
+                    document.getElementById('form-cal-descripcion').value = event.descripcion || '';
+                }
+            } else {
+                title.textContent = 'Agregar Nuevo Evento al Calendario';
+                document.getElementById('form-cal-id').value = '';
+                document.getElementById('form-cal-event').reset();
+            }
+
+            overlay.style.display = 'flex';
+        }
+
+        function closeAdminCalendarModal() {
+            const overlay = document.getElementById('modal-cal-event-overlay');
+            if (overlay) overlay.style.display = 'none';
+        }
+
+        async function saveAdminCalendarEvent(e) {
+            e.preventDefault();
+            const id = document.getElementById('form-cal-id').value || `rodeo-${Date.now()}`;
+            const eventObj = {
+                id: id,
+                nombre: document.getElementById('form-cal-nombre').value.trim(),
+                fechaInicio: document.getElementById('form-cal-fechainicio').value,
+                fechaFin: document.getElementById('form-cal-fechafin').value,
+                displayFecha: document.getElementById('form-cal-displayfecha').value.trim(),
+                medialuna: document.getElementById('form-cal-medialuna').value.trim(),
+                ciudad: document.getElementById('form-cal-ciudad').value.trim(),
+                region: document.getElementById('form-cal-region').value,
+                asociacion: document.getElementById('form-cal-asociacion').value.trim(),
+                tipo: document.getElementById('form-cal-tipo').value,
+                estado: document.getElementById('form-cal-estado').value,
+                linkUrl: document.getElementById('form-cal-linkurl').value.trim(),
+                descripcion: document.getElementById('form-cal-descripcion').value.trim()
+            };
+
+            const index = adminCalendarEvents.findIndex(ev => ev.id === id);
+            if (index !== -1) {
+                adminCalendarEvents[index] = eventObj;
+            } else {
+                adminCalendarEvents.push(eventObj);
+            }
+
+            try {
+                localStorage.setItem('rodeoCalendarEvents', JSON.stringify(adminCalendarEvents));
+            } catch(e) {}
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    await supabaseClient.from('rodeo_calendar').upsert({
+                        id: eventObj.id,
+                        nombre: eventObj.nombre,
+                        fecha_inicio: eventObj.fechaInicio,
+                        fecha_fin: eventObj.fechaFin,
+                        display_fecha: eventObj.displayFecha,
+                        medialuna: eventObj.medialuna,
+                        ciudad: eventObj.ciudad,
+                        region: eventObj.region,
+                        asociacion: eventObj.asociacion,
+                        tipo: eventObj.tipo,
+                        estado: eventObj.estado,
+                        link_url: eventObj.linkUrl,
+                        descripcion: eventObj.descripcion
+                    });
+                } catch(err) {}
+            }
+
+            renderAdminCalendarTable();
+            closeAdminCalendarModal();
+            showToast("¡Evento del calendario guardado con éxito!");
+        }
+
+        async function deleteAdminCalendarEvent(id) {
+            if (!confirm("¿Estás seguro de eliminar este rodeo del calendario?")) return;
+            adminCalendarEvents = adminCalendarEvents.filter(e => e.id !== id);
+
+            try {
+                localStorage.setItem('rodeoCalendarEvents', JSON.stringify(adminCalendarEvents));
+            } catch(e) {}
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    await supabaseClient.from('rodeo_calendar').delete().eq('id', id);
+                } catch(e) {}
+            }
+
+            renderAdminCalendarTable();
+            showToast("Evento eliminado del calendario.");
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAdminCalendarEvents();
+        });
     </script>
 </body>
 </html>

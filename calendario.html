@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendario Oficial de Rodeos | Corral Abierto</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=7.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐴</text></svg>">
+    <style>
+        /* ESTILOS DEL CALENDARIO DE RODEOS FUTUROS (REFORMA 4) */
+        .calendar-hero-box {
+            background: linear-gradient(145deg, #24140d 0%, #120704 100%);
+            border: 2px solid #ff5722;
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+            color: #fff;
+            text-align: center;
+        }
+        .calendar-controls-box {
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            border: 1.5px solid rgba(141, 110, 99, 0.25);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+            padding: 1.2rem;
+            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            align-items: center;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        .calendar-card {
+            background: #1c100b;
+            border: 1.5px solid rgba(255, 87, 34, 0.25);
+            border-radius: 14px;
+            padding: 1.4rem;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .calendar-card:hover {
+            transform: translateY(-4px);
+            border-color: #ff5722;
+            box-shadow: 0 12px 30px rgba(255, 87, 34, 0.3);
+        }
+        .calendar-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        .calendar-date-badge {
+            background: linear-gradient(135deg, #d84315 0%, #ff5722 100%);
+            color: #fff;
+            font-weight: 800;
+            padding: 8px 14px;
+            border-radius: 10px;
+            text-align: center;
+            line-height: 1.1;
+            box-shadow: 0 4px 12px rgba(216, 67, 21, 0.35);
+        }
+        .calendar-date-day {
+            font-size: 1.3rem;
+            display: block;
+        }
+        .calendar-date-month {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .calendar-type-tag {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ffab91;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .calendar-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #ffffff;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.25;
+        }
+        .calendar-card-loc {
+            font-size: 0.85rem;
+            color: #d7ccc8;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .calendar-card-assoc {
+            font-size: 0.78rem;
+            color: #bcaaa4;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            text-transform: uppercase;
+        }
+        .calendar-card-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: auto;
+        }
+        .btn-cal-action {
+            flex: 1;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-cal-primary {
+            background: linear-gradient(135deg, #d84315 0%, #ff5722 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(216, 67, 21, 0.3);
+        }
+        .btn-cal-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+        .btn-cal-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        /* MODAL EMERGENTE DE DETALLES DEL RODEO */
+        .rodeo-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .rodeo-modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .rodeo-modal-container {
+            background: linear-gradient(145deg, #24140d 0%, #150906 100%);
+            border: 2px solid #ff5722;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+            color: #fff;
+            padding: 2rem;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        .rodeo-modal-overlay.active .rodeo-modal-container {
+            transform: scale(1);
+        }
+        .rodeo-modal-close {
+            position: absolute;
+            top: 1.2rem;
+            right: 1.2rem;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .rodeo-modal-close:hover {
+            background: #ff5722;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-container">
+                <a href="index.html" class="header-logo-link">
+                    <span class="brand-title-main">Corral Abierto</span>
+                    <span class="brand-partner-divider">✕</span>
+                    <div class="brand-partner-group">
+                        <img src="https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png" alt="Federación del Rodeo Chileno" class="header-logo" style="margin-right: 0; width: 38px; height: auto;">
+                        <div class="header-branding" style="line-height: 1.1;">
+                            <span class="brand-title" style="font-size: 1.1rem; letter-spacing: 0;">Champion de Chile</span>
+                            <span class="brand-subtitle" style="font-size: 0.55rem; letter-spacing: 0.02em;">77° Campeonato Nacional</span>
+                        </div>
+                    </div>
+                </a>
+                
+                <nav class="header-nav">
+                    <a href="champion-chile/index.html#envivo" class="nav-btn btn-live" id="nav-link-envivo">En Vivo</a>
+                    <a href="calendario.html" class="nav-btn active">Calendario</a>
+                    <a href="champion-chile/index.html#analisis" class="nav-btn" id="nav-link-analisis">Resultados</a>
+                    <a href="anuario.html" class="nav-btn">Anuarios</a>
+                    <a href="genealogia.html" class="nav-btn">Genealogía</a>
+                    <a href="champion-chile/index.html#resultados" class="nav-btn" id="nav-link-puntajes">Puntajes</a>
+                    <div class="nav-divider"></div>
+                    <a href="https://www.flow.cl/btn.php?token=t72149f43e71af43c82f6f67fdf40c375fa191cb" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; font-weight: 700; box-shadow: 0 4px 10px rgba(230,81,0,0.3); white-space: nowrap; flex-shrink: 0;">Hacerse Socio 🐴</a>
+                    <a href="#" onclick="sessionStorage.removeItem('selectedRodeo'); window.location.href='index.html';" class="nav-btn" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-weight: 600;">Cambiar Rodeo ⇄</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="section-resultados">
+                
+                <!-- HERO CALENDARIO -->
+                <div class="calendar-hero-box">
+                    <h1 style="font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 4vw, 2.5rem); margin: 0 0 0.5rem 0; color: #ff5722;">
+                        📅 Calendario Oficial de Rodeos
+                    </h1>
+                    <p style="color: #d7ccc8; font-size: 1rem; max-width: 680px; margin: 0 auto;">
+                        Consulta la programación completa de clasificatorios, zonales y rodeos de la temporada. Filtra por región o asociación y agrégalos a tu calendario personal para no perderte ninguna transmisión.
+                    </p>
+                </div>
+
+                <!-- CONTROLES & FILTROS DEL CALENDARIO -->
+                <div class="calendar-controls-box">
+                    <!-- Buscador -->
+                    <div style="position: relative;">
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #5d4037; margin-bottom: 4px; text-transform: uppercase;">Buscador</label>
+                        <input type="text" id="cal-search" placeholder="Nombre, medialuna o ciudad..." 
+                               style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1.5px solid #d5cbbf; background: #fdfbf7; font-size: 0.88rem; outline: none; box-sizing: border-box;"
+                               oninput="filterCalendarEvents()">
+                    </div>
+
+                    <!-- Filtro Región -->
+                    <div>
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #5d4037; margin-bottom: 4px; text-transform: uppercase;">Zona / Región</label>
+                        <select id="cal-filter-region" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1.5px solid #d5cbbf; background: #fdfbf7; font-size: 0.88rem; font-weight: 600;" onchange="filterCalendarEvents()">
+                            <option value="">Todas las Regiones</option>
+                            <option value="Norte">Zona Norte</option>
+                            <option value="Centro">Zona Centro</option>
+                            <option value="Sur">Zona Sur</option>
+                            <option value="Austral">Zona Austral</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro Asociación -->
+                    <div>
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #5d4037; margin-bottom: 4px; text-transform: uppercase;">Asociación</label>
+                        <select id="cal-filter-assoc" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1.5px solid #d5cbbf; background: #fdfbf7; font-size: 0.88rem; font-weight: 600;" onchange="filterCalendarEvents()">
+                            <option value="">Todas las Asociaciones</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro Tipo de Rodeo -->
+                    <div>
+                        <label style="display: block; font-size: 0.75rem; font-weight: 700; color: #5d4037; margin-bottom: 4px; text-transform: uppercase;">Tipo de Rodeo</label>
+                        <select id="cal-filter-type" style="width: 100%; padding: 8px 12px; border-radius: 6px; border: 1.5px solid #d5cbbf; background: #fdfbf7; font-size: 0.88rem; font-weight: 600;" onchange="filterCalendarEvents()">
+                            <option value="">Todos los Tipos</option>
+                            <option value="Champion de Chile">Champion de Chile</option>
+                            <option value="Clasificatorio">Clasificatorio</option>
+                            <option value="Zonal">Rodeo Zonal</option>
+                            <option value="Primera con Puntos">Primera Con Puntos</option>
+                            <option value="Provincial">Provincial</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- GRILLA DE EVENTOS -->
+                <div id="calendar-grid" class="calendar-grid">
+                    <!-- Tarjetas de eventos dinámicas -->
+                </div>
+
+            </section>
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="app-footer" style="margin-top: 4rem; padding: 2rem 0; border-top: 1px solid rgba(141, 110, 99, 0.2); text-align: center; color: var(--text-muted); font-size: 0.85rem;">
+            <div class="footer-container" style="max-width: 1200px; margin: 0 auto; padding: 0 1.5rem;">
+                <p style="margin-bottom: 0.5rem;">© 2026 Corral Abierto — Plataforma Oficial de Cobertura y Estadísticas del Rodeo Chileno.</p>
+            </div>
+        </footer>
+    </div>
+
+    <!-- MODAL EMERGENTE DE DETALLES DEL RODEO -->
+    <div id="rodeo-modal-overlay" class="rodeo-modal-overlay" onclick="closeRodeoModalOnOverlay(event)">
+        <div class="rodeo-modal-container">
+            <button class="rodeo-modal-close" onclick="closeRodeoModal()">✕</button>
+            <div id="rodeo-modal-body">
+                <!-- Contenido dinámico del rodeo -->
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app-v5.js?v=7.0"></script>
+    <script>
+        // Lógica del Calendario de Rodeos Futuros (Reforma 4)
+        const defaultCalendarEvents = [
+            {
+                id: 'champion-chile-2026',
+                nombre: '77° Campeonato Nacional Champion de Chile 2026',
+                fechaInicio: '2026-04-09',
+                fechaFin: '2026-04-12',
+                displayFecha: '09 - 12 ABR',
+                medialuna: 'Medialuna Monumental de Rancagua',
+                ciudad: 'Rancagua',
+                region: 'Centro',
+                asociacion: 'O\'Higgins',
+                tipo: 'Champion de Chile',
+                estado: 'envivo',
+                linkUrl: 'champion-chile/index.html',
+                descripcion: 'El gran Campeonato Nacional de Rodeo Chileno donde se disputan la Serie de Campeones y el título nacional en la Monumental de Rancagua.'
+            },
+            {
+                id: 'clasificatorio-sur-2026',
+                nombre: 'Rodeo Clasificatorio Zona Sur 2026',
+                fechaInicio: '2026-03-06',
+                fechaFin: '2026-03-08',
+                displayFecha: '06 - 08 MAR',
+                medialuna: 'Medialuna Parque Saval',
+                ciudad: 'Valdivia',
+                region: 'Sur',
+                asociacion: 'Valdivia',
+                tipo: 'Clasificatorio',
+                estado: 'proximo',
+                linkUrl: 'clasificatorio-sur-2026/index.html',
+                descripcion: 'Clasificatorio oficial de la Zona Sur para obtener cupos directos al 77° Champion de Chile Rancagua 2026.'
+            },
+            {
+                id: 'clasificatorio-centro-2026',
+                nombre: 'Rodeo Clasificatorio Zona Centro 2026',
+                fechaInicio: '2026-03-13',
+                fechaFin: '2026-03-15',
+                displayFecha: '13 - 15 MAR',
+                medialuna: 'Medialuna de San Fernando',
+                ciudad: 'San Fernando',
+                region: 'Centro',
+                asociacion: 'Colchagua',
+                tipo: 'Clasificatorio',
+                estado: 'proximo',
+                linkUrl: 'clasificatorio-centro-2026/index.html',
+                descripcion: 'Clasificatorio oficial de la Zona Centro disputado en Colchagua.'
+            },
+            {
+                id: 'clasificatorio-norte-2026',
+                nombre: 'Rodeo Clasificatorio Zona Norte 2026',
+                fechaInicio: '2026-03-20',
+                fechaFin: '2026-03-22',
+                displayFecha: '20 - 22 MAR',
+                medialuna: 'Medialuna de Nos',
+                ciudad: 'San Bernardo',
+                region: 'Norte',
+                asociacion: 'Maipo',
+                tipo: 'Clasificatorio',
+                estado: 'proximo',
+                linkUrl: 'clasificatorio-norte-2026/index.html',
+                descripcion: 'Clasificatorio oficial de la Zona Norte con las mejores colleras de la zona en busca de pasajes a Rancagua.'
+            }
+        ];
+
+        let calendarEvents = [];
+
+        async function loadCalendarData() {
+            let loaded = null;
+            try {
+                loaded = JSON.parse(localStorage.getItem('rodeoCalendarEvents'));
+            } catch(e) {}
+
+            if (!loaded || loaded.length === 0) {
+                loaded = defaultCalendarEvents;
+                try {
+                    localStorage.setItem('rodeoCalendarEvents', JSON.stringify(loaded));
+                } catch(e) {}
+            }
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('rodeo_calendar').select('*').order('fecha_inicio', { ascending: true });
+                    if (!error && data && data.length > 0) {
+                        loaded = data.map(d => ({
+                            id: d.id,
+                            nombre: d.nombre,
+                            fechaInicio: d.fecha_inicio,
+                            fechaFin: d.fecha_fin,
+                            displayFecha: d.display_fecha,
+                            medialuna: d.medialuna,
+                            ciudad: d.ciudad,
+                            region: d.region,
+                            asociacion: d.asociacion,
+                            tipo: d.tipo,
+                            estado: d.estado,
+                            linkUrl: d.link_url,
+                            descripcion: d.descripcion
+                        }));
+                        localStorage.setItem('rodeoCalendarEvents', JSON.stringify(loaded));
+                    }
+                } catch(err) {}
+            }
+
+            calendarEvents = loaded;
+            populateAssocFilterDropdown();
+            filterCalendarEvents();
+        }
+
+        function populateAssocFilterDropdown() {
+            const assocSelect = document.getElementById('cal-filter-assoc');
+            if (!assocSelect) return;
+            const assocs = [...new Set(calendarEvents.map(e => e.asociacion))].filter(Boolean).sort();
+            assocSelect.innerHTML = '<option value="">Todas las Asociaciones</option>';
+            assocs.forEach(a => {
+                assocSelect.innerHTML += `<option value="${a}">${a}</option>`;
+            });
+        }
+
+        function filterCalendarEvents() {
+            const query = (document.getElementById('cal-search')?.value || '').toLowerCase().trim();
+            const region = document.getElementById('cal-filter-region')?.value || '';
+            const assoc = document.getElementById('cal-filter-assoc')?.value || '';
+            const type = document.getElementById('cal-filter-type')?.value || '';
+
+            const filtered = calendarEvents.filter(e => {
+                const matchQuery = !query || e.nombre.toLowerCase().includes(query) || e.medialuna.toLowerCase().includes(query) || e.ciudad.toLowerCase().includes(query);
+                const matchRegion = !region || e.region === region;
+                const matchAssoc = !assoc || e.asociacion === assoc;
+                const matchType = !type || e.tipo === type;
+                return matchQuery && matchRegion && matchAssoc && matchType;
+            });
+
+            renderCalendarGrid(filtered);
+        }
+
+        function renderCalendarGrid(events) {
+            const grid = document.getElementById('calendar-grid');
+            if (!grid) return;
+
+            if (events.length === 0) {
+                grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #bcaaa4; padding: 3rem; background: #1c100b; border-radius: 12px;">No se encontraron rodeos programados con los filtros seleccionados.</div>';
+                return;
+            }
+
+            grid.innerHTML = events.map(e => `
+                <div class="calendar-card">
+                    <div class="calendar-card-header">
+                        <div class="calendar-date-badge">
+                            <span class="calendar-date-day">${e.displayFecha ? e.displayFecha.split(' ')[0] : '01'}</span>
+                            <span class="calendar-date-month">${e.displayFecha ? e.displayFecha.split(' ').slice(1).join(' ') : 'FEB'}</span>
+                        </div>
+                        <span class="calendar-type-tag">${e.tipo}</span>
+                    </div>
+
+                    <div>
+                        <h3 class="calendar-card-title">${e.nombre}</h3>
+                        <div class="calendar-card-loc">📍 ${e.medialuna}, ${e.ciudad}</div>
+                        <div class="calendar-card-assoc">ASOC. ${e.asociacion} — ZONA ${e.region.toUpperCase()}</div>
+                    </div>
+
+                    <div class="calendar-card-actions">
+                        <button onclick="openRodeoModal('${e.id}')" class="btn-cal-action btn-cal-primary">
+                            🔍 Ver Detalles
+                        </button>
+                        <button onclick="openCalendarExportMenu('${e.id}', event)" class="btn-cal-action btn-cal-secondary">
+                            📅 Agendar
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Abrir Modal Emergente del Rodeo
+        function openRodeoModal(rodeoId) {
+            const rodeo = calendarEvents.find(e => e.id === rodeoId);
+            if (!rodeo) return;
+
+            const modalBody = document.getElementById('rodeo-modal-body');
+            const overlay = document.getElementById('rodeo-modal-overlay');
+
+            const gCalUrl = createGoogleCalendarLink(rodeo);
+
+            modalBody.innerHTML = `
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <span class="calendar-type-tag" style="font-size: 0.85rem; padding: 6px 16px;">${rodeo.tipo}</span>
+                    <h2 style="font-family: 'Playfair Display', serif; font-size: 1.8rem; margin: 1rem 0 0.5rem 0; color: #ff5722;">${rodeo.nombre}</h2>
+                    <p style="color: #bcaaa4; font-size: 0.95rem; margin: 0;">📍 ${rodeo.medialuna}, ${rodeo.ciudad}</p>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,87,34,0.3); margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #ffab91; font-weight: 700; font-size: 0.85rem;">FECHAS:</span>
+                        <strong style="color: #fff;">${rodeo.displayFecha}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: #ffab91; font-weight: 700; font-size: 0.85rem;">ASOCIACIÓN:</span>
+                        <strong style="color: #fff;">Asoc. ${rodeo.asociacion} (${rodeo.region})</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: #ffab91; font-weight: 700; font-size: 0.85rem;">ESTADO:</span>
+                        <strong style="color: ${rodeo.estado === 'envivo' ? '#4caf50' : '#ffa726'};">${rodeo.estado === 'envivo' ? '🔴 EN TRANSMISIÓN VIVO' : '⏳ PRÓXIMAMENTE'}</strong>
+                    </div>
+                </div>
+
+                <p style="color: #d7ccc8; font-size: 0.92rem; line-height: 1.5; margin-bottom: 1.8rem;">
+                    ${rodeo.descripcion || 'Sin descripción adicional.'}
+                </p>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="${gCalUrl}" target="_blank" class="btn-cal-action btn-cal-primary" style="padding: 12px; font-size: 0.95rem;">
+                        📅 Agregar a mi Google Calendar
+                    </a>
+                    <button onclick="downloadICSFile('${rodeo.id}')" class="btn-cal-action btn-cal-secondary" style="padding: 12px; font-size: 0.95rem;">
+                        🍏 Descargar para iPhone / iCal / Outlook (.ics)
+                    </button>
+                    ${rodeo.linkUrl ? `
+                        <a href="${rodeo.linkUrl}" class="btn-cal-action" style="padding: 12px; font-size: 0.95rem; background: #2e7d32; color: #fff;">
+                            🔴 Ir a la Transmisión / Planilla En Vivo
+                        </a>
+                    ` : ''}
+                </div>
+            `;
+
+            overlay.classList.add('active');
+        }
+
+        function closeRodeoModal() {
+            const overlay = document.getElementById('rodeo-modal-overlay');
+            if (overlay) overlay.classList.remove('active');
+        }
+
+        function closeRodeoModalOnOverlay(e) {
+            if (e.target.id === 'rodeo-modal-overlay') {
+                closeRodeoModal();
+            }
+        }
+
+        // Generar Enlace Directo a Google Calendar
+        function createGoogleCalendarLink(r) {
+            const title = encodeURIComponent(r.nombre);
+            const details = encodeURIComponent(`${r.descripcion || ''}\nOrganiza: Asoc. ${r.asociacion}\nVer en vivo en Corral Abierto.`);
+            const location = encodeURIComponent(`${r.medialuna}, ${r.ciudad}`);
+            
+            const start = r.fechaInicio ? r.fechaInicio.replace(/-/g, '') + 'T090000Z' : '20260409T090000Z';
+            const end = r.fechaFin ? r.fechaFin.replace(/-/g, '') + 'T210000Z' : '20260412T210000Z';
+
+            return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${start}/${end}&details=${details}&location=${location}`;
+        }
+
+        // Generar y Descargar Archivo iCal (.ics) para Mac/iPhone/Outlook
+        function downloadICSFile(rodeoId) {
+            const r = calendarEvents.find(e => e.id === rodeoId);
+            if (!r) return;
+
+            const start = r.fechaInicio ? r.fechaInicio.replace(/-/g, '') + 'T090000Z' : '20260409T090000Z';
+            const end = r.fechaFin ? r.fechaFin.replace(/-/g, '') + 'T210000Z' : '20260412T210000Z';
+
+            const icsContent = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Corral Abierto//Calendario Oficial Rodeo//ES
+BEGIN:VEVENT
+SUMMARY:${r.nombre}
+DESCRIPTION:${r.descripcion || ''} - Asoc. ${r.asociacion}
+LOCATION:${r.medialuna}, ${r.ciudad}
+DTSTART:${start}
+DTEND:${end}
+END:VEVENT
+END:VCALENDAR`;
+
+            const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = window.URL.createObjectURL(blob);
+            link.download = `${r.id}.ics`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function openCalendarExportMenu(rodeoId, e) {
+            e.stopPropagation();
+            openRodeoModal(rodeoId);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadCalendarData);
+    </script>
+</body>
+</html>
