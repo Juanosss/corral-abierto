@@ -46,7 +46,7 @@
                         <input type="password" id="login-password" class="admin-input" placeholder="Ingrese contraseña..." required autofocus>
                         <p id="login-error" style="color: #ef9a9a; font-size: 0.8rem; margin-top: 5px; display: none;">Credenciales incorrectas. Intente nuevamente.</p>
                     </div>
-                    <button type="button" onclick="handleAdminLogin(event)" class="admin-btn admin-btn-primary" style="width: 100%;">Ingresar al Panel ➔</button>
+                    <button type="submit" id="btn-admin-login" class="admin-btn admin-btn-primary" style="width: 100%;">Ingresar al Panel ➔</button>
                 </form>
             </div>
 
@@ -982,9 +982,15 @@
 
         // Mostrar panel de administración
         function showDashboard() {
-            if (loginScreen) loginScreen.style.display = 'none';
-            if (dashboard) dashboard.style.display = 'block';
-            initDashboard();
+            const lScreen = document.getElementById('admin-login-screen');
+            const dBoard = document.getElementById('admin-dashboard');
+            if (lScreen) lScreen.style.display = 'none';
+            if (dBoard) dBoard.style.display = 'block';
+            try {
+                initDashboard();
+            } catch(e) {
+                console.error("Error en initDashboard:", e);
+            }
         }
 
         // Verificar sesión activa al cargar la página
@@ -1001,7 +1007,7 @@
             }
 
             // 2. Verificar sesión activa en Supabase Auth
-            if (supabaseClient) {
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
                     const { data: { session }, error } = await supabaseClient.auth.getSession();
                     if (!error && session && session.user && session.user.email && session.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
@@ -1025,10 +1031,11 @@
         }
         checkActiveSession();
 
-        window.handleAdminLogin = async function(e) {
+        // Función global de inicio de sesión de Administrador
+        window.handleAdminLogin = function(e) {
             if (e) {
-                e.preventDefault();
-                e.stopPropagation();
+                if (typeof e.preventDefault === 'function') e.preventDefault();
+                if (typeof e.stopPropagation === 'function') e.stopPropagation();
             }
 
             const emailInput = document.getElementById('login-email');
@@ -1048,41 +1055,43 @@
 
             if (!password || password.length < 3) {
                 if (errorMsg) {
-                    errorMsg.innerText = "Por favor ingresa tu contraseña de administrador.";
+                    errorMsg.innerText = "Por favor ingresa tu contraseña de administrador (mínimo 3 caracteres).";
                     errorMsg.style.display = 'block';
                 }
                 return false;
             }
 
             // Guardar sesión de usuario administrador localmente de forma incondicional
-            localStorage.setItem('currentUser', JSON.stringify({
-                email: email,
-                active: true,
-                nombre: "ADMINISTRADOR",
-                apellido: "PRINCIPAL"
-            }));
+            try {
+                localStorage.setItem('currentUser', JSON.stringify({
+                    email: email,
+                    active: true,
+                    nombre: "ADMINISTRADOR",
+                    apellido: "PRINCIPAL"
+                }));
+            } catch(err) {}
 
-            // Mostrar el dashboard inmediatamente sin recargar la página
+            // Mostrar el dashboard inmediatamente
             showDashboard();
 
             // Intentar autenticación silenciosa con Supabase si está disponible
-            if (supabaseClient) {
-                try {
-                    await supabaseClient.auth.signInWithPassword({
-                        email: email,
-                        password: password
-                    });
-                } catch(err) {
-                    console.warn("Supabase Auth intent:", err);
-                }
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                }).then(()=>{}).catch(err => console.warn("Supabase Auth intent:", err));
             }
 
             return false;
         };
 
-        if (loginForm) {
-            loginForm.addEventListener('submit', handleAdminLogin);
-        }
+        // Vinculación garantizada al cargar el DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            const formEl = document.getElementById('login-form');
+            if (formEl) formEl.addEventListener('submit', window.handleAdminLogin);
+            const btnEl = document.getElementById('btn-admin-login');
+            if (btnEl) btnEl.addEventListener('click', window.handleAdminLogin);
+        });
 
         document.getElementById('btn-logout').addEventListener('click', async function() {
             localStorage.removeItem('currentUser');
