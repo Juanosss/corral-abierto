@@ -980,33 +980,57 @@
         if (typeof rodeoData !== 'undefined') filteredColleras = [...rodeoData];
         if (typeof genealogiaData !== 'undefined') filteredGenealogias = [...genealogiaData];
 
+        // Mostrar panel de administración
+        function showDashboard() {
+            if (loginScreen) loginScreen.style.display = 'none';
+            if (dashboard) dashboard.style.display = 'block';
+            initDashboard();
+        }
+
         // Verificar sesión activa al cargar la página
         async function checkActiveSession() {
+            // 1. Verificar sesión persistida localmente
+            let localUser = null;
+            try {
+                localUser = JSON.parse(localStorage.getItem('currentUser'));
+            } catch(e) {}
+
+            if (localUser && localUser.email && localUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() && localUser.active) {
+                showDashboard();
+                return;
+            }
+
+            // 2. Verificar sesión activa en Supabase Auth
             if (supabaseClient) {
                 try {
                     const { data: { session }, error } = await supabaseClient.auth.getSession();
-                    if (!error && session && session.user && session.user.email === ADMIN_EMAIL) {
-                        loginScreen.style.display = 'none';
-                        loginScreen.remove(); // Elimina el password input del DOM para evitar autocompletados molestos
-                        dashboard.style.display = 'block';
-                        initDashboard();
-                    } else {
-                        loginScreen.style.display = 'block';
-                        dashboard.style.display = 'none';
+                    if (!error && session && session.user && session.user.email && session.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                        localStorage.setItem('currentUser', JSON.stringify({
+                            email: session.user.email,
+                            active: true,
+                            nombre: "ADMINISTRADOR",
+                            apellido: "PRINCIPAL"
+                        }));
+                        showDashboard();
+                        return;
                     }
                 } catch (err) {
                     console.error("Error verificando sesión activa:", err);
                 }
             }
+
+            // Si no hay sesión válida activa
+            if (loginScreen) loginScreen.style.display = 'block';
+            if (dashboard) dashboard.style.display = 'none';
         }
         checkActiveSession();
 
         loginForm.addEventListener('submit', async function(e) {
             e.preventDefault();
-            const email = loginEmailInput.value.trim();
+            const email = loginEmailInput.value.trim().toLowerCase();
             const password = loginPasswordInput.value;
 
-            if (email !== ADMIN_EMAIL) {
+            if (email !== ADMIN_EMAIL.toLowerCase()) {
                 loginErrorMsg.innerText = "Acceso denegado. Este correo no tiene permisos de administrador.";
                 loginErrorMsg.style.display = 'block';
                 return;
@@ -1033,10 +1057,7 @@
                             apellido: "PRINCIPAL"
                         }));
                         loginErrorMsg.style.display = 'none';
-                        loginScreen.style.display = 'none';
-                        loginScreen.remove(); // Elimina el password input del DOM para evitar autocompletados molestos
-                        dashboard.style.display = 'block';
-                        initDashboard();
+                        showDashboard();
                     }
                 } catch (err) {
                     loginErrorMsg.innerText = "Error de conexión: " + err.message;
@@ -1049,6 +1070,7 @@
         });
 
         document.getElementById('btn-logout').addEventListener('click', async function() {
+            localStorage.removeItem('currentUser');
             if (supabaseClient) {
                 await supabaseClient.auth.signOut();
             }
