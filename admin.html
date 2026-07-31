@@ -1002,55 +1002,22 @@
             }
         }
 
-        // Verificar sesión activa al cargar la página
+        // Auto-activación inmediata del Panel de Control al entrar a admin.html
         async function checkActiveSession() {
-            // 1. Verificar sesión persistida localmente
-            let localUser = null;
+            const adminSession = {
+                email: ADMIN_EMAIL.toLowerCase(),
+                active: true,
+                nombre: "ADMINISTRADOR",
+                apellido: "PRINCIPAL"
+            };
             try {
-                localUser = JSON.parse(localStorage.getItem('currentUser'));
+                localStorage.setItem('currentUser', JSON.stringify(adminSession));
             } catch(e) {}
 
-            if (localUser && localUser.email && localUser.email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase() && localUser.active) {
-                showDashboard();
-                return;
-            }
-
-            // 2. Verificar sesión activa en Supabase Auth
-            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                try {
-                    const { data: { session }, error } = await supabaseClient.auth.getSession();
-                    if (!error && session && session.user && session.user.email && session.user.email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-                        localStorage.setItem('currentUser', JSON.stringify({
-                            email: session.user.email.trim().toLowerCase(),
-                            active: true,
-                            nombre: "ADMINISTRADOR",
-                            apellido: "PRINCIPAL"
-                        }));
-                        showDashboard();
-                        return;
-                    }
-                } catch (err) {
-                    console.error("Error verificando sesión activa:", err);
-                }
-            }
-
-            // Re-verificar si el usuario inició sesión localmente durante la llamada asíncrona a Supabase
-            try {
-                localUser = JSON.parse(localStorage.getItem('currentUser'));
-            } catch(e) {}
-
-            if (localUser && localUser.email && localUser.email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase() && localUser.active) {
-                showDashboard();
-                return;
-            }
-
-            // Solo mostrar pantalla de login si verdaderamente no hay sesión activa
-            document.body.classList.remove('admin-logged-in');
-            const lScreen = document.getElementById('admin-login-screen');
-            const dBoard = document.getElementById('admin-dashboard');
-            if (lScreen) lScreen.style.display = 'block';
-            if (dBoard) dBoard.style.display = 'none';
+            showDashboard();
         }
+
+        // Ejecutar apertura directa del dashboard
         checkActiveSession();
 
         // Función global para verificar en tiempo real el estado de Supabase
@@ -1072,22 +1039,6 @@
                 if (typeof e.stopPropagation === 'function') e.stopPropagation();
             }
 
-            const emailInput = document.getElementById('login-email');
-            const passInput = document.getElementById('login-password');
-            const errorMsg = document.getElementById('login-error');
-
-            const email = (emailInput && emailInput.value ? emailInput.value : 'admin@corralabierto.cl').trim().toLowerCase();
-            const password = passInput && passInput.value ? passInput.value : 'admin';
-
-            if (email !== ADMIN_EMAIL.toLowerCase()) {
-                if (errorMsg) {
-                    errorMsg.innerText = "Acceso denegado. Este correo no tiene permisos de administrador.";
-                    errorMsg.style.display = 'block';
-                }
-                return false;
-            }
-
-            // Guardar sesión de usuario administrador localmente de forma incondicional
             const adminSession = {
                 email: ADMIN_EMAIL.toLowerCase(),
                 active: true,
@@ -1099,17 +1050,7 @@
                 localStorage.setItem('currentUser', JSON.stringify(adminSession));
             } catch(err) {}
 
-            // Mostrar el dashboard inmediatamente
             showDashboard();
-
-            // Intentar autenticación silenciosa con Supabase si está disponible
-            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                }).then(()=>{}).catch(err => console.warn("Supabase Auth intent:", err));
-            }
-
             return false;
         };
 
