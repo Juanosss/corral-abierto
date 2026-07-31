@@ -1466,7 +1466,7 @@ function updateHeaderAuthUI() {
         // Ocultar banner de Club de Socios si ya es un socio activo o administrador
         const ctaSection = document.querySelector('.section-socio-cta');
         if (ctaSection) {
-            const isAdmin = currentUser && currentUser.email === 'admin@corralabierto.cl';
+            const isAdmin = currentUser && currentUser.email && currentUser.email.trim().toLowerCase() === 'admin@corralabierto.cl';
             const isActive = currentUser && currentUser.active;
             if (isAdmin || isActive) {
                 ctaSection.style.display = 'none';
@@ -1498,9 +1498,9 @@ async function checkPageAccess() {
     if (!currentUser && supabaseClient) {
         try {
             const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session && session.user && session.user.email === 'admin@corralabierto.cl') {
+            if (session && session.user && session.user.email && session.user.email.trim().toLowerCase() === 'admin@corralabierto.cl') {
                 currentUser = {
-                    email: session.user.email,
+                    email: 'admin@corralabierto.cl',
                     active: true,
                     nombre: "ADMINISTRADOR",
                     apellido: "PRINCIPAL"
@@ -1513,7 +1513,7 @@ async function checkPageAccess() {
     }
 
     // Si el usuario es el administrador principal, tiene acceso total e ilimitado
-    if (currentUser && currentUser.email === 'admin@corralabierto.cl') {
+    if (currentUser && currentUser.email && currentUser.email.trim().toLowerCase() === 'admin@corralabierto.cl') {
         isSocioActivo = true;
     } else if (currentUser && supabaseClient) {
         try {
@@ -1964,11 +1964,13 @@ async function submitLogin(e) {
         }
 
         // Permitir inicio de sesión local para todos, pero guardando si están activos o no
-        const isActive = (email === 'admin@corralabierto.cl') || (memberData && memberData.active === true);
+        const cleanEmail = email ? email.trim().toLowerCase() : '';
+        const isAdmin = cleanEmail === 'admin@corralabierto.cl';
+        const isActive = isAdmin || (memberData && memberData.active === true);
         const userSessionObj = { 
-            email: email, 
+            email: cleanEmail, 
             active: isActive,
-            nombre: memberData ? memberData.nombre : (email === 'admin@corralabierto.cl' ? 'ADMINISTRADOR' : ''),
+            nombre: memberData ? memberData.nombre : (isAdmin ? 'ADMINISTRADOR' : ''),
             apellido: memberData ? memberData.apellido : '',
             fecha_nacimiento: memberData ? memberData.fecha_nacimiento : ''
         };
@@ -2199,7 +2201,7 @@ function openAccountPlanModal(e) {
     overlay.style.justifyContent = 'center';
     overlay.style.zIndex = '3000';
 
-    const isAdmin = currentUser.email === 'admin@corralabierto.cl';
+    const isAdmin = currentUser.email && currentUser.email.trim().toLowerCase() === 'admin@corralabierto.cl';
     const statusText = isAdmin
         ? '<span style="color:#2e7d32; font-weight:700;">🟢 ADMINISTRADOR (ACCESO TOTAL)</span>'
         : (currentUser.active 

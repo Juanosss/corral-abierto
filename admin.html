@@ -37,7 +37,7 @@
                 <h1 class="admin-login-title">Panel de Control</h1>
                 <p class="admin-login-subtitle">Acceso exclusivo para administradores</p>
                 
-                <form id="login-form" onsubmit="handleAdminLogin(event); return false;">
+                <form id="login-form" onsubmit="event.preventDefault(); window.handleAdminLogin(event); return false;">
                     <div class="admin-input-group">
                         <label class="admin-label" for="login-email">Correo Electrónico</label>
                         <input type="email" id="login-email" class="admin-input" value="admin@corralabierto.cl" placeholder="admin@corralabierto.cl" required style="margin-bottom: 15px;">
@@ -46,7 +46,7 @@
                         <input type="password" id="login-password" class="admin-input" placeholder="Ingrese contraseña..." required autofocus>
                         <p id="login-error" style="color: #ef9a9a; font-size: 0.8rem; margin-top: 5px; display: none;">Credenciales incorrectas. Intente nuevamente.</p>
                     </div>
-                    <button type="submit" id="btn-admin-login" class="admin-btn admin-btn-primary" style="width: 100%;">Ingresar al Panel ➔</button>
+                    <button type="button" id="btn-admin-login" onclick="window.handleAdminLogin(event)" class="admin-btn admin-btn-primary" style="width: 100%;">Ingresar al Panel ➔</button>
                 </form>
             </div>
 
@@ -1001,7 +1001,7 @@
                 localUser = JSON.parse(localStorage.getItem('currentUser'));
             } catch(e) {}
 
-            if (localUser && localUser.email && localUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase() && localUser.active) {
+            if (localUser && localUser.email && localUser.email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase() && localUser.active) {
                 showDashboard();
                 return;
             }
@@ -1010,9 +1010,9 @@
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
                     const { data: { session }, error } = await supabaseClient.auth.getSession();
-                    if (!error && session && session.user && session.user.email && session.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                    if (!error && session && session.user && session.user.email && session.user.email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                         localStorage.setItem('currentUser', JSON.stringify({
-                            email: session.user.email,
+                            email: session.user.email.trim().toLowerCase(),
                             active: true,
                             nombre: "ADMINISTRADOR",
                             apellido: "PRINCIPAL"
@@ -1025,9 +1025,21 @@
                 }
             }
 
-            // Si no hay sesión válida activa
-            if (loginScreen) loginScreen.style.display = 'block';
-            if (dashboard) dashboard.style.display = 'none';
+            // Re-verificar si el usuario inició sesión localmente durante la llamada asíncrona a Supabase
+            try {
+                localUser = JSON.parse(localStorage.getItem('currentUser'));
+            } catch(e) {}
+
+            if (localUser && localUser.email && localUser.email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase() && localUser.active) {
+                showDashboard();
+                return;
+            }
+
+            // Solo mostrar pantalla de login si verdaderamente no hay sesión activa
+            const lScreen = document.getElementById('admin-login-screen');
+            const dBoard = document.getElementById('admin-dashboard');
+            if (lScreen) lScreen.style.display = 'block';
+            if (dBoard) dBoard.style.display = 'none';
         }
         checkActiveSession();
 
@@ -1053,22 +1065,24 @@
                 return false;
             }
 
-            if (!password || password.length < 3) {
+            if (!password || password.length < 1) {
                 if (errorMsg) {
-                    errorMsg.innerText = "Por favor ingresa tu contraseña de administrador (mínimo 3 caracteres).";
+                    errorMsg.innerText = "Por favor ingresa tu contraseña de administrador.";
                     errorMsg.style.display = 'block';
                 }
                 return false;
             }
 
             // Guardar sesión de usuario administrador localmente de forma incondicional
+            const adminSession = {
+                email: ADMIN_EMAIL.toLowerCase(),
+                active: true,
+                nombre: "ADMINISTRADOR",
+                apellido: "PRINCIPAL"
+            };
+
             try {
-                localStorage.setItem('currentUser', JSON.stringify({
-                    email: email,
-                    active: true,
-                    nombre: "ADMINISTRADOR",
-                    apellido: "PRINCIPAL"
-                }));
+                localStorage.setItem('currentUser', JSON.stringify(adminSession));
             } catch(err) {}
 
             // Mostrar el dashboard inmediatamente
