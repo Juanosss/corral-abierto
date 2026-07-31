@@ -5,17 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corral Abierto - Selección de Evento</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=4.9">
+    <link rel="stylesheet" href="styles.css?v=5.0">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Bloqueo total de selección de texto y comportamientos erráticos de arrastre */
-        *, *::before, *::after {
+        /* Bloqueo global de selección de texto, enfoques y arrastres */
+        html, body, *, *::before, *::after {
             box-sizing: border-box;
             user-select: none !important;
             -webkit-user-select: none !important;
             -moz-user-select: none !important;
             -ms-user-select: none !important;
             -webkit-touch-callout: none !important;
+            -webkit-user-drag: none !important;
+            outline: none !important;
+        }
+
+        *:focus, *:active {
+            outline: none !important;
+            box-shadow: none !important;
         }
 
         html, body {
@@ -28,16 +35,17 @@
             cursor: default;
         }
 
-        /* Netflix Style - Cartas de Perfiles / Rodeos */
+        /* Lobby Netflix Style - Tarjetas de Rodeos */
         .lobby-profile-card {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 160px;
             position: relative;
-            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            outline: none;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+            outline: none !important;
             -webkit-tap-highlight-color: transparent;
+            cursor: default;
         }
 
         .lobby-profile-card.active {
@@ -51,40 +59,54 @@
         .lobby-profile-image-wrapper {
             width: 140px;
             height: 140px;
-            border-radius: 12px;
+            border-radius: 14px;
             position: relative;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            pointer-events: none; /* Asegura que el contenedor externo maneje las interacciones sin saltos */
+            border: 3px solid rgba(255, 255, 255, 0.12) !important;
+            background: #1c1412;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
         }
 
-        /* Hover dinámico suave sin desbordamiento */
-        .lobby-profile-card.active:hover {
-            transform: translateY(-6px) scale(1.04);
+        .lobby-profile-image-wrapper img {
+            width: 85%;
+            height: 85%;
+            object-fit: contain;
+            pointer-events: none;
+            user-select: none;
         }
 
+        /* Hover: El borde naranja y resplandor se activan ÚNICAMENTE cuando el ratón está sobre la tarjeta activa */
         .lobby-profile-card.active:hover .lobby-profile-image-wrapper {
             border-color: #ff5722 !important;
-            box-shadow: 0 15px 35px rgba(255, 87, 34, 0.4) !important;
+            box-shadow: 0 0 25px rgba(255, 87, 34, 0.5), 0 12px 30px rgba(0, 0, 0, 0.7) !important;
+            transform: translateY(-4px);
         }
 
         .lobby-profile-card.active:hover .lobby-profile-name {
             color: #ffffff !important;
-            text-shadow: 0 2px 10px rgba(255, 87, 34, 0.3);
+            text-shadow: 0 2px 8px rgba(255, 87, 34, 0.4);
         }
 
         .lobby-profile-card.active:hover .profile-glow {
             opacity: 1 !important;
         }
 
-        .lobby-profile-card.active:active {
-            transform: scale(0.97);
+        /* Cuando el ratón sale de la tarjeta (en cualquier otro lugar de la pantalla), regresa inmediatamente al estado normal sin borde */
+        .lobby-profile-card.active:not(:hover) .lobby-profile-image-wrapper {
+            border-color: rgba(255, 255, 255, 0.12) !important;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+            transform: translateY(0);
         }
 
-        .lobby-profile-card.locked:hover {
+        .lobby-profile-card.active:active .lobby-profile-image-wrapper {
+            transform: scale(0.96);
+        }
+
+        .lobby-profile-card.locked:hover .lobby-profile-image-wrapper {
             transform: translateY(-2px);
         }
     </style>
@@ -92,7 +114,7 @@
 </head>
 <body>
 
-    <!-- PANTALLA LOBBY SELECCIÓN DE EVENTOS (ESTILO NETFLIX) -->
+    <!-- PANTALLA LOBBY SELECCIÓN DE EVENTOS -->
     <div id="lobby-screen" style="width: 100%; height: 100%; background: radial-gradient(circle at center, #1b0e0a 0%, #0d0604 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; font-family: 'Inter', sans-serif;">
         <!-- LOGO DE CORRAL ABIERTO -->
         <div style="margin-bottom: 0.8rem; display: flex; align-items: center; justify-content: center; width: 100%; text-align: center; padding: 0 15px; box-sizing: border-box;">
@@ -115,21 +137,22 @@
             supabaseClient = supabase.createClient('https://hphtzcuwyixcxpaskprj.supabase.co', 'sb_publishable__swYk_OxwILPUBbsAk9YKQ_EEH_ZDe_');
         }
 
-        const DEFAULT_LOGO = 'https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png';
+        // Logo SVG vectorial embebido garantizado de alta calidad (100% inmune a fallos de red o bloques CORS)
+        const DEFAULT_LOGO_SVG = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23d84315"/><stop offset="100%" stop-color="%238d2600"/></linearGradient><linearGradient id="g2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="%23ffe082"/><stop offset="100%" stop-color="%23ffb300"/></linearGradient></defs><circle cx="100" cy="100" r="90" fill="url(%23g1)" stroke="url(%23g2)" stroke-width="4"/><circle cx="100" cy="100" r="78" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2" stroke-dasharray="6,4"/><text x="100" y="70" font-family="serif" font-size="16" font-weight="bold" fill="%23ffe082" text-anchor="middle" letter-spacing="2">CORRAL</text><text x="100" y="125" font-size="44" text-anchor="middle">🐴</text><text x="100" y="152" font-family="sans-serif" font-size="13" font-weight="700" fill="%23ffffff" text-anchor="middle" letter-spacing="1">ABIERTO</text></svg>`;
 
-        // Función robusta para limpiar y validar las URLs de logos
+        // Limpia y valida la URL del logo
         function cleanLogoUrl(rawLogo) {
-            if (!rawLogo || typeof rawLogo !== 'string') return DEFAULT_LOGO;
+            if (!rawLogo || typeof rawLogo !== 'string') return DEFAULT_LOGO_SVG;
             let logo = rawLogo.trim();
-            // Ignorar JSONs accidentales guardados en la columna logo_url
             if (logo.startsWith('{') || logo.startsWith('[') || logo.includes('"corridaActual"')) {
-                return DEFAULT_LOGO;
+                return DEFAULT_LOGO_SVG;
             }
-            // Separar parámetro de transmisión (logo_url|youtube_id)
             if (logo.includes('|')) {
                 logo = logo.split('|')[0].trim();
             }
-            if (!logo || logo.length < 5) return DEFAULT_LOGO;
+            if (!logo || logo.length < 5 || logo.includes('caballoyrodeo.cl')) {
+                return DEFAULT_LOGO_SVG; // Reemplazar URLs externas bloqueadas por el vector confiable
+            }
             return logo;
         }
 
@@ -147,20 +170,12 @@
             }
 
             if (!rodeos || rodeos.length === 0) {
-                const local = localStorage.getItem('rodeos');
-                if (local) {
-                    try { rodeos = JSON.parse(local); } catch(e) {}
-                }
-            }
-
-            if (!rodeos || rodeos.length === 0) {
                 rodeos = [
-                    { id: 'champion-chile-2026', nombre: 'Champion de Chile 2026', activo: true, logo_url: DEFAULT_LOGO },
-                    { id: 'clasificatorio-sur-2026', nombre: 'Clasificatorio Sur 2026', activo: false, logo_url: DEFAULT_LOGO },
-                    { id: 'clasificatorio-centro-2026', nombre: 'Clasificatorio Centro 2026', activo: false, logo_url: DEFAULT_LOGO },
-                    { id: 'clasificatorio-norte-2026', nombre: 'Clasificatorio Norte 2026', activo: false, logo_url: DEFAULT_LOGO }
+                    { id: 'champion-chile-2026', nombre: 'Champion de Chile 2026', activo: true, logo_url: DEFAULT_LOGO_SVG },
+                    { id: 'clasificatorio-sur-2026', nombre: 'Clasificatorio Sur 2026', activo: false, logo_url: DEFAULT_LOGO_SVG },
+                    { id: 'clasificatorio-centro-2026', nombre: 'Clasificatorio Centro 2026', activo: false, logo_url: DEFAULT_LOGO_SVG },
+                    { id: 'clasificatorio-norte-2026', nombre: 'Clasificatorio Norte 2026', activo: false, logo_url: DEFAULT_LOGO_SVG }
                 ];
-                try { localStorage.setItem('rodeos', JSON.stringify(rodeos)); } catch(e) {}
             }
 
             const grid = document.querySelector('.lobby-profiles-grid');
@@ -172,8 +187,8 @@
                     if (rodeo.activo) {
                         grid.innerHTML += `
                             <div class="lobby-profile-card active" onclick="selectRodeo('${rodeo.id}')">
-                                <div class="lobby-profile-image-wrapper" style="border: 3px solid rgba(255,255,255,0.15); background: #1c1412; box-shadow: 0 10px 25px rgba(0,0,0,0.6);">
-                                    <img src="${cleanLogo}" alt="${rodeo.nombre}" draggable="false" style="max-width: 80%; max-height: 80%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));" onerror="this.onerror=null; this.src='${DEFAULT_LOGO}';" />
+                                <div class="lobby-profile-image-wrapper">
+                                    <img src="${cleanLogo}" alt="${rodeo.nombre}" draggable="false" onerror="this.onerror=null; this.src='${DEFAULT_LOGO_SVG}';" />
                                     <div class="profile-glow" style="position: absolute; inset: 0; box-shadow: inset 0 0 20px rgba(255,87,34,0.5); opacity: 0; transition: opacity 0.25s; pointer-events: none;"></div>
                                 </div>
                                 <span class="lobby-profile-name" style="margin-top: 14px; font-size: 0.95rem; font-weight: 600; color: #bcaaa4; text-align: center; transition: color 0.2s; pointer-events: none;">${rodeo.nombre}</span>
@@ -182,8 +197,8 @@
                     } else {
                         grid.innerHTML += `
                             <div class="lobby-profile-card locked" title="Evento aún no disponible">
-                                <div class="lobby-profile-image-wrapper" style="border: 3px solid rgba(255,255,255,0.06); background: #120a08; box-shadow: 0 5px 15px rgba(0,0,0,0.4);">
-                                    <img src="${cleanLogo}" alt="${rodeo.nombre}" draggable="false" style="max-width: 75%; max-height: 75%; object-fit: contain; opacity: 0.3; filter: grayscale(70%);" onerror="this.onerror=null; this.src='${DEFAULT_LOGO}';" />
+                                <div class="lobby-profile-image-wrapper" style="border-color: rgba(255,255,255,0.06) !important; background: #120a08;">
+                                    <img src="${cleanLogo}" alt="${rodeo.nombre}" draggable="false" style="opacity: 0.3; filter: grayscale(70%);" onerror="this.onerror=null; this.src='${DEFAULT_LOGO_SVG}';" />
                                     <div style="position: absolute; inset: 0; background: rgba(13,6,4,0.45); display: flex; align-items: center; justify-content: center; pointer-events: none;">
                                         <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
                                             <svg style="width: 20px; height: 20px; fill: rgba(255,255,255,0.85);" viewBox="0 0 24 24">
@@ -206,12 +221,20 @@
             window.location.href = `./${folderName}/index.html`;
         }
 
-        // Desactivar selecciones accidentales y arrastre loco de imágenes o texto en PC
-        document.addEventListener('selectstart', function(e) { e.preventDefault(); });
-        document.addEventListener('dragstart', function(e) { e.preventDefault(); });
-        document.addEventListener('mousedown', function(e) {
-            if (e.detail > 1) {
-                e.preventDefault(); // Evitar doble clic seleccionando todo en pantalla
+        // Eliminación absoluta de selecciones, enfocado azul o saltos de ratón en toda la pantalla
+        document.addEventListener('selectstart', function(e) { e.preventDefault(); return false; });
+        document.addEventListener('dragstart', function(e) { e.preventDefault(); return false; });
+        document.addEventListener('mousemove', function(e) {
+            if (window.getSelection) {
+                window.getSelection().removeAllRanges();
+            }
+        });
+        document.addEventListener('pointerdown', function(e) {
+            if (window.getSelection) {
+                window.getSelection().removeAllRanges();
+            }
+            if (!e.target.closest('.lobby-profile-card') && document.activeElement) {
+                document.activeElement.blur();
             }
         });
 
