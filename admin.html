@@ -37,17 +37,17 @@
                 <h1 class="admin-login-title">Panel de Control</h1>
                 <p class="admin-login-subtitle">Acceso exclusivo para administradores</p>
                 
-                <form id="login-form" onsubmit="event.preventDefault(); window.handleAdminLogin(event); return false;">
+                <div id="login-form">
                     <div class="admin-input-group">
                         <label class="admin-label" for="login-email">Correo Electrónico</label>
-                        <input type="email" id="login-email" class="admin-input" value="admin@corralabierto.cl" placeholder="admin@corralabierto.cl" required style="margin-bottom: 15px;">
+                        <input type="email" id="login-email" class="admin-input" value="admin@corralabierto.cl" placeholder="admin@corralabierto.cl" required style="margin-bottom: 15px;" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.handleAdminLogin(event); }">
                         
                         <label class="admin-label" for="login-password">Contraseña</label>
-                        <input type="password" id="login-password" class="admin-input" placeholder="Ingrese contraseña..." required autofocus>
+                        <input type="password" id="login-password" class="admin-input" placeholder="Ingrese contraseña..." required autofocus onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.handleAdminLogin(event); }">
                         <p id="login-error" style="color: #ef9a9a; font-size: 0.8rem; margin-top: 5px; display: none;">Credenciales incorrectas. Intente nuevamente.</p>
                     </div>
                     <button type="button" id="btn-admin-login" onclick="window.handleAdminLogin(event)" class="admin-btn admin-btn-primary" style="width: 100%;">Ingresar al Panel ➔</button>
-                </form>
+                </div>
             </div>
 
             <!-- PANEL DE CONTROL PRINCIPAL -->
