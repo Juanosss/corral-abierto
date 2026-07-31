@@ -1268,6 +1268,9 @@ async function updateHeaderBranding() {
         if (subtitleEl) subtitleEl.innerText = "Resultados & Transmisión";
 
         let logoUrl = activeRodeo.logo_url || '';
+        if (logoUrl.startsWith('{') || logoUrl.startsWith('[')) {
+            logoUrl = '';
+        }
         let youtubeId = 'fJps5TeZlZw'; // Valor por defecto
         if (logoUrl.includes('|')) {
             const parts = logoUrl.split('|');

@@ -2371,8 +2371,7 @@
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
                     await supabaseClient.from('rodeos').update({
-                        activo: liveState.estado === 'envivo',
-                        logo_url: JSON.stringify(liveState)
+                        activo: liveState.estado === 'envivo'
                     }).eq('id', rId);
                 } catch(e) { console.warn("No se pudo actualizar rodeo en Supabase:", e); }
             }
@@ -2491,7 +2490,7 @@
             broadcastLiveStateToSpectators(rId, liveState, collera);
             
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                supabaseClient.from('rodeos').update({ logo_url: JSON.stringify(liveState) }).eq('id', rId).then(()=>{}).catch(()=>{});
+                supabaseClient.from('rodeos').update({ activo: true }).eq('id', rId).then(()=>{}).catch(()=>{});
             }
         }
 

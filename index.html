@@ -8,49 +8,93 @@
     <link rel="stylesheet" href="styles.css?v=4.9">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* Desactivar selección accidental de texto en el fondo del lobby */
-        body, #lobby-screen {
+        /* Bloqueo total de selección de texto y comportamientos erráticos de arrastre */
+        *, *::before, *::after {
+            box-sizing: border-box;
             user-select: none !important;
             -webkit-user-select: none !important;
             -moz-user-select: none !important;
             -ms-user-select: none !important;
-            cursor: default !important;
+            -webkit-touch-callout: none !important;
         }
-        
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #0d0604;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            cursor: default;
+        }
+
+        /* Netflix Style - Cartas de Perfiles / Rodeos */
         .lobby-profile-card {
-            user-select: none !important;
-            -webkit-user-select: none !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 160px;
+            position: relative;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
+
         .lobby-profile-card.active {
             cursor: pointer !important;
         }
+
         .lobby-profile-card.locked {
             cursor: not-allowed !important;
         }
 
-        /* Estilo Netflix - Perfiles */
-        .lobby-profile-card:hover .lobby-profile-image {
+        .lobby-profile-image-wrapper {
+            width: 140px;
+            height: 140px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            pointer-events: none; /* Asegura que el contenedor externo maneje las interacciones sin saltos */
+        }
+
+        /* Hover dinámico suave sin desbordamiento */
+        .lobby-profile-card.active:hover {
+            transform: translateY(-6px) scale(1.04);
+        }
+
+        .lobby-profile-card.active:hover .lobby-profile-image-wrapper {
             border-color: #ff5722 !important;
-            transform: scale(1.06);
-            box-shadow: 0 15px 35px rgba(255, 87, 34, 0.35) !important;
+            box-shadow: 0 15px 35px rgba(255, 87, 34, 0.4) !important;
         }
-        .lobby-profile-card:hover .lobby-profile-name {
-            color: #fff !important;
+
+        .lobby-profile-card.active:hover .lobby-profile-name {
+            color: #ffffff !important;
+            text-shadow: 0 2px 10px rgba(255, 87, 34, 0.3);
         }
-        .lobby-profile-card:hover .profile-glow {
+
+        .lobby-profile-card.active:hover .profile-glow {
             opacity: 1 !important;
         }
-        .lobby-profile-card.active:active .lobby-profile-image {
-            transform: scale(0.98);
+
+        .lobby-profile-card.active:active {
+            transform: scale(0.97);
+        }
+
+        .lobby-profile-card.locked:hover {
+            transform: translateY(-2px);
         }
     </style>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐴</text></svg>">
 </head>
-<body style="margin: 0; padding: 0; background: #0d0604; overflow: hidden; width: 100vw; height: 100vh; user-select: none; -webkit-user-select: none; cursor: default;">
+<body>
 
     <!-- PANTALLA LOBBY SELECCIÓN DE EVENTOS (ESTILO NETFLIX) -->
     <div id="lobby-screen" style="width: 100%; height: 100%; background: radial-gradient(circle at center, #1b0e0a 0%, #0d0604 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; font-family: 'Inter', sans-serif;">
-        <!-- LOGO DE CORRAL ABIERTO (RESPONSIVO Y CENTRADO) -->
+        <!-- LOGO DE CORRAL ABIERTO -->
         <div style="margin-bottom: 0.8rem; display: flex; align-items: center; justify-content: center; width: 100%; text-align: center; padding: 0 15px; box-sizing: border-box;">
             <span style="font-family: 'Playfair Display', serif; font-size: clamp(2.3rem, 10vw, 3.2rem); font-weight: 800; letter-spacing: -0.02em; background: linear-gradient(135deg, #ffffff 0%, #e0d5c1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 4px 15px rgba(255,87,34,0.15)); text-transform: uppercase; text-align: center; display: inline-block; width: 100%;">Corral Abierto</span>
         </div>
@@ -71,6 +115,24 @@
             supabaseClient = supabase.createClient('https://hphtzcuwyixcxpaskprj.supabase.co', 'sb_publishable__swYk_OxwILPUBbsAk9YKQ_EEH_ZDe_');
         }
 
+        const DEFAULT_LOGO = 'https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png';
+
+        // Función robusta para limpiar y validar las URLs de logos
+        function cleanLogoUrl(rawLogo) {
+            if (!rawLogo || typeof rawLogo !== 'string') return DEFAULT_LOGO;
+            let logo = rawLogo.trim();
+            // Ignorar JSONs accidentales guardados en la columna logo_url
+            if (logo.startsWith('{') || logo.startsWith('[') || logo.includes('"corridaActual"')) {
+                return DEFAULT_LOGO;
+            }
+            // Separar parámetro de transmisión (logo_url|youtube_id)
+            if (logo.includes('|')) {
+                logo = logo.split('|')[0].trim();
+            }
+            if (!logo || logo.length < 5) return DEFAULT_LOGO;
+            return logo;
+        }
+
         async function loadProfiles() {
             let rodeos = [];
             if (supabaseClient) {
@@ -84,44 +146,53 @@
                 }
             }
 
-            if (rodeos.length === 0) {
+            if (!rodeos || rodeos.length === 0) {
                 const local = localStorage.getItem('rodeos');
                 if (local) {
-                    rodeos = JSON.parse(local);
-                } else {
-                    rodeos = [
-                        { id: 'champion-chile-2026', nombre: 'Champion de Chile 2026', activo: true, logo_url: 'https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png' },
-                        { id: 'clasificatorio-sur-2026', nombre: 'Clasificatorio Sur 2026', activo: false, logo_url: '' },
-                        { id: 'clasificatorio-centro-2026', nombre: 'Clasificatorio Centro 2026', activo: false, logo_url: '' },
-                        { id: 'clasificatorio-norte-2026', nombre: 'Clasificatorio Norte 2026', activo: false, logo_url: '' }
-                    ];
-                    localStorage.setItem('rodeos', JSON.stringify(rodeos));
+                    try { rodeos = JSON.parse(local); } catch(e) {}
                 }
+            }
+
+            if (!rodeos || rodeos.length === 0) {
+                rodeos = [
+                    { id: 'champion-chile-2026', nombre: 'Champion de Chile 2026', activo: true, logo_url: DEFAULT_LOGO },
+                    { id: 'clasificatorio-sur-2026', nombre: 'Clasificatorio Sur 2026', activo: false, logo_url: DEFAULT_LOGO },
+                    { id: 'clasificatorio-centro-2026', nombre: 'Clasificatorio Centro 2026', activo: false, logo_url: DEFAULT_LOGO },
+                    { id: 'clasificatorio-norte-2026', nombre: 'Clasificatorio Norte 2026', activo: false, logo_url: DEFAULT_LOGO }
+                ];
+                try { localStorage.setItem('rodeos', JSON.stringify(rodeos)); } catch(e) {}
             }
 
             const grid = document.querySelector('.lobby-profiles-grid');
             if (grid) {
                 grid.innerHTML = '';
                 rodeos.forEach(rodeo => {
-                    const isChampion = rodeo.id === 'champion-chile-2026';
+                    const cleanLogo = cleanLogoUrl(rodeo.logo_url);
+                    
                     if (rodeo.activo) {
                         grid.innerHTML += `
-                            <div class="lobby-profile-card active" onclick="selectRodeo('${rodeo.id}')" style="display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); width: 160px;">
-                                <div class="lobby-profile-image" style="width: 140px; height: 140px; border-radius: 8px; border: 3px solid rgba(255,255,255,0.1); background: #1c1412 url('${rodeo.logo_url || 'https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png'}') no-repeat center; background-size: 70%; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 25px rgba(0,0,0,0.6); position: relative; overflow: hidden; transition: all 0.25s;">
-                                    <div class="profile-glow" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; box-shadow: inset 0 0 20px rgba(255,87,34,0.6); opacity: 0; transition: opacity 0.25s;"></div>
+                            <div class="lobby-profile-card active" onclick="selectRodeo('${rodeo.id}')">
+                                <div class="lobby-profile-image-wrapper" style="border: 3px solid rgba(255,255,255,0.15); background: #1c1412; box-shadow: 0 10px 25px rgba(0,0,0,0.6);">
+                                    <img src="${cleanLogo}" alt="${rodeo.nombre}" draggable="false" style="max-width: 80%; max-height: 80%; object-fit: contain; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));" onerror="this.onerror=null; this.src='${DEFAULT_LOGO}';" />
+                                    <div class="profile-glow" style="position: absolute; inset: 0; box-shadow: inset 0 0 20px rgba(255,87,34,0.5); opacity: 0; transition: opacity 0.25s; pointer-events: none;"></div>
                                 </div>
-                                <span class="lobby-profile-name" style="margin-top: 12px; font-size: 0.95rem; font-weight: 600; color: #bcaaa4; text-align: center; transition: color 0.2s;">${rodeo.nombre}</span>
+                                <span class="lobby-profile-name" style="margin-top: 14px; font-size: 0.95rem; font-weight: 600; color: #bcaaa4; text-align: center; transition: color 0.2s; pointer-events: none;">${rodeo.nombre}</span>
                             </div>
                         `;
                     } else {
                         grid.innerHTML += `
-                            <div class="lobby-profile-card locked" style="display: flex; flex-direction: column; align-items: center; cursor: not-allowed; width: 160px; opacity: 0.45;">
-                                <div class="lobby-profile-image" style="width: 140px; height: 140px; border-radius: 8px; border: 3px solid rgba(255,255,255,0.05); background: #110907; display: flex; align-items: center; justify-content: center; position: relative;">
-                                    <svg style="width: 32px; height: 32px; fill: rgba(255,255,255,0.4);" viewBox="0 0 24 24">
-                                        <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
-                                    </svg>
+                            <div class="lobby-profile-card locked" title="Evento aún no disponible">
+                                <div class="lobby-profile-image-wrapper" style="border: 3px solid rgba(255,255,255,0.06); background: #120a08; box-shadow: 0 5px 15px rgba(0,0,0,0.4);">
+                                    <img src="${cleanLogo}" alt="${rodeo.nombre}" draggable="false" style="max-width: 75%; max-height: 75%; object-fit: contain; opacity: 0.3; filter: grayscale(70%);" onerror="this.onerror=null; this.src='${DEFAULT_LOGO}';" />
+                                    <div style="position: absolute; inset: 0; background: rgba(13,6,4,0.45); display: flex; align-items: center; justify-content: center; pointer-events: none;">
+                                        <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+                                            <svg style="width: 20px; height: 20px; fill: rgba(255,255,255,0.85);" viewBox="0 0 24 24">
+                                                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                                            </svg>
+                                        </div>
+                                    </div>
                                 </div>
-                                <span class="lobby-profile-name" style="margin-top: 12px; font-size: 0.95rem; font-weight: 500; color: rgba(255,255,255,0.4); text-align: center;">${rodeo.nombre}</span>
+                                <span class="lobby-profile-name" style="margin-top: 14px; font-size: 0.95rem; font-weight: 500; color: rgba(255,255,255,0.35); text-align: center; pointer-events: none;">${rodeo.nombre}</span>
                             </div>
                         `;
                     }
@@ -134,6 +205,15 @@
             const folderName = rodeoId === 'champion-chile-2026' ? 'champion-chile' : rodeoId;
             window.location.href = `./${folderName}/index.html`;
         }
+
+        // Desactivar selecciones accidentales y arrastre loco de imágenes o texto en PC
+        document.addEventListener('selectstart', function(e) { e.preventDefault(); });
+        document.addEventListener('dragstart', function(e) { e.preventDefault(); });
+        document.addEventListener('mousedown', function(e) {
+            if (e.detail > 1) {
+                e.preventDefault(); // Evitar doble clic seleccionando todo en pantalla
+            }
+        });
 
         // Cargar perfiles al iniciar
         window.addEventListener('DOMContentLoaded', loadProfiles);
