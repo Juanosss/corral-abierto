@@ -7,6 +7,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=4.9">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐴</text></svg>">
+    <style>
+        body.admin-logged-in #admin-login-screen {
+            display: none !important;
+        }
+        body.admin-logged-in #admin-dashboard {
+            display: block !important;
+        }
+    </style>
 </head>
 <body style="background-color: #140c0a;">
     <div class="app-container">
@@ -982,6 +990,7 @@
 
         // Mostrar panel de administración
         function showDashboard() {
+            document.body.classList.add('admin-logged-in');
             const lScreen = document.getElementById('admin-login-screen');
             const dBoard = document.getElementById('admin-dashboard');
             if (lScreen) lScreen.style.display = 'none';
@@ -1036,6 +1045,7 @@
             }
 
             // Solo mostrar pantalla de login si verdaderamente no hay sesión activa
+            document.body.classList.remove('admin-logged-in');
             const lScreen = document.getElementById('admin-login-screen');
             const dBoard = document.getElementById('admin-dashboard');
             if (lScreen) lScreen.style.display = 'block';
@@ -1696,26 +1706,35 @@
 
         function renderCollerasTable() {
             const tbody = document.getElementById('colleras-tbody');
+            if (!tbody) return;
             tbody.innerHTML = '';
 
-            // Ordenar colleras por su número de collera (n) de forma ascendente
-            filteredColleras.sort((a, b) => a.n - b.n);
+            if (!Array.isArray(filteredColleras)) {
+                filteredColleras = [];
+            }
 
-            filteredColleras.forEach((c, idx) => {
+            // Ordenar colleras por su número de collera (n) de forma ascendente
+            filteredColleras.sort((a, b) => ((a && a.n) || 0) - ((b && b.n) || 0));
+
+            filteredColleras.forEach((c) => {
+                if (!c) return;
                 const tr = document.createElement('tr');
+                const jinetesStr = Array.isArray(c.jinetes) ? c.jinetes.join(' / ') : (c.jinetes || '--');
+                const caballosStr = Array.isArray(c.caballos) ? c.caballos.join(' / ') : (c.caballos || '--');
+
                 tr.innerHTML = `
-                    <td><strong>${c.n}</strong></td>
+                    <td><strong>${c.n !== undefined ? c.n : '--'}</strong></td>
                     <td>
-                        <strong>${c.asociacion}</strong>
+                        <strong>${c.asociacion || '--'}</strong>
                         ${c.criadero ? `<br><span style="font-size:0.8rem; color:var(--primary-light);">CRIADERO: ${c.criadero}</span>` : ''}
                     </td>
-                    <td>${c.jinetes.join(' / ')}</td>
-                    <td>${c.caballos.join(' / ')}</td>
-                    <td>${c.animal1}</td>
+                    <td>${jinetesStr}</td>
+                    <td>${caballosStr}</td>
+                    <td>${c.animal1 !== undefined ? c.animal1 : '--'}</td>
                     <td>${c.animal2 || '--'}</td>
                     <td>${c.animal3 || '--'}</td>
                     <td>${c.animal4 || '--'}</td>
-                    <td><strong>${c.resultado !== '' ? c.resultado : '--'}</strong></td>
+                    <td><strong>${c.resultado !== undefined && c.resultado !== '' ? c.resultado : '--'}</strong></td>
                     <td style="color:var(--primary-color); font-weight:800;">${c.lugar || '--'}</td>
                     <td>
                         <div class="admin-row-actions">
