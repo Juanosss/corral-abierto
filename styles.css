@@ -1801,32 +1801,49 @@ h1, h2, h3, h4 {
     max-width: 350px;
 }
 .admin-table-container {
-    background: var(--card-bg);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
+    background: #1a0e0c !important;
+    border: 1px solid rgba(255, 87, 34, 0.25) !important;
+    border-radius: 14px !important;
     overflow-x: auto;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6) !important;
 }
 .admin-data-table {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
-}
-.admin-data-table th, .admin-data-table td {
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.9rem;
+    background: #1a0e0c !important;
+    color: #ffffff !important;
 }
 .admin-data-table th {
-    background: rgba(255, 255, 255, 0.02);
-    color: var(--primary-light);
-    font-weight: 700;
+    background: rgba(255, 87, 34, 0.18) !important;
+    color: #ffab91 !important;
+    font-weight: 800 !important;
     text-transform: uppercase;
-    font-size: 0.78rem;
+    font-size: 0.82rem !important;
     letter-spacing: 0.05em;
+    padding: 14px 16px !important;
+    border-bottom: 2px solid #ff5722 !important;
+}
+.admin-data-table td {
+    padding: 12px 16px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    font-size: 0.9rem !important;
+    color: #ffffff !important;
+    background: #180c0a !important;
+}
+.admin-data-table tbody tr:nth-child(even) td {
+    background: #130a08 !important;
 }
 .admin-data-table tr:hover td {
-    background: rgba(255, 255, 255, 0.01);
+    background: rgba(255, 87, 34, 0.12) !important;
+    color: #ffffff !important;
+}
+.admin-data-table td code {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffab91;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
 }
 .admin-row-actions {
     display: flex;
