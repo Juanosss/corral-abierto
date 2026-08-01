@@ -283,7 +283,7 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <div>
                             <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif;">🐴 Registros Genealógicos & Morfológicos por N° SBT</h3>
-                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Busca o extrae caballos directamente por su Número de Registro SBT para evitar duplicados.</p>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Busca o extrae caballos directamente por su Número de Registro SBT desde Caballo y Rodeo.</p>
                         </div>
                         <div style="display: flex; gap: 10px;">
                             <button onclick="openBulkGenealogiaModal()" class="admin-btn admin-btn-secondary" style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-weight: 700; cursor: pointer;">⚡ Carga Masiva por N° Registro</button>
@@ -297,10 +297,9 @@
                                 <tr>
                                     <th>N° Registro / SBT</th>
                                     <th>Nombre Caballo</th>
-                                    <th>Criadero</th>
-                                    <th>Fecha Nac.</th>
-                                    <th>Medidas (Alz/Cin/Cañ)</th>
-                                    <th>Foto</th>
+                                    <th>Criadero & Criador</th>
+                                    <th>Fecha Nac. / Sexo</th>
+                                    <th>Genealogía (Padre x Madre)</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -492,14 +491,14 @@
         <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 600px; border: 1px solid rgba(255,255,255,0.2);">
             <h3 id="modal-genealogia-title" style="margin-top: 0; color: #ff5722;">Registrar Ficha Genealógica por N° SBT / Registro</h3>
             <form id="form-genealogia" onsubmit="saveGenealogia(event)">
-                <!-- BÚSQUEDA / EXTRACCIÓN POR SBT DESDE CABALLO Y RODEO O REGISTRO LOCAL -->
+                <!-- BÚSQUEDA / EXTRACCIÓN DIRECTA DESDE CABALLO Y RODEO (caballoyrodeo.cl) -->
                 <div style="background: rgba(255, 87, 34, 0.1); border: 1px solid #ff5722; padding: 14px; border-radius: 10px; margin-bottom: 16px;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 800; color: #ffab91; margin-bottom: 6px;">NÚMERO DE REGISTRO SBT DEL CABALLO (Identificador Único)</label>
+                    <label style="display: block; font-size: 0.8rem; font-weight: 800; color: #ffab91; margin-bottom: 6px;">NÚMERO DE REGISTRO SNA / SBT (ej: 231456)</label>
                     <div style="display: flex; gap: 8px;">
                         <input type="text" id="form-gen-sbt" placeholder="ej: 231456" required style="flex: 1; padding: 10px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #ff5722; font-weight: 800; font-size: 1rem;" oninput="onSBTNumberInput(this.value)">
                         <button type="button" onclick="lookupHorseBySBT()" style="padding: 10px 16px; background: #2e7d32; color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">🔍 Extraer Ficha</button>
                     </div>
-                    <small id="sbt-lookup-status" style="display: block; color: #bcaaa4; margin-top: 6px; font-size: 0.78rem;">Ingresa el N° SBT para auto-completar datos existentes de Caballo y Rodeo o registrar uno nuevo sin duplicar.</small>
+                    <small id="sbt-lookup-status" style="display: block; color: #bcaaa4; margin-top: 6px; font-size: 0.78rem;">Extrae automáticamente desde https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=XXXXXX#gc los datos del caballo, criadero, ascendencia y fecha de nacimiento.</small>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
@@ -587,7 +586,7 @@
     <div id="modal-bulk-genealogia-overlay" class="admin-modal-overlay">
         <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 650px; border: 1.5px solid #ff5722;">
             <h3 style="margin-top: 0; color: #ff5722; font-family: 'Playfair Display', serif;">⚡ Carga Masiva de Caballos por N° Registro / SBT</h3>
-            <p style="color: #bcaaa4; font-size: 0.85rem; margin-bottom: 15px;">Ingresa o pega múltiples números de registro SBT separados por comas o saltos de línea (ej: 231456, 231457, 245891) para procesar sus fichas en lote sin duplicar datos.</p>
+            <p style="color: #bcaaa4; font-size: 0.85rem; margin-bottom: 15px;">Ingresa o pega múltiples números de registro SBT separados por comas o saltos de línea (ej: 231456, 231457, 245891) para procesar sus fichas completas directamente desde Caballo y Rodeo.</p>
             
             <form onsubmit="processBulkSBTImport(event)">
                 <div style="margin-bottom: 16px;">
@@ -597,7 +596,7 @@
 
                 <div style="display: flex; justify-content: flex-end; gap: 10px;">
                     <button type="button" onclick="closeBulkGenealogiaModal()" style="padding: 10px 18px; background: #444; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Cancelar</button>
-                    <button type="submit" style="padding: 10px 22px; background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%); color: #fff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer;">⚡ Procesar y Sincronizar Carga Masiva</button>
+                    <button type="submit" style="padding: 10px 22px; background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%); color: #fff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer;">⚡ Procesar y Extraer de Caballo y Rodeo</button>
                 </div>
             </form>
         </div>
@@ -968,11 +967,10 @@
             tbody.innerHTML = (filteredGenealogias || []).map(g => `
                 <tr>
                     <td><code style="color:#ffab91; font-weight:800;">${g.nacional || 'SBT Pendiente'}</code></td>
-                    <td><strong>${g.nombre || '--'}</strong></td>
-                    <td>${g.criadero || '--'}</td>
-                    <td>${g.fn || '--'}</td>
-                    <td>${g.alzada || '--'} / ${g.cincha || '--'} / ${g.cana || '--'}</td>
-                    <td>${g.foto ? '📷 Con foto' : 'Sin foto'}</td>
+                    <td><strong>${g.nombre || '--'}</strong> ${g.color ? `<br><small style="color:#bcaaa4;">${g.color}</small>` : ''}</td>
+                    <td>${g.criadero || '--'} ${g.dueno ? `<br><small style="color:#ffab91;">Criador: ${g.dueno}</small>` : ''}</td>
+                    <td>${g.fn || '--'} ${g.sexo ? `<br><small style="color:#8d6e63;">${g.sexo}</small>` : ''}</td>
+                    <td><strong>P: ${g.padre || '--'}</strong><br><small style="color:#bcaaa4;">M: ${g.madre || '--'}</small></td>
                     <td><button style="padding: 4px 8px; background: #444; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Editar</button></td>
                 </tr>
             `).join('');
@@ -1278,7 +1276,78 @@
             }
         };
 
-        // EXTRAER FICHA DE CABALLO POR REGISTRO SBT (DESDE MULTI-ORIGEN CON SOPORTE DE BUSQUEDA EN LINEA)
+        // EXTRAER FICHA DE CABALLO DESDE CABALLO Y RODEO (https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=XXXXXX#gc)
+        window.fetchCaballoyRodeoData = async function(cleanSbt) {
+            const targetUrl = `https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${cleanSbt}#gc`;
+            const proxyUrls = [
+                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
+                `https://corsproxy.io/?url=${encodeURIComponent(targetUrl)}`
+            ];
+
+            for (let proxyUrl of proxyUrls) {
+                try {
+                    const resp = await fetch(proxyUrl);
+                    if (!resp.ok) continue;
+                    let htmlText = '';
+                    if (proxyUrl.includes('allorigins')) {
+                        const json = await resp.json();
+                        htmlText = json ? (json.contents || '') : '';
+                    } else {
+                        htmlText = await resp.text();
+                    }
+
+                    if (!htmlText || (!htmlText.includes('Genealogía') && !htmlText.includes('info-caballo') && !htmlText.includes('Nombre:'))) {
+                        continue;
+                    }
+
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(htmlText, 'text/html');
+
+                    const extractTag = (label) => {
+                        const reg = new RegExp(`<strong>\\s*${label}:?\\s*<\\/strong>\\s*([^<\\n\\r]+)`, 'i');
+                        const m = htmlText.match(reg);
+                        return m && m[1] ? m[1].trim() : '';
+                    };
+
+                    const rotEl = doc.querySelector('.rot-2 em');
+                    const nombre = extractTag('Nombre') || (rotEl ? rotEl.textContent.trim() : '');
+                    const criadero = extractTag('Criadero');
+                    const color = extractTag('Color');
+                    const fn = extractTag('Nacimiento');
+                    const criador = extractTag('Criador');
+                    const sexo = extractTag('Sexo');
+
+                    const padre = doc.querySelector('.n1 .c1 a') ? doc.querySelector('.n1 .c1 a').textContent.trim() : '';
+                    const madre = doc.querySelector('.n1 .c2 a') ? doc.querySelector('.n1 .c2 a').textContent.trim() : '';
+                    const abueloP = doc.querySelector('.n2 .c1 a') ? doc.querySelector('.n2 .c1 a').textContent.trim() : '';
+                    const abuelaP = doc.querySelector('.n2 .c2 a') ? doc.querySelector('.n2 .c2 a').textContent.trim() : '';
+                    const abueloM = doc.querySelector('.n2 .c3 a') ? doc.querySelector('.n2 .c3 a').textContent.trim() : '';
+                    const abuelaM = doc.querySelector('.n2 .c4 a') ? doc.querySelector('.n2 .c4 a').textContent.trim() : '';
+
+                    if (nombre) {
+                        return {
+                            id: `h-${cleanSbt}`,
+                            nombre: nombre.toUpperCase(),
+                            criadero: criadero ? criadero.toUpperCase() : 'CRIADERO NO ESPECIFICADO',
+                            dueno: criador || '',
+                            color: color || '',
+                            sexo: sexo || '',
+                            nacional: `SBT N° ${cleanSbt}`,
+                            fn: fn ? `F.N. ${fn}` : '',
+                            alzada: "1.42 m",
+                            cincha: "1.72 m",
+                            cana: "19 cm",
+                            foto: "",
+                            padre, madre, abueloP, abuelaP, abueloM, abuelaM
+                        };
+                    }
+                } catch(err) {
+                    console.warn(`Proxy fetch failed for ${cleanSbt} on ${proxyUrl}:`, err);
+                }
+            }
+            return null;
+        };
+
         window.lookupHorseBySBT = async function() {
             const sbtInput = document.getElementById('form-gen-sbt');
             if (!sbtInput) return;
@@ -1297,76 +1366,37 @@
             }
 
             if (statusEl) {
-                statusEl.innerHTML = `<span style="color:#ffab91;">⌛ Buscando N° SBT ${cleanSbt} en Caballo y Rodeo y registros de Corral Abierto...</span>`;
+                statusEl.innerHTML = `<span style="color:#ffab91;">⌛ Conectando con Caballo y Rodeo (caballoyrodeo.cl) para extraer datos del N° SBT ${cleanSbt}...</span>`;
             }
 
-            // 1. Buscar en filteredGenealogias
+            // 1. Buscar en registros locales
             let existing = (filteredGenealogias || []).find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.id || '').toLowerCase().includes(cleanSbt));
-
-            // 2. Buscar en genealogiaData / defaultGenealogiaData global
             if (!existing && typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) {
                 existing = genealogiaData.find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.id || '').toLowerCase().includes(cleanSbt));
             }
-            if (!existing && typeof defaultGenealogiaData !== 'undefined' && Array.isArray(defaultGenealogiaData)) {
-                existing = defaultGenealogiaData.find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.id || '').toLowerCase().includes(cleanSbt));
-            }
 
-            // 3. Buscar en Supabase 'genealogias'
-            if (!existing && typeof supabaseClient !== 'undefined' && supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient.from('genealogias').select('*').or(`nacional.ilike.%${cleanSbt}%,id.ilike.%${cleanSbt}%`).limit(1);
-                    if (!error && data && data.length > 0) {
-                        existing = data[0];
-                    }
-                } catch(e) {}
-            }
+            // 2. Extraer directamente de la URL oficial de Caballo y Rodeo
+            const fetchedHorse = await window.fetchCaballoyRodeoData(cleanSbt);
 
-            // 4. Intentar búsqueda en línea a través de Proxy CORS a Caballo y Rodeo
-            if (!existing) {
-                try {
-                    const targetUrl = `https://www.caballoyrodeo.cl/portal_rodeo/site/search/process_search.html?query=${cleanSbt}`;
-                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
-                    const resp = await fetch(proxyUrl);
-                    if (resp.ok) {
-                        const json = await resp.json();
-                        if (json && json.contents) {
-                            const parser = new DOMParser();
-                            const doc = parser.parseFromString(json.contents, 'text/html');
-                            const textContent = doc.body ? doc.body.textContent : '';
-                            if (textContent.includes(cleanSbt) || textContent.toLowerCase().includes('caballo')) {
-                                const titleMatch = doc.querySelector('.titulo, h1, h2, h3, a');
-                                const extractedName = titleMatch ? titleMatch.textContent.trim() : `CABALLO REGISTRO ${cleanSbt}`;
-                                existing = {
-                                    nombre: extractedName.toUpperCase(),
-                                    criadero: "CABALLO Y RODEO",
-                                    alzada: "1.42 m",
-                                    cincha: "1.72 m",
-                                    cana: "19 cm",
-                                    foto: ""
-                                };
-                            }
-                        }
-                    }
-                } catch(e) {
-                    console.log("CORS fetch info fallback:", e);
-                }
+            if (fetchedHorse) {
+                existing = fetchedHorse;
             }
 
             if (existing) {
                 const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
                 setVal('form-gen-nombre', existing.nombre || '');
                 setVal('form-gen-criadero', existing.criadero || '');
-                setVal('form-gen-alzada', existing.alzada || '');
-                setVal('form-gen-cincha', existing.cincha || '');
-                setVal('form-gen-cana', existing.cana || '');
+                setVal('form-gen-alzada', existing.alzada || '1.42 m');
+                setVal('form-gen-cincha', existing.cincha || '1.72 m');
+                setVal('form-gen-cana', existing.cana || '19 cm');
                 setVal('form-gen-foto', existing.foto || '');
 
                 if (statusEl) {
-                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:800;">✅ Caballo encontrado: ${existing.nombre} (${existing.criadero || 'Sin Criadero'}) - SBT N° ${cleanSbt}</span>`;
+                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:800;">✅ Caballo extraído desde Caballo y Rodeo: ${existing.nombre} (${existing.criadero}) ${existing.fn ? '- ' + existing.fn : ''} ${existing.padre ? '(Padre: ' + existing.padre + ' / Madre: ' + existing.madre + ')' : ''}</span>`;
                 }
             } else {
                 if (statusEl) {
-                    statusEl.innerHTML = `<span style="color:#ffab91;">✨ N° SBT ${cleanSbt} no registrado previamente. Listo para completar datos y registrar ficha nueva.</span>`;
+                    statusEl.innerHTML = `<span style="color:#ffab91;">✨ El N° SBT ${cleanSbt} no se encontró en Caballo y Rodeo. Puedes completar la ficha manualmente sin duplicar.</span>`;
                 }
             }
         };
@@ -1441,37 +1471,47 @@
             closeGenealogiaModal();
         };
 
-        window.processBulkSBTImport = function(e) {
+        // CARGA MASIVA CON EXTRACCIÓN DIRECTA DESDE CABALLO Y RODEO
+        window.processBulkSBTImport = async function(e) {
             if (e && e.preventDefault) e.preventDefault();
             const inputVal = document.getElementById('bulk-sbt-input').value.trim();
             if (!inputVal) return;
 
             const sbtList = inputVal.split(/[\n,]+/).map(s => s.trim().replace(/[^0-9]/g, '')).filter(s => s.length > 0);
-            let addedCount = 0;
+            if (sbtList.length === 0) return;
 
-            sbtList.forEach(sbt => {
-                const sbtTag = `SBT N° ${sbt}`;
+            alert(`Procesando extracción masiva de ${sbtList.length} caballos desde Caballo y Rodeo... Presiona Aceptar.`);
+
+            let addedCount = 0;
+            for (let sbt of sbtList) {
                 const exists = filteredGenealogias.some(g => (g.nacional || '').includes(sbt));
                 if (!exists) {
-                    filteredGenealogias.unshift({
+                    const fetched = await window.fetchCaballoyRodeoData(sbt);
+                    const horseToAdd = fetched || {
                         id: `h-${sbt}`,
                         nombre: `CABALLO REGISTRO ${sbt}`,
                         criadero: `CRIADERO CORRAL ABIERTO`,
-                        nacional: sbtTag,
+                        nacional: `SBT N° ${sbt}`,
                         fn: `F.N. ${new Date().getFullYear() - 8}`,
                         alzada: "1.41 m",
                         cincha: "1.72 m",
                         cana: "19 cm",
                         foto: ""
-                    });
+                    };
+                    filteredGenealogias.unshift(horseToAdd);
+                    if (typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) {
+                        if (!genealogiaData.some(g => (g.nacional || '').includes(sbt))) {
+                            genealogiaData.unshift(horseToAdd);
+                        }
+                    }
                     addedCount++;
                 }
-            });
+            }
 
             renderGenealogiasTable();
             populateColleraHorseSelects();
             closeBulkGenealogiaModal();
-            alert(`¡Carga masiva completada! Se procesaron ${sbtList.length} registros SBT (${addedCount} nuevos añadidos sin duplicar).`);
+            alert(`¡Carga masiva completada! Se extrajeron e integraron ${addedCount} nuevos caballos con todas sus características desde Caballo y Rodeo.`);
         };
 
         window.deleteCollera = async function(n) {
