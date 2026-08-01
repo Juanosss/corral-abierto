@@ -327,10 +327,14 @@
                     </div>
                 </div>
 
-                <!-- PESTAÑA 5: CONTROL DE SOCIOS -->
+                <!-- PESTAÑA 5: CONTROL DE SOCIOS SINCRONIZADO CON SUPABASE -->
                 <div id="tab-usuarios" class="admin-tab-content">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif;">👥 Control de Socios Habilitados</h3>
+                        <div>
+                            <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif;">👥 Control de Socios & Membresías (Sincronizado con Supabase)</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Habilita o deshabilita accesos a la plataforma y edita la información de socios en tiempo real.</p>
+                        </div>
+                        <button onclick="openUsuarioModal()" class="admin-btn admin-btn-primary" style="padding: 0.5rem 1rem; background: #ff5722; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">➕ Agregar Nuevo Socio</button>
                     </div>
 
                     <div class="admin-table-container">
@@ -338,13 +342,14 @@
                             <thead>
                                 <tr>
                                     <th>Nombre Socio</th>
-                                    <th>Correo</th>
+                                    <th>Correo Electrónico</th>
+                                    <th>Teléfono</th>
                                     <th>Estado Membresía</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="usuarios-tbody">
-                                <!-- Cargado dinámicamente -->
+                                <!-- Cargado dinámicamente desde Supabase -->
                             </tbody>
                         </table>
                     </div>
@@ -533,6 +538,51 @@
         </div>
     </div>
 
+    <!-- MODAL SOCIOS / USUARIOS CON SUPABASE -->
+    <div id="modal-usuario-overlay" class="admin-modal-overlay">
+        <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 550px; border: 1.5px solid #ff5722;">
+            <h3 id="modal-usuario-title" style="margin-top: 0; color: #ff5722; font-family: 'Playfair Display', serif;">Agregar / Editar Socio</h3>
+            <form id="form-usuario" onsubmit="saveUsuario(event)">
+                <input type="hidden" id="form-user-email-old">
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Nombre</label>
+                        <input type="text" id="form-user-nombre" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Apellido</label>
+                        <input type="text" id="form-user-apellido" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Correo Electrónico</label>
+                        <input type="email" id="form-user-email" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Teléfono</label>
+                        <input type="text" id="form-user-telefono" placeholder="944362579" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Estado de Membresía</label>
+                    <select id="form-user-active" style="width: 100%; padding: 10px; border-radius: 6px; border: 1.5px solid #ff5722; background: #222; color: #fff; font-weight: 800;">
+                        <option value="true">🟢 SOCIO ACTIVO (Acceso Total Concedido)</option>
+                        <option value="false">🟡 PENDIENTE DE PAGO / INACTIVO (Acceso Restringido)</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" onclick="closeUsuarioModal()" style="padding: 8px 16px; background: #444; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Cancelar</button>
+                    <button type="submit" style="padding: 8px 16px; background: #ff5722; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">Guardar Socio</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- MODAL CARGA MASIVA POR N° SBT -->
     <div id="modal-bulk-genealogia-overlay" class="admin-modal-overlay">
         <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 650px; border: 1.5px solid #ff5722;">
@@ -589,6 +639,7 @@
         let filteredGenealogias = [];
         let activeRodeoId = localStorage.getItem('activeRodeoId') || 'champion-chile-2026';
         let rodeos = [];
+        let usuariosList = [];
 
         // CAMBIADOR DE PESTAÑAS 100% GARANTIZADO
         window.switchAdminTab = function(tabId, btnElement) {
@@ -609,7 +660,7 @@
             }
         };
 
-        // INICIALIZACIÓN DIRECTA
+        // INICIALIZACIÓN DIRECTA CON CARGA DE SOCIOS SUPABASE
         async function initAdminDirect() {
             try {
                 localStorage.setItem('currentUser', JSON.stringify({ email: ADMIN_EMAIL, active: true }));
@@ -617,6 +668,7 @@
 
             try { await loadRodeos(); } catch(e) {}
             try { await loadRodeoColleras(activeRodeoId); } catch(e) {}
+            try { await loadUsuariosFromSupabase(); } catch(e) {}
 
             filteredColleras = Array.isArray(rodeoData) ? [...rodeoData] : [];
             filteredGenealogias = Array.isArray(genealogiaData) ? [...genealogiaData] : [];
@@ -629,7 +681,7 @@
             populateColleraHorseSelects();
         }
 
-        // CARGA DE DATOS DE RODEOS DETALLADA
+        // CARGA DE DATOS DE RODEOS
         async function loadRodeos() {
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
@@ -665,7 +717,25 @@
             }
         }
 
-        // RENDERIZADO DE TABLA DE RODEOS DETALLADA
+        // CARGA DE SOCIOS DESDE TABLA 'members' EN SUPABASE
+        async function loadUsuariosFromSupabase() {
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('members').select('*').order('created_at', { ascending: false });
+                    if (!error && data && data.length > 0) {
+                        usuariosList = data;
+                        return;
+                    }
+                } catch(e) {
+                    console.error("Error leyendo socios de Supabase:", e);
+                }
+            }
+            usuariosList = [
+                { email: 'admin@corralabierto.cl', nombre: 'ADMINISTRADOR', apellido: 'PRINCIPAL', active: true, telefono: '+56 9 1234 5678' }
+            ];
+        }
+
+        // RENDERIZADO DE TABLA DE RODEOS
         function renderRodeosTable() {
             const tbody = document.getElementById('rodeos-tbody');
             if (!tbody) return;
@@ -800,18 +870,140 @@
             `).join('');
         }
 
+        // RENDERIZADO DE TABLA DE SOCIOS SINCRONIZADA CON SUPABASE 'members'
         function renderUsuariosTable() {
             const tbody = document.getElementById('usuarios-tbody');
             if (!tbody) return;
-            tbody.innerHTML = `
-                <tr>
-                    <td><strong>ADMINISTRADOR PRINCIPAL</strong></td>
-                    <td>admin@corralabierto.cl</td>
-                    <td><span style="color: #4caf50; font-weight: 700;">🟢 SOCIO ACTIVO</span></td>
-                    <td><button style="padding: 4px 8px; background: #444; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Configurar</button></td>
-                </tr>
-            `;
+
+            if (!usuariosList || usuariosList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#bcaaa4;">No hay socios registrados en Supabase aún.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = usuariosList.map(u => {
+                const fullName = `${u.nombre || ''} ${u.apellido || ''}`.trim() || 'Socio Corral Abierto';
+                const isActive = u.active === true || u.active === 'true';
+                const isAdmin = (u.email || '').toLowerCase() === 'admin@corralabierto.cl';
+
+                return `
+                    <tr>
+                        <td><strong>${fullName}</strong> ${isAdmin ? '<span style="font-size:0.75rem; background:#ff5722; color:#fff; padding:2px 6px; border-radius:4px; margin-left:6px;">ADMIN</span>' : ''}</td>
+                        <td><code>${u.email}</code></td>
+                        <td>${u.telefono || '--'}</td>
+                        <td>
+                            <span style="color: ${isActive ? '#4caf50' : '#ffa726'}; font-weight: 800;">
+                                ${isActive ? '🟢 SOCIO ACTIVO' : '🟡 PENDIENTE DE PAGO'}
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button onclick="toggleUserStatus('${u.email}', ${isActive})" style="padding: 4px 8px; background: ${isActive ? '#c62828' : '#2e7d32'}; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">
+                                    ${isActive ? '🔴 Deshabilitar' : '🟢 Habilitar Socio'}
+                                </button>
+                                <button onclick="editUsuario('${u.email}')" style="padding: 4px 8px; background: #0288d1; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">✏️ Editar</button>
+                                ${!isAdmin ? `<button onclick="deleteUsuario('${u.email}')" style="padding: 4px 8px; background: #444; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🗑️ Borrar</button>` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
+
+        // FUNCIONES DE SOCIOS / USUARIOS
+        window.openUsuarioModal = function() {
+            document.getElementById('form-user-email-old').value = '';
+            document.getElementById('form-user-nombre').value = '';
+            document.getElementById('form-user-apellido').value = '';
+            document.getElementById('form-user-email').value = '';
+            document.getElementById('form-user-telefono').value = '';
+            document.getElementById('form-user-active').value = 'true';
+            document.getElementById('modal-usuario-title').innerText = "Agregar Nuevo Socio";
+            document.getElementById('modal-usuario-overlay').classList.add('active');
+        };
+
+        window.closeUsuarioModal = function() {
+            document.getElementById('modal-usuario-overlay').classList.remove('active');
+        };
+
+        window.editUsuario = function(email) {
+            const user = usuariosList.find(u => u.email === email);
+            if (!user) return;
+
+            document.getElementById('form-user-email-old').value = user.email;
+            document.getElementById('form-user-nombre').value = user.nombre || '';
+            document.getElementById('form-user-apellido').value = user.apellido || '';
+            document.getElementById('form-user-email').value = user.email || '';
+            document.getElementById('form-user-telefono').value = user.telefono || '';
+            document.getElementById('form-user-active').value = (user.active === true || user.active === 'true') ? 'true' : 'false';
+
+            document.getElementById('modal-usuario-title').innerText = "✏️ Editar Datos de Socio";
+            document.getElementById('modal-usuario-overlay').classList.add('active');
+        };
+
+        window.toggleUserStatus = async function(email, currentStatus) {
+            const newStatus = !currentStatus;
+            const user = usuariosList.find(u => u.email === email);
+            if (user) user.active = newStatus;
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    await supabaseClient.from('members').update({ active: newStatus }).eq('email', email);
+                } catch(e) {
+                    console.error("Error actualizando estado en Supabase:", e);
+                }
+            }
+
+            renderUsuariosTable();
+        };
+
+        window.saveUsuario = async function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const oldEmail = document.getElementById('form-user-email-old').value;
+            const nombre = document.getElementById('form-user-nombre').value.trim();
+            const apellido = document.getElementById('form-user-apellido').value.trim();
+            const email = document.getElementById('form-user-email').value.trim();
+            const telefono = document.getElementById('form-user-telefono').value.trim();
+            const active = document.getElementById('form-user-active').value === 'true';
+
+            if (!email) return;
+
+            const userObj = { email, nombre, apellido, telefono, active };
+
+            const existingIdx = usuariosList.findIndex(u => u.email === (oldEmail || email));
+            if (existingIdx >= 0) {
+                usuariosList[existingIdx] = { ...usuariosList[existingIdx], ...userObj };
+            } else {
+                usuariosList.unshift(userObj);
+            }
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    await supabaseClient.from('members').upsert(userObj);
+                } catch(e) {
+                    console.error("Error guardando socio en Supabase:", e);
+                }
+            }
+
+            renderUsuariosTable();
+            closeUsuarioModal();
+        };
+
+        window.deleteUsuario = async function(email) {
+            if (email === 'admin@corralabierto.cl') return;
+            if (!confirm(`¿Seguro que deseas eliminar al socio ${email}?`)) return;
+
+            usuariosList = usuariosList.filter(u => u.email !== email);
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    await supabaseClient.from('members').delete().eq('email', email);
+                } catch(e) {
+                    console.error("Error borrando socio de Supabase:", e);
+                }
+            }
+
+            renderUsuariosTable();
+        };
 
         function renderAdminCalendarTable() {
             const tbody = document.getElementById('calendar-admin-tbody');
@@ -1001,7 +1193,7 @@
 
         // EXPORTAR / IMPORTAR BACKUP JSON
         window.exportJSONBackup = function() {
-            const backupObj = { rodeos, colleras: filteredColleras, genealogias: filteredGenealogias, timestamp: new Date().toISOString() };
+            const backupObj = { rodeos, colleras: filteredColleras, genealogias: filteredGenealogias, usuarios: usuariosList, timestamp: new Date().toISOString() };
             const blob = new Blob([JSON.stringify(backupObj, null, 2)], { type: 'application/json' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
@@ -1018,8 +1210,10 @@
                     const data = JSON.parse(evt.target.result);
                     if (data.colleras) filteredColleras = data.colleras;
                     if (data.genealogias) filteredGenealogias = data.genealogias;
+                    if (data.usuarios) usuariosList = data.usuarios;
                     renderCollerasTable();
                     renderGenealogiasTable();
+                    renderUsuariosTable();
                     populateColleraHorseSelects();
                     alert("¡Backup importado con éxito!");
                 } catch(err) {
