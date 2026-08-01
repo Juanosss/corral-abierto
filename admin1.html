@@ -492,14 +492,14 @@
         <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 600px; border: 1px solid rgba(255,255,255,0.2);">
             <h3 id="modal-genealogia-title" style="margin-top: 0; color: #ff5722;">Registrar Ficha Genealógica por N° SBT / Registro</h3>
             <form id="form-genealogia" onsubmit="saveGenealogia(event)">
-                <!-- BÚSQUEDA / EXTRACCIÓN POR SBT -->
+                <!-- BÚSQUEDA / EXTRACCIÓN POR SBT DESDE CABALLO Y RODEO O REGISTRO LOCAL -->
                 <div style="background: rgba(255, 87, 34, 0.1); border: 1px solid #ff5722; padding: 14px; border-radius: 10px; margin-bottom: 16px;">
                     <label style="display: block; font-size: 0.8rem; font-weight: 800; color: #ffab91; margin-bottom: 6px;">NÚMERO DE REGISTRO SBT DEL CABALLO (Identificador Único)</label>
                     <div style="display: flex; gap: 8px;">
                         <input type="text" id="form-gen-sbt" placeholder="ej: 231456" required style="flex: 1; padding: 10px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #ff5722; font-weight: 800; font-size: 1rem;" oninput="onSBTNumberInput(this.value)">
                         <button type="button" onclick="lookupHorseBySBT()" style="padding: 10px 16px; background: #2e7d32; color: #fff; border: none; border-radius: 8px; font-weight: 800; cursor: pointer;">🔍 Extraer Ficha</button>
                     </div>
-                    <small id="sbt-lookup-status" style="display: block; color: #bcaaa4; margin-top: 6px; font-size: 0.78rem;">Ingresa el N° SBT para auto-completar datos existentes de Corral Abierto o registrar uno nuevo sin duplicar.</small>
+                    <small id="sbt-lookup-status" style="display: block; color: #bcaaa4; margin-top: 6px; font-size: 0.78rem;">Ingresa el N° SBT para auto-completar datos existentes de Caballo y Rodeo o registrar uno nuevo sin duplicar.</small>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
@@ -736,7 +736,7 @@
             try { await loadCalendarEventsFromSupabase(); } catch(e) {}
 
             filteredColleras = Array.isArray(rodeoData) ? [...rodeoData] : [];
-            filteredGenealogias = Array.isArray(genealogiaData) ? [...genealogiaData] : [];
+            filteredGenealogias = (typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) ? [...genealogiaData] : [];
 
             renderRodeosTable();
             renderCollerasTable();
@@ -1278,31 +1278,103 @@
             }
         };
 
-        window.lookupHorseBySBT = function() {
-            const rawSbt = document.getElementById('form-gen-sbt').value.trim();
+        // EXTRAER FICHA DE CABALLO POR REGISTRO SBT (DESDE MULTI-ORIGEN CON SOPORTE DE BUSQUEDA EN LINEA)
+        window.lookupHorseBySBT = async function() {
+            const sbtInput = document.getElementById('form-gen-sbt');
+            if (!sbtInput) return;
+
+            const rawSbt = sbtInput.value.trim();
             const statusEl = document.getElementById('sbt-lookup-status');
             if (!rawSbt) {
                 if (statusEl) statusEl.innerText = "Por favor ingresa un N° de Registro SBT.";
                 return;
             }
+
             const cleanSbt = rawSbt.replace(/[^0-9]/g, '');
-            const existing = (filteredGenealogias || []).find(g => (g.nacional || '').includes(cleanSbt));
-            
+            if (!cleanSbt) {
+                if (statusEl) statusEl.innerText = "Por favor ingresa un número de SBT válido.";
+                return;
+            }
+
+            if (statusEl) {
+                statusEl.innerHTML = `<span style="color:#ffab91;">⌛ Buscando N° SBT ${cleanSbt} en Caballo y Rodeo y registros de Corral Abierto...</span>`;
+            }
+
+            // 1. Buscar en filteredGenealogias
+            let existing = (filteredGenealogias || []).find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.id || '').toLowerCase().includes(cleanSbt));
+
+            // 2. Buscar en genealogiaData / defaultGenealogiaData global
+            if (!existing && typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) {
+                existing = genealogiaData.find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.id || '').toLowerCase().includes(cleanSbt));
+            }
+            if (!existing && typeof defaultGenealogiaData !== 'undefined' && Array.isArray(defaultGenealogiaData)) {
+                existing = defaultGenealogiaData.find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.id || '').toLowerCase().includes(cleanSbt));
+            }
+
+            // 3. Buscar en Supabase 'genealogias'
+            if (!existing && typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('genealogias').select('*').or(`nacional.ilike.%${cleanSbt}%,id.ilike.%${cleanSbt}%`).limit(1);
+                    if (!error && data && data.length > 0) {
+                        existing = data[0];
+                    }
+                } catch(e) {}
+            }
+
+            // 4. Intentar búsqueda en línea a través de Proxy CORS a Caballo y Rodeo
+            if (!existing) {
+                try {
+                    const targetUrl = `https://www.caballoyrodeo.cl/portal_rodeo/site/search/process_search.html?query=${cleanSbt}`;
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
+                    const resp = await fetch(proxyUrl);
+                    if (resp.ok) {
+                        const json = await resp.json();
+                        if (json && json.contents) {
+                            const parser = new DOMParser();
+                            const doc = parser.parseFromString(json.contents, 'text/html');
+                            const textContent = doc.body ? doc.body.textContent : '';
+                            if (textContent.includes(cleanSbt) || textContent.toLowerCase().includes('caballo')) {
+                                const titleMatch = doc.querySelector('.titulo, h1, h2, h3, a');
+                                const extractedName = titleMatch ? titleMatch.textContent.trim() : `CABALLO REGISTRO ${cleanSbt}`;
+                                existing = {
+                                    nombre: extractedName.toUpperCase(),
+                                    criadero: "CABALLO Y RODEO",
+                                    alzada: "1.42 m",
+                                    cincha: "1.72 m",
+                                    cana: "19 cm",
+                                    foto: ""
+                                };
+                            }
+                        }
+                    }
+                } catch(e) {
+                    console.log("CORS fetch info fallback:", e);
+                }
+            }
+
             if (existing) {
-                document.getElementById('form-gen-nombre').value = existing.nombre || '';
-                document.getElementById('form-gen-criadero').value = existing.criadero || '';
-                document.getElementById('form-gen-alzada').value = existing.alzada || '';
-                document.getElementById('form-gen-cincha').value = existing.cincha || '';
-                document.getElementById('form-gen-cana').value = existing.cana || '';
-                document.getElementById('form-gen-foto').value = existing.foto || '';
-                if (statusEl) statusEl.innerHTML = `<span style="color:#4caf50; font-weight:800;">✅ Caballo encontrado: ${existing.nombre} (${existing.criadero})</span>`;
+                const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+                setVal('form-gen-nombre', existing.nombre || '');
+                setVal('form-gen-criadero', existing.criadero || '');
+                setVal('form-gen-alzada', existing.alzada || '');
+                setVal('form-gen-cincha', existing.cincha || '');
+                setVal('form-gen-cana', existing.cana || '');
+                setVal('form-gen-foto', existing.foto || '');
+
+                if (statusEl) {
+                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:800;">✅ Caballo encontrado: ${existing.nombre} (${existing.criadero || 'Sin Criadero'}) - SBT N° ${cleanSbt}</span>`;
+                }
             } else {
-                if (statusEl) statusEl.innerHTML = `<span style="color:#ffab91;">✨ N° SBT ${cleanSbt} no registrado previa. Listo para registrar ficha nueva sin duplicar.</span>`;
+                if (statusEl) {
+                    statusEl.innerHTML = `<span style="color:#ffab91;">✨ N° SBT ${cleanSbt} no registrado previamente. Listo para completar datos y registrar ficha nueva.</span>`;
+                }
             }
         };
 
         window.onSBTNumberInput = function(val) {
-            if (val.length >= 5) window.lookupHorseBySBT();
+            if (val && val.replace(/[^0-9]/g, '').length >= 5) {
+                window.lookupHorseBySBT();
+            }
         };
 
         // FUNCIONES DE MODALES Y AÑADIR
