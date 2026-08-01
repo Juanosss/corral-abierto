@@ -39,33 +39,14 @@
         </header>
 
         <main class="main-content">
-            <!-- PANTALLA DE LOGIN -->
-            <div id="admin-login-screen" class="admin-login-wrapper">
-                <img src="https://www.caballoyrodeo.cl/portal_rodeo/imag/logo-rodeo.png" alt="Logo" class="admin-login-logo">
-                <h1 class="admin-login-title">Panel de Control</h1>
-                <p class="admin-login-subtitle">Acceso exclusivo para administradores</p>
-                
-                <div id="login-form">
-                    <div class="admin-input-group">
-                        <label class="admin-label" for="login-email">Correo Electrónico</label>
-                        <input type="email" id="login-email" class="admin-input" value="admin@corralabierto.cl" placeholder="admin@corralabierto.cl" required style="margin-bottom: 15px;" onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.handleAdminLogin(event); }">
-                        
-                        <label class="admin-label" for="login-password">Contraseña</label>
-                        <input type="password" id="login-password" class="admin-input" placeholder="Ingrese contraseña..." required autofocus onkeydown="if(event.key==='Enter'){ event.preventDefault(); window.handleAdminLogin(event); }">
-                        <p id="login-error" style="color: #ef9a9a; font-size: 0.8rem; margin-top: 5px; display: none;">Credenciales incorrectas. Intente nuevamente.</p>
-                    </div>
-                    <button type="button" id="btn-admin-login" onclick="window.handleAdminLogin(event)" class="admin-btn admin-btn-primary" style="width: 100%;">Ingresar al Panel ➔</button>
-                </div>
-            </div>
-
-            <!-- PANEL DE CONTROL PRINCIPAL -->
-            <div id="admin-dashboard" class="admin-dashboard-container" style="display: none;">
+            <!-- PANEL DE CONTROL PRINCIPAL DIRECTO -->
+            <div id="admin-dashboard" class="admin-dashboard-container" style="display: block;">
                 <div class="admin-header-panel">
                     <div class="admin-title-area">
                         <h2>Panel de Administración</h2>
                         <p>Gestiona colleras, puntajes, medidas morfológicas y genealogía en tiempo real</p>
                     </div>
-                    <button id="btn-logout" class="admin-btn admin-btn-danger">Cerrar Sesión</button>
+                    <a href="index.html" class="admin-btn admin-btn-secondary" style="text-decoration: none; font-weight: 700;">Ir al Inicio 🏠</a>
                 </div>
 
                  <!-- Navegación de Pestañas Dashboard -->
@@ -988,18 +969,15 @@
         if (typeof rodeoData !== 'undefined') filteredColleras = [...rodeoData];
         if (typeof genealogiaData !== 'undefined') filteredGenealogias = [...genealogiaData];
 
-        // Mostrar panel de administración
+        // Inicialización directa e inmediata del Panel de Control
         function showDashboard() {
-            document.body.classList.add('admin-logged-in');
-            const lScreen = document.getElementById('admin-login-screen');
             const dBoard = document.getElementById('admin-dashboard');
-            if (lScreen) lScreen.style.display = 'none';
             if (dBoard) dBoard.style.display = 'block';
             initDashboard().catch(e => console.error("Error en initDashboard:", e));
         }
 
-        // Auto-activación inmediata del Panel de Control al entrar a admin.html
-        async function checkActiveSession() {
+        // Auto-activación inmediata del usuario admin en localStorage
+        (function initAdminDirectly() {
             const adminSession = {
                 email: ADMIN_EMAIL.toLowerCase(),
                 active: true,
@@ -1010,61 +988,12 @@
                 localStorage.setItem('currentUser', JSON.stringify(adminSession));
             } catch(e) {}
 
-            showDashboard();
-        }
-
-        // Ejecutar apertura directa del dashboard
-        checkActiveSession();
-
-        // Función global para verificar en tiempo real el estado de Supabase
-        async function checkSupabaseHealth() {
-            if (!supabaseClient) return { ok: false, message: "Cliente Supabase no disponible" };
-            try {
-                const { data, error } = await supabaseClient.from('rodeos').select('id, nombre, activo').limit(5);
-                if (error) return { ok: false, message: error.message };
-                return { ok: true, count: data ? data.length : 0, data };
-            } catch(e) {
-                return { ok: false, message: e.message };
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', showDashboard);
+            } else {
+                showDashboard();
             }
-        }
-
-        // Función global de inicio de sesión de Administrador
-        window.handleAdminLogin = function(e) {
-            if (e) {
-                if (typeof e.preventDefault === 'function') e.preventDefault();
-                if (typeof e.stopPropagation === 'function') e.stopPropagation();
-            }
-
-            const adminSession = {
-                email: ADMIN_EMAIL.toLowerCase(),
-                active: true,
-                nombre: "ADMINISTRADOR",
-                apellido: "PRINCIPAL"
-            };
-
-            try {
-                localStorage.setItem('currentUser', JSON.stringify(adminSession));
-            } catch(err) {}
-
-            showDashboard();
-            return false;
-        };
-
-        // Vinculación garantizada al cargar el DOM
-        document.addEventListener('DOMContentLoaded', () => {
-            const formEl = document.getElementById('login-form');
-            if (formEl) formEl.addEventListener('submit', window.handleAdminLogin);
-            const btnEl = document.getElementById('btn-admin-login');
-            if (btnEl) btnEl.addEventListener('click', window.handleAdminLogin);
-        });
-
-        document.getElementById('btn-logout').addEventListener('click', async function() {
-            localStorage.removeItem('currentUser');
-            if (supabaseClient) {
-                await supabaseClient.auth.signOut();
-            }
-            window.location.href = 'index.html';
-        });
+        })();
 
         // FUNCIÓN PARA NOTIFICACIONES TIPO TOAST (Premium y Visuales)
         function showToast(message, type = 'success') {
