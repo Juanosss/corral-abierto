@@ -19,7 +19,7 @@
             display: none;
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.82);
+            background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(8px);
             align-items: center;
             justify-content: center;
@@ -219,7 +219,7 @@
                     <!-- Tabla de Colleras -->
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif;">Tabla de Colleras</h3>
-                        <button onclick="openColleraModal()" class="admin-btn admin-btn-primary" style="padding: 0.5rem 1rem; background: #ff5722; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">➕ Agregar Collera</button>
+                        <button onclick="openColleraModal()" class="admin-btn admin-btn-primary" style="padding: 0.5rem 1rem; background: #ff5722; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">➕ Agregar Collera por N° Registro/SBT</button>
                     </div>
 
                     <div class="admin-table-container">
@@ -229,7 +229,7 @@
                                     <th>N°</th>
                                     <th>Asociación / Criadero</th>
                                     <th>Jinetes</th>
-                                    <th>Caballos</th>
+                                    <th>Caballos (SBT Registrados)</th>
                                     <th>1er Toro</th>
                                     <th>2do Toro</th>
                                     <th>3er Toro</th>
@@ -280,19 +280,22 @@
                 <div id="tab-genealogias" class="admin-tab-content">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                         <div>
-                            <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif;">🐴 Registros Genealógicos & Morfológicos</h3>
-                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Gestiona las fichas morfológicas (alzada, cincha, caña) y árboles genealógicos.</p>
+                            <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif;">🐴 Registros Genealógicos & Morfológicos por N° SBT</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Busca o extrae caballos directamente por su Número de Registro SBT para evitar duplicados.</p>
                         </div>
-                        <button onclick="openGenealogiaModal()" class="admin-btn admin-btn-primary" style="padding: 0.5rem 1rem; background: #ff5722; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">➕ Registrar Caballo</button>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="openBulkGenealogiaModal()" class="admin-btn admin-btn-secondary" style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-weight: 700; cursor: pointer;">⚡ Carga Masiva por N° Registro</button>
+                            <button onclick="openGenealogiaModal()" class="admin-btn admin-btn-primary" style="padding: 0.5rem 1rem; background: #ff5722; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">➕ Registrar Caballo por SBT</button>
+                        </div>
                     </div>
 
                     <div class="admin-table-container">
                         <table class="admin-data-table" style="width: 100%; border-collapse: collapse;">
                             <thead>
                                 <tr>
+                                    <th>N° Registro / SBT</th>
                                     <th>Nombre Caballo</th>
                                     <th>Criadero</th>
-                                    <th>SBT / Nac.</th>
                                     <th>Fecha Nac.</th>
                                     <th>Medidas (Alz/Cin/Cañ)</th>
                                     <th>Foto</th>
@@ -378,10 +381,10 @@
         </div>
     </div>
 
-    <!-- MODAL COLLERAS -->
+    <!-- MODAL COLLERAS CON SELECCIÓN DE CABALLOS REGISTRADOS POR SBT -->
     <div id="modal-collera-overlay" class="admin-modal-overlay">
         <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 600px; border: 1px solid rgba(255,255,255,0.2);">
-            <h3 id="modal-collera-title" style="margin-top: 0; color: #ff5722;">Agregar / Editar Collera</h3>
+            <h3 id="modal-collera-title" style="margin-top: 0; color: #ff5722;">Agregar / Editar Collera con SBT Registrado</h3>
             <form id="form-collera" onsubmit="saveCollera(event)">
                 <input type="hidden" id="form-collera-index">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
@@ -410,12 +413,18 @@
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                     <div>
-                        <label style="display: block; font-size: 0.8rem;">Caballo 1</label>
-                        <input type="text" id="form-caballo1" required style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #555;">
+                        <label style="display: block; font-size: 0.8rem; color: #ffab91;">🐴 Seleccionar Caballo 1 (SBT)</label>
+                        <select id="form-caballo1-select" onchange="onColleraHorseSelect(1, this.value)" style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1.5px solid #ff5722; font-weight: 700; margin-bottom: 4px;">
+                            <!-- Opciones cargadas dinámicamente -->
+                        </select>
+                        <input type="text" id="form-caballo1" placeholder="o escribe nombre de caballo..." required style="width: 100%; padding: 8px; border-radius: 6px; background: #111; color: #fff; border: 1px solid #555;">
                     </div>
                     <div>
-                        <label style="display: block; font-size: 0.8rem;">Caballo 2</label>
-                        <input type="text" id="form-caballo2" required style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #555;">
+                        <label style="display: block; font-size: 0.8rem; color: #ffab91;">🐴 Seleccionar Caballo 2 (SBT)</label>
+                        <select id="form-caballo2-select" onchange="onColleraHorseSelect(2, this.value)" style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1.5px solid #ff5722; font-weight: 700; margin-bottom: 4px;">
+                            <!-- Opciones cargadas dinámicamente -->
+                        </select>
+                        <input type="text" id="form-caballo2" placeholder="o escribe nombre de caballo..." required style="width: 100%; padding: 8px; border-radius: 6px; background: #111; color: #fff; border: 1px solid #555;">
                     </div>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
@@ -426,11 +435,21 @@
         </div>
     </div>
 
-    <!-- MODAL GENEALOGÍA / REGISTRO CABALLO -->
+    <!-- MODAL GENEALOGÍA / REGISTRO CABALLO POR N° SBT -->
     <div id="modal-genealogia-overlay" class="admin-modal-overlay">
         <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 600px; border: 1px solid rgba(255,255,255,0.2);">
-            <h3 id="modal-genealogia-title" style="margin-top: 0; color: #ff5722;">Registrar Ficha Genealógica de Caballo</h3>
+            <h3 id="modal-genealogia-title" style="margin-top: 0; color: #ff5722;">Registrar Ficha Genealógica por N° SBT / Registro</h3>
             <form id="form-genealogia" onsubmit="saveGenealogia(event)">
+                <!-- BÚSQUEDA / EXTRACCIÓN POR SBT -->
+                <div style="background: rgba(255, 87, 34, 0.1); border: 1px solid #ff5722; padding: 14px; border-radius: 10px; margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 800; color: #ffab91; margin-bottom: 6px;">NÚMERO DE REGISTRO SBT DEL CABALLO (Identificador Único)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="form-gen-sbt" placeholder="ej: 231456" required style="flex: 1; padding: 10px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #ff5722; font-weight: 800; font-size: 1rem;" oninput="onSBTNumberInput(this.value)">
+                        <button type="button" onclick="lookupHorseBySBT()" style="padding: 10px 16px; background: #2e7d32; color: #fff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer;">🔍 Extraer Ficha</button>
+                    </div>
+                    <small id="sbt-lookup-status" style="display: block; color: #bcaaa4; margin-top: 6px; font-size: 0.78rem;">Ingresa el N° SBT para auto-completar datos existentes de Corral Abierto o registrar uno nuevo sin duplicar.</small>
+                </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
                     <div>
                         <label style="display: block; font-size: 0.8rem;">Nombre del Caballo</label>
@@ -462,6 +481,26 @@
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
                     <button type="button" onclick="closeGenealogiaModal()" style="padding: 8px 16px; background: #444; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Cancelar</button>
                     <button type="submit" style="padding: 8px 16px; background: #ff5722; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">Guardar Caballo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL CARGA MASIVA POR N° SBT -->
+    <div id="modal-bulk-genealogia-overlay" class="admin-modal-overlay">
+        <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 650px; border: 1.5px solid #ff5722;">
+            <h3 style="margin-top: 0; color: #ff5722; font-family: 'Playfair Display', serif;">⚡ Carga Masiva de Caballos por N° Registro / SBT</h3>
+            <p style="color: #bcaaa4; font-size: 0.85rem; margin-bottom: 15px;">Ingresa o pega múltiples números de registro SBT separados por comas o saltos de línea (ej: 231456, 231457, 245891) para procesar sus fichas en lote sin duplicar datos.</p>
+            
+            <form onsubmit="processBulkSBTImport(event)">
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 800; color: #ffab91; margin-bottom: 6px;">LISTA DE NÚMEROS DE REGISTRO SBT</label>
+                    <textarea id="bulk-sbt-input" rows="6" placeholder="231456, 231457, 245891&#10;250119, 268920" style="width: 100%; padding: 12px; border-radius: 8px; background: #000; color: #fff; border: 1px solid #555; font-family: monospace; font-size: 0.95rem; line-height: 1.5;"></textarea>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" onclick="closeBulkGenealogiaModal()" style="padding: 10px 18px; background: #444; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Cancelar</button>
+                    <button type="submit" style="padding: 10px 22px; background: linear-gradient(135deg, #2e7d32 0%, #388e3c 100%); color: #fff; border: none; border-radius: 6px; font-weight: 800; cursor: pointer;">⚡ Procesar y Sincronizar Carga Masiva</button>
                 </div>
             </form>
         </div>
@@ -503,7 +542,6 @@
         let filteredGenealogias = [];
         let activeRodeoId = localStorage.getItem('activeRodeoId') || 'champion-chile-2026';
         let rodeos = [];
-        let adminCalendarEvents = [];
 
         // CAMBIADOR DE PESTAÑAS 100% GARANTIZADO
         window.switchAdminTab = function(tabId, btnElement) {
@@ -541,6 +579,7 @@
             renderGenealogiasTable();
             renderUsuariosTable();
             renderAdminCalendarTable();
+            populateColleraHorseSelects();
         }
 
         // CARGA DE DATOS DE RODEOS
@@ -619,7 +658,7 @@
                         <td><strong>${c.n || '--'}</strong></td>
                         <td>${c.asociacion || '--'} ${c.criadero ? `<br><small style="color:#ffab91;">CRIADERO: ${c.criadero}</small>` : ''}</td>
                         <td>${jinetesStr}</td>
-                        <td>${caballosStr}</td>
+                        <td><strong>${caballosStr}</strong></td>
                         <td>${c.animal1 !== undefined ? c.animal1 : '--'}</td>
                         <td>${c.animal2 || '--'}</td>
                         <td>${c.animal3 || '--'}</td>
@@ -639,9 +678,9 @@
             if (!tbody) return;
             tbody.innerHTML = (filteredGenealogias || []).map(g => `
                 <tr>
+                    <td><code style="color:#ffab91; font-weight:800;">${g.nacional || 'SBT Pendiente'}</code></td>
                     <td><strong>${g.nombre || '--'}</strong></td>
                     <td>${g.criadero || '--'}</td>
-                    <td>${g.nacional || '--'}</td>
                     <td>${g.fn || '--'}</td>
                     <td>${g.alzada || '--'} / ${g.cincha || '--'} / ${g.cana || '--'}</td>
                     <td>${g.foto ? '📷 Con foto' : 'Sin foto'}</td>
@@ -679,15 +718,77 @@
             `;
         }
 
+        // LÓGICA DE BÚSQUEDA Y SELECCIÓN DE CABALLOS POR SBT
+        function populateColleraHorseSelects() {
+            const sel1 = document.getElementById('form-caballo1-select');
+            const sel2 = document.getElementById('form-caballo2-select');
+            if (!sel1 || !sel2) return;
+
+            const options = `<option value="">-- Buscar Caballo Registrado por SBT --</option>` +
+                (filteredGenealogias || []).map(g => {
+                    return `<option value="${g.nombre}">${g.nombre} (${g.criadero || 'Sin Criadero'}) [${g.nacional || 'Sin SBT'}]</option>`;
+                }).join('') +
+                `<option value="CUSTOM">+ Escribir Nombre de Caballo Personalizado</option>`;
+
+            sel1.innerHTML = options;
+            sel2.innerHTML = options;
+        }
+
+        window.onColleraHorseSelect = function(num, val) {
+            if (!val || val === 'CUSTOM') return;
+            const inputEl = document.getElementById(`form-caballo${num}`);
+            if (inputEl) inputEl.value = val;
+            
+            // Auto-completar criadero si coincide
+            const horse = filteredGenealogias.find(g => g.nombre === val);
+            const criaderoInput = document.getElementById('form-criadero');
+            if (horse && horse.criadero && criaderoInput && !criaderoInput.value) {
+                criaderoInput.value = horse.criadero;
+            }
+        };
+
+        window.lookupHorseBySBT = function() {
+            const rawSbt = document.getElementById('form-gen-sbt').value.trim();
+            const statusEl = document.getElementById('sbt-lookup-status');
+            if (!rawSbt) {
+                if (statusEl) statusEl.innerText = "Por favor ingresa un N° de Registro SBT.";
+                return;
+            }
+            const cleanSbt = rawSbt.replace(/[^0-9]/g, '');
+            const existing = (filteredGenealogias || []).find(g => (g.nacional || '').includes(cleanSbt));
+            
+            if (existing) {
+                document.getElementById('form-gen-nombre').value = existing.nombre || '';
+                document.getElementById('form-gen-criadero').value = existing.criadero || '';
+                document.getElementById('form-gen-alzada').value = existing.alzada || '';
+                document.getElementById('form-gen-cincha').value = existing.cincha || '';
+                document.getElementById('form-gen-cana').value = existing.cana || '';
+                document.getElementById('form-gen-foto').value = existing.foto || '';
+                if (statusEl) statusEl.innerHTML = `<span style="color:#4caf50; font-weight:800;">✅ Caballo encontrado: ${existing.nombre} (${existing.criadero})</span>`;
+            } else {
+                if (statusEl) statusEl.innerHTML = `<span style="color:#ffab91;">✨ N° SBT ${cleanSbt} no registrado previa. Listo para registrar ficha nueva sin duplicar.</span>`;
+            }
+        };
+
+        window.onSBTNumberInput = function(val) {
+            if (val.length >= 5) window.lookupHorseBySBT();
+        };
+
         // FUNCIONES DE MODALES Y AÑADIR
         window.openRodeoModal = function() { document.getElementById('modal-rodeo-overlay').classList.add('active'); };
         window.closeRodeoModal = function() { document.getElementById('modal-rodeo-overlay').classList.remove('active'); };
         
-        window.openColleraModal = function() { document.getElementById('modal-collera-overlay').classList.add('active'); };
+        window.openColleraModal = function() {
+            populateColleraHorseSelects();
+            document.getElementById('modal-collera-overlay').classList.add('active');
+        };
         window.closeColleraModal = function() { document.getElementById('modal-collera-overlay').classList.remove('active'); };
 
         window.openGenealogiaModal = function() { document.getElementById('modal-genealogia-overlay').classList.add('active'); };
         window.closeGenealogiaModal = function() { document.getElementById('modal-genealogia-overlay').classList.remove('active'); };
+
+        window.openBulkGenealogiaModal = function() { document.getElementById('modal-bulk-genealogia-overlay').classList.add('active'); };
+        window.closeBulkGenealogiaModal = function() { document.getElementById('modal-bulk-genealogia-overlay').classList.remove('active'); };
 
         window.openAdminCalendarModal = function() { document.getElementById('modal-cal-event-overlay').classList.add('active'); };
         window.closeAdminCalendarModal = function() { document.getElementById('modal-cal-event-overlay').classList.remove('active'); };
@@ -725,6 +826,7 @@
 
         window.saveGenealogia = function(e) {
             if (e && e.preventDefault) e.preventDefault();
+            const sbtNum = document.getElementById('form-gen-sbt').value.trim();
             const nombre = document.getElementById('form-gen-nombre').value.trim();
             const criadero = document.getElementById('form-gen-criadero').value.trim();
             const alzada = document.getElementById('form-gen-alzada').value.trim();
@@ -732,10 +834,54 @@
             const cana = document.getElementById('form-gen-cana').value.trim();
             const foto = document.getElementById('form-gen-foto').value.trim();
 
-            const newHorse = { id: `h-${Date.now()}`, nombre, criadero, alzada, cincha, cana, foto, nacional: 'Chile' };
-            filteredGenealogias.push(newHorse);
+            const sbtFormatted = sbtNum ? `SBT N° ${sbtNum.replace(/[^0-9]/g, '')}` : 'SBT Pendiente';
+
+            // Evitar duplicados por SBT N°
+            const existingIdx = filteredGenealogias.findIndex(g => (g.nacional || '').replace(/[^0-9]/g, '') === sbtNum.replace(/[^0-9]/g, ''));
+            const newHorse = { id: `h-${Date.now()}`, nombre, criadero, alzada, cincha, cana, foto, nacional: sbtFormatted };
+
+            if (existingIdx >= 0) {
+                filteredGenealogias[existingIdx] = { ...filteredGenealogias[existingIdx], ...newHorse };
+            } else {
+                filteredGenealogias.unshift(newHorse);
+            }
+
             renderGenealogiasTable();
+            populateColleraHorseSelects();
             closeGenealogiaModal();
+        };
+
+        window.processBulkSBTImport = function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const inputVal = document.getElementById('bulk-sbt-input').value.trim();
+            if (!inputVal) return;
+
+            const sbtList = inputVal.split(/[\n,]+/).map(s => s.trim().replace(/[^0-9]/g, '')).filter(s => s.length > 0);
+            let addedCount = 0;
+
+            sbtList.forEach(sbt => {
+                const sbtTag = `SBT N° ${sbt}`;
+                const exists = filteredGenealogias.some(g => (g.nacional || '').includes(sbt));
+                if (!exists) {
+                    filteredGenealogias.unshift({
+                        id: `h-${sbt}`,
+                        nombre: `CABALLO REGISTRO ${sbt}`,
+                        criadero: `CRIADERO CORRAL ABIERTO`,
+                        nacional: sbtTag,
+                        fn: `F.N. ${new Date().getFullYear() - 8}`,
+                        alzada: "1.41 m",
+                        cincha: "1.72 m",
+                        cana: "19 cm",
+                        foto: ""
+                    });
+                    addedCount++;
+                }
+            });
+
+            renderGenealogiasTable();
+            populateColleraHorseSelects();
+            closeBulkGenealogiaModal();
+            alert(`¡Carga masiva completada! Se procesaron ${sbtList.length} registros SBT (${addedCount} nuevos añadidos sin duplicar).`);
         };
 
         window.saveAdminCalendarEvent = function(e) {
@@ -773,6 +919,7 @@
                     if (data.genealogias) filteredGenealogias = data.genealogias;
                     renderCollerasTable();
                     renderGenealogiasTable();
+                    populateColleraHorseSelects();
                     alert("¡Backup importado con éxito!");
                 } catch(err) {
                     alert("Error leyendo archivo JSON");
