@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Corral Abierto - Panel Admin 1 (Prueba de Rendimiento)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=5.0">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐴</text></svg>">
+    <style>
+        .admin-tab-btn {
+            cursor: pointer !important;
+            user-select: none;
+        }
+        .admin-btn {
+            cursor: pointer !important;
+        }
+        .admin-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px);
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        .admin-modal-overlay.active {
+            display: flex !important;
+        }
+    </style>
+</head>
+<body style="background-color: #140c0a; color: #ffffff;">
+    <div class="app-container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="header-container">
+                <a href="index.html" class="header-logo-link">
+                    <span class="brand-title-main">Corral Abierto</span>
+                </a>
+                
+                <nav class="header-nav">
+                    <a href="./champion-chile/index.html#envivo" class="nav-btn">En Vivo</a>
+                    <a href="./champion-chile/index.html#analisis" class="nav-btn">Análisis</a>
+                    <a href="anuario.html" class="nav-btn">Anuarios</a>
+                    <a href="genealogia.html" class="nav-btn">Genealogía</a>
+                    <div class="nav-divider"></div>
+                    <a href="admin1.html" class="nav-btn active">Panel Admin 1</a>
+                    <div class="nav-divider"></div>
+                    <a href="https://www.flow.cl/btn.php?token=t72149f43e71af43c82f6f67fdf40c375fa191cb" target="_blank" class="nav-btn" style="background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; font-weight: 700;">Hacerse Socio 🐴</a>
+                </nav>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- PANEL DE CONTROL PRINCIPAL DIRECTO -->
+            <div id="admin-dashboard" class="admin-dashboard-container" style="display: block;">
+                <div class="admin-header-panel">
+                    <div class="admin-title-area">
+                        <h2>Panel de Administración (Versión 1 Directa)</h2>
+                        <p>Gestiona colleras, puntajes, medidas morfológicas y genealogía en tiempo real</p>
+                    </div>
+                    <a href="index.html" class="admin-btn admin-btn-secondary" style="text-decoration: none; font-weight: 700; padding: 10px 18px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff;">Ir al Inicio 🏠</a>
+                </div>
+
+                <!-- Navegación de Pestañas Dashboard -->
+                <div class="admin-tabs-nav">
+                    <button class="admin-tab-btn active" id="btn-tab-rodeos" onclick="switchAdminTab('tab-rodeos', this)">Gestión de Rodeos</button>
+                    <button class="admin-tab-btn" id="btn-tab-colleras" onclick="switchAdminTab('tab-colleras', this)">Colleras & Resultados</button>
+                    <button class="admin-tab-btn" id="btn-tab-calendario" onclick="switchAdminTab('tab-calendario', this)">📅 Calendario de Rodeos</button>
+                    <button class="admin-tab-btn" id="btn-tab-genealogias" onclick="switchAdminTab('tab-genealogias', this)">Genealogía & Morfología</button>
+                    <button class="admin-tab-btn" id="btn-tab-backup" onclick="switchAdminTab('tab-backup', this)">Respaldos & Backup</button>
+                    <button class="admin-tab-btn" id="btn-tab-usuarios" onclick="switchAdminTab('tab-usuarios', this)">Control de Socios</button>
+                    <button class="admin-tab-btn" id="btn-tab-sms" onclick="switchAdminTab('tab-sms', this)">Notificaciones SMS</button>
+                </div>
+
+                <!-- PESTAÑA 0: GESTIÓN DE RODEOS -->
+                <div id="tab-rodeos" class="admin-tab-content active">
+                    <div class="admin-table-actions" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif; font-size: 1.5rem;">Lobby de Rodeos de Corral Abierto</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Crea, edita o bloquea el acceso público a cada rodeo, y selecciona cuál quieres administrar.</p>
+                        </div>
+                        <button class="admin-btn admin-btn-primary" onclick="openRodeoModal()" style="display: flex; align-items: center; gap: 6px; padding: 0.6rem 1.2rem; background: #ff5722; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">
+                            ➕ Agregar Nuevo Rodeo
+                        </button>
+                    </div>
+                    
+                    <div id="active-rodeo-status-banner" style="background: rgba(255, 87, 34, 0.15); border: 1px solid #ff5722; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; color: #fff;">
+                        <div>
+                            <span style="font-size: 0.8rem; color: #bcaaa4; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 2px;">Rodeo Seleccionado Actualmente</span>
+                            <strong id="active-rodeo-title" style="font-size: 1.2rem; color: #fff; font-family: 'Playfair Display', serif;">Champion de Chile 2026</strong>
+                        </div>
+                        <span id="active-rodeo-status-badge" style="font-size: 0.75rem; background: #2e7d32; color: #fff; padding: 4px 10px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">🔴 EN VIVO</span>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <table class="admin-data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                                    <th style="padding: 12px;">ID Rodeo</th>
+                                    <th style="padding: 12px;">Nombre del Rodeo</th>
+                                    <th style="padding: 12px;">Logo</th>
+                                    <th style="padding: 12px;">Estado</th>
+                                    <th style="padding: 12px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rodeos-tbody">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PESTAÑA 1: COLLERAS & RESULTADOS -->
+                <div id="tab-colleras" class="admin-tab-content">
+                    <div class="admin-card" style="margin-bottom: 25px; padding: 22px; background: linear-gradient(145deg, #24140d 0%, #120704 100%); border: 2px solid #ff5722; border-radius: 14px; box-shadow: 0 12px 35px rgba(0,0,0,0.5); color: #fff;">
+                        <h4 style="margin: 0 0 8px 0; color: #ff5722; font-family: 'Playfair Display', serif; font-size: 1.35rem; display: flex; align-items: center; justify-content: space-between;">
+                            <span>🤠 Consola de Carrera en Cancha & Transmisión en Vivo</span>
+                            <span id="live-admin-status-indicator" style="font-size: 0.78rem; background: #2e7d32; color: #fff; padding: 5px 14px; border-radius: 20px; font-weight: 700; text-transform: uppercase;">Transmisión en Vivo</span>
+                        </h4>
+                        <p style="color: #bcaaa4; font-size: 0.85rem; margin: 0 0 18px 0;">Selecciona la collera en cancha, calcula sus atajadas en vivo y transmite su puntaje directamente a la pantalla del público.</p>
+
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; background: rgba(255,255,255,0.03); padding: 15px; border-radius: 10px;">
+                            <div>
+                                <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #ffab91; margin-bottom: 6px; text-transform: uppercase;">Rodeo a Transmitir</label>
+                                <select id="admin-live-rodeo-select" style="width: 100%; padding: 9px; border-radius: 6px; border: 2px solid #ff5722; background: #fff; color: #2c1810; font-weight: 800;" onchange="onLiveRodeoSelectChange(this.value)">
+                                    <option value="champion-chile-2026">Champion de Chile 2026</option>
+                                    <option value="clasificatorio-sur-2026">Clasificatorio Sur 2026</option>
+                                    <option value="clasificatorio-centro-2026">Clasificatorio Centro 2026</option>
+                                    <option value="clasificatorio-norte-2026">Clasificatorio Norte 2026</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #ffab91; margin-bottom: 6px; text-transform: uppercase;">Collera en Cancha</label>
+                                <select id="admin-live-collera-select" style="width: 100%; padding: 9px; border-radius: 6px; border: 1.5px solid #d5cbbf; background: #fff; color: #2c1810; font-weight: 700;" onchange="onColleraSelectChange()">
+                                    <option value="">-- Cargar Colleras --</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #ffab91; margin-bottom: 6px; text-transform: uppercase;">Toro en Curso</label>
+                                <select id="admin-live-toro-select" style="width: 100%; padding: 9px; border-radius: 6px; border: 1.5px solid #d5cbbf; background: #fff; color: #2c1810; font-weight: 700;" onchange="onToroSelectChange()">
+                                    <option value="1er Toro">1er Toro en Curso</option>
+                                    <option value="2do Toro">2do Toro en Curso</option>
+                                    <option value="3er Toro">3er Toro en Curso</option>
+                                    <option value="4to Toro">4to Toro en Curso</option>
+                                    <option value="Desempate / Champion">Desempate / Champion</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Calculadora de Atajadas -->
+                        <div style="background: rgba(0,0,0,0.35); padding: 18px; border-radius: 12px; margin-bottom: 18px; border: 1px solid rgba(255,87,34,0.3);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+                                <h5 style="margin: 0; color: #ffab91; font-size: 0.95rem; text-transform: uppercase; font-weight: 800;">🎯 Calculadora de Carrera en Cancha</h5>
+                                <div id="live-calc-total-badge" style="font-size: 1.2rem; font-weight: 900; color: #ffffff; background: #ff5722; padding: 4px 16px; border-radius: 20px;">
+                                    0 PUNTOS EN TORO
+                                </div>
+                            </div>
+
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px;">
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; color: #d7ccc8; margin-bottom: 4px;">Salida Apiñadero</label>
+                                    <select id="calc-salida" style="width: 100%; padding: 8px; border-radius: 6px; background: #1a0e0a; color: #fff; border: 1px solid #8d6e63;" onchange="transmitLivePartialProgress()">
+                                        <option value="1">+1 (Salida Buena)</option>
+                                        <option value="0">0 (Salida Neutra)</option>
+                                        <option value="-1">-1 (Salida Mala)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; color: #d7ccc8; margin-bottom: 4px;">1° Atajada</label>
+                                    <select id="calc-atajada1" style="width: 100%; padding: 8px; border-radius: 6px; background: #1a0e0a; color: #fff; border: 1px solid #8d6e63;" onchange="transmitLivePartialProgress()">
+                                        <option value="4">+4 Puntos</option>
+                                        <option value="3">+3 Puntos</option>
+                                        <option value="2">+2 Puntos</option>
+                                        <option value="0">0 (Sin Puntos)</option>
+                                        <option value="-1">-1 (Mala)</option>
+                                        <option value="-2">-2 (Mala)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; color: #d7ccc8; margin-bottom: 4px;">2° Atajada</label>
+                                    <select id="calc-atajada2" style="width: 100%; padding: 8px; border-radius: 6px; background: #1a0e0a; color: #fff; border: 1px solid #8d6e63;" onchange="transmitLivePartialProgress()">
+                                        <option value="4">+4 Puntos</option>
+                                        <option value="3">+3 Puntos</option>
+                                        <option value="2">+2 Puntos</option>
+                                        <option value="0">0 (Sin Puntos)</option>
+                                        <option value="-1">-1 (Mala)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; color: #d7ccc8; margin-bottom: 4px;">3° Atajada</label>
+                                    <select id="calc-atajada3" style="width: 100%; padding: 8px; border-radius: 6px; background: #1a0e0a; color: #fff; border: 1px solid #8d6e63;" onchange="transmitLivePartialProgress()">
+                                        <option value="4">+4 Puntos</option>
+                                        <option value="3">+3 Puntos</option>
+                                        <option value="2">+2 Puntos</option>
+                                        <option value="0">0 (Sin Puntos)</option>
+                                        <option value="-1">-1 (Mala)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 0.75rem; color: #d7ccc8; margin-bottom: 4px;">Faltas / Descuentos</label>
+                                    <select id="calc-faltas" style="width: 100%; padding: 8px; border-radius: 6px; background: #1a0e0a; color: #fff; border: 1px solid #8d6e63;" onchange="transmitLivePartialProgress()">
+                                        <option value="0">Sin Faltas (0)</option>
+                                        <option value="-1">-1 Falta</option>
+                                        <option value="-2">-2 Faltas</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button onclick="guardarToroYSiguienteCollera()" style="width: 100%; margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: white; border: none; border-radius: 8px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 12px rgba(230,81,0,0.4);">
+                                📡 GUARDAR CARRERA Y TRANSMITIR A ESPECTADORES
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tabla de Colleras -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif;">Tabla de Colleras</h3>
+                        <button onclick="openColleraModal()" class="admin-btn admin-btn-primary" style="padding: 0.5rem 1rem; background: #ff5722; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">➕ Agregar Collera</button>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <table class="admin-data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                                    <th style="padding: 10px;">N°</th>
+                                    <th style="padding: 10px;">Asociación / Criadero</th>
+                                    <th style="padding: 10px;">Jinetes</th>
+                                    <th style="padding: 10px;">Caballos</th>
+                                    <th style="padding: 10px;">1er Toro</th>
+                                    <th style="padding: 10px;">2do Toro</th>
+                                    <th style="padding: 10px;">3er Toro</th>
+                                    <th style="padding: 10px;">4to Toro</th>
+                                    <th style="padding: 10px;">Total</th>
+                                    <th style="padding: 10px;">Lugar</th>
+                                    <th style="padding: 10px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="colleras-tbody">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PESTAÑA 2: CALENDARIO DE RODEOS -->
+                <div id="tab-calendario" class="admin-tab-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif;">📅 Calendario Oficial de Rodeos Futuros</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Agrega o edita los rodeos programados en la temporada.</p>
+                        </div>
+                        <button onclick="openAdminCalendarModal()" class="admin-btn admin-btn-primary" style="padding: 0.5rem 1rem; background: #ff5722; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">➕ Agregar Evento</button>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <table class="admin-data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                                    <th style="padding: 10px;">Fecha</th>
+                                    <th style="padding: 10px;">Rodeo / Evento</th>
+                                    <th style="padding: 10px;">Medialuna / Ciudad</th>
+                                    <th style="padding: 10px;">Zona / Asociación</th>
+                                    <th style="padding: 10px;">Tipo</th>
+                                    <th style="padding: 10px;">Estado</th>
+                                    <th style="padding: 10px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="calendar-admin-tbody">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PESTAÑA 3: GENEALOGÍA & MORFOLOGÍA -->
+                <div id="tab-genealogias" class="admin-tab-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <div>
+                            <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif;">🐴 Registros Genealógicos & Morfológicos</h3>
+                            <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Gestiona las fichas morfológicas (alzada, cincha, caña) y árboles genealógicos.</p>
+                        </div>
+                        <button onclick="openGenealogiaModal()" class="admin-btn admin-btn-primary" style="padding: 0.5rem 1rem; background: #ff5722; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">➕ Registrar Caballo</button>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <table class="admin-data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                                    <th style="padding: 10px;">Nombre Caballo</th>
+                                    <th style="padding: 10px;">Criadero</th>
+                                    <th style="padding: 10px;">SBT / Nac.</th>
+                                    <th style="padding: 10px;">Fecha Nac.</th>
+                                    <th style="padding: 10px;">Medidas (Alz/Cin/Cañ)</th>
+                                    <th style="padding: 10px;">Foto</th>
+                                    <th style="padding: 10px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="genealogias-tbody">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PESTAÑA 4: RESPALDOS & BACKUP -->
+                <div id="tab-backup" class="admin-tab-content">
+                    <div class="admin-card" style="padding: 24px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
+                        <h3 style="color: #ff5722; font-family: 'Playfair Display', serif; margin-top: 0;">💾 Respaldos de Seguridad & Exportación</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Exporta los datos completos a formato JSON para hacer respaldos locales o restaurar copias anteriores.</p>
+
+                        <div style="display: flex; gap: 15px; margin-top: 20px; flex-wrap: wrap;">
+                            <button onclick="exportJSONBackup()" class="admin-btn admin-btn-primary" style="padding: 12px 24px; background: #2e7d32; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">⬇️ Exportar Backup JSON</button>
+                            <label class="admin-btn admin-btn-secondary" style="padding: 12px 24px; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-weight: 700; cursor: pointer;">
+                                ⬆️ Importar Backup JSON
+                                <input type="file" accept=".json" onchange="importJSONBackup(event)" style="display: none;">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PESTAÑA 5: CONTROL DE SOCIOS -->
+                <div id="tab-usuarios" class="admin-tab-content">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif;">👥 Control de Socios Habilitados</h3>
+                    </div>
+
+                    <div class="admin-table-container">
+                        <table class="admin-data-table" style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                                    <th style="padding: 10px;">Nombre Socio</th>
+                                    <th style="padding: 10px;">Correo</th>
+                                    <th style="padding: 10px;">Estado Membresía</th>
+                                    <th style="padding: 10px;">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usuarios-tbody">
+                                <!-- Cargado dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- PESTAÑA 6: SMS -->
+                <div id="tab-sms" class="admin-tab-content">
+                    <div class="admin-card" style="padding: 24px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px;">
+                        <h3 style="color: #ff5722; font-family: 'Playfair Display', serif; margin-top: 0;">📱 Alertas SMS a Suscriptores</h3>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Envía notificaciones directamente a los números de teléfono registrados.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL RODEOS -->
+    <div id="modal-rodeo-overlay" class="admin-modal-overlay">
+        <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 500px; border: 1px solid rgba(255,255,255,0.2);">
+            <h3 id="rodeo-modal-title" style="margin-top: 0; color: #ff5722;">Agregar Nuevo Rodeo</h3>
+            <form id="form-rodeo" onsubmit="saveRodeo(event)">
+                <input type="hidden" id="form-rodeo-id-old">
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.8rem; margin-bottom: 4px;">ID del Rodeo (ej: clasificatorio-sur-2026)</label>
+                    <input type="text" id="form-rodeo-id" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.8rem; margin-bottom: 4px;">Nombre del Rodeo</label>
+                    <input type="text" id="form-rodeo-nombre" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" onclick="closeRodeoModal()" style="padding: 8px 16px; background: #444; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Cancelar</button>
+                    <button type="submit" style="padding: 8px 16px; background: #ff5722; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL COLLERAS -->
+    <div id="modal-collera-overlay" class="admin-modal-overlay">
+        <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 600px; border: 1px solid rgba(255,255,255,0.2);">
+            <h3 id="modal-collera-title" style="margin-top: 0; color: #ff5722;">Agregar / Editar Collera</h3>
+            <form id="form-collera" onsubmit="saveCollera(event)">
+                <input type="hidden" id="form-collera-index">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 0.8rem;">Número de Salida (N°)</label>
+                        <input type="number" id="form-n" required style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #555;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8rem;">Asociación</label>
+                        <input type="text" id="form-asociacion" required style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #555;">
+                    </div>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.8rem;">Criadero (Opcional)</label>
+                    <input type="text" id="form-criadero" style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #555;">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 0.8rem;">Jinete 1</label>
+                        <input type="text" id="form-jinete1" required style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #555;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8rem;">Jinete 2</label>
+                        <input type="text" id="form-jinete2" required style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #555;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 0.8rem;">Caballo 1</label>
+                        <input type="text" id="form-caballo1" required style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #555;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8rem;">Caballo 2</label>
+                        <input type="text" id="form-caballo2" required style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #555;">
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <button type="button" onclick="closeColleraModal()" style="padding: 8px 16px; background: #444; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Cancelar</button>
+                    <button type="submit" style="padding: 8px 16px; background: #ff5722; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">Guardar Collera</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app-v5.js"></script>
+    <script>
+        // Cargar script admin1 sin trabas
+        const ADMIN_EMAIL = "admin@corralabierto.cl";
+        let filteredColleras = [];
+        let filteredGenealogias = [];
+        let activeRodeoId = localStorage.getItem('activeRodeoId') || 'champion-chile-2026';
+        let rodeos = [];
+
+        // CAMBIADOR DE PESTAÑAS 100% GARANTIZADO
+        window.switchAdminTab = function(tabId, btnElement) {
+            const tabs = document.querySelectorAll('.admin-tab-content');
+            const btns = document.querySelectorAll('.admin-tab-btn');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            btns.forEach(b => b.classList.remove('active'));
+
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) targetTab.classList.add('active');
+
+            if (btnElement) {
+                btnElement.classList.add('active');
+            } else {
+                const b = document.getElementById(`btn-${tabId}`);
+                if (b) b.classList.add('active');
+            }
+        };
+
+        // INICIALIZACIÓN
+        async function initAdmin1() {
+            try {
+                localStorage.setItem('currentUser', JSON.stringify({ email: ADMIN_EMAIL, active: true }));
+            } catch(e) {}
+
+            try { await loadRodeos(); } catch(e) {}
+            try { await loadRodeoColleras(activeRodeoId); } catch(e) {}
+
+            filteredColleras = Array.isArray(rodeoData) ? [...rodeoData] : [];
+            filteredGenealogias = Array.isArray(genealogiaData) ? [...genealogiaData] : [];
+
+            renderRodeosTable();
+            renderCollerasTable();
+            renderGenealogiasTable();
+            renderUsuariosTable();
+            renderAdminCalendarTable();
+        }
+
+        // CARGA DE DATOS DE RODEOS
+        async function loadRodeos() {
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('rodeos').select('*').order('created_at', { ascending: true });
+                    if (!error && data && data.length > 0) {
+                        rodeos = data;
+                        return;
+                    }
+                } catch(e) {}
+            }
+            rodeos = [
+                { id: 'champion-chile-2026', nombre: 'Champion de Chile 2026', activo: true, logo_url: '' },
+                { id: 'clasificatorio-sur-2026', nombre: 'Clasificatorio Sur 2026', activo: false, logo_url: '' },
+                { id: 'clasificatorio-centro-2026', nombre: 'Clasificatorio Centro 2026', activo: false, logo_url: '' },
+                { id: 'clasificatorio-norte-2026', nombre: 'Clasificatorio Norte 2026', activo: false, logo_url: '' }
+            ];
+        }
+
+        async function loadRodeoColleras(rodeoId) {
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('colleras').select('*').eq('rodeo_id', rodeoId).order('n');
+                    if (!error && data && data.length > 0) {
+                        rodeoData = data;
+                        return;
+                    }
+                } catch(e) {}
+            }
+            if (typeof defaultRodeoData !== 'undefined') {
+                rodeoData = defaultRodeoData;
+            } else {
+                rodeoData = [];
+            }
+        }
+
+        // RENDERIZADO DE TABLAS
+        function renderRodeosTable() {
+            const tbody = document.getElementById('rodeos-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = (rodeos || []).map(r => `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 10px;"><code>${r.id}</code></td>
+                    <td style="padding: 10px;"><strong>${r.nombre}</strong></td>
+                    <td style="padding: 10px;">${r.logo_url ? `<img src="${r.logo_url}" style="height: 30px;">` : 'Sin logo'}</td>
+                    <td style="padding: 10px;"><span style="color: ${r.activo ? '#4caf50' : '#f44336'}; font-weight: 700;">${r.activo ? 'Activo' : 'Bloqueado'}</span></td>
+                    <td style="padding: 10px;">
+                        <button onclick="selectRodeoForAdmin1('${r.id}')" style="padding: 4px 10px; background: #ff5722; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Seleccionar</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function selectRodeoForAdmin1(rId) {
+            activeRodeoId = rId;
+            localStorage.setItem('activeRodeoId', rId);
+            const titleEl = document.getElementById('active-rodeo-title');
+            const rodeoObj = rodeos.find(r => r.id === rId);
+            if (titleEl && rodeoObj) titleEl.innerText = rodeoObj.nombre;
+            loadRodeoColleras(rId).then(() => {
+                filteredColleras = [...rodeoData];
+                renderCollerasTable();
+            });
+        }
+
+        function renderCollerasTable() {
+            const tbody = document.getElementById('colleras-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = (filteredColleras || []).map(c => {
+                const jinetesStr = Array.isArray(c.jinetes) ? c.jinetes.join(' / ') : (c.jinetes || '--');
+                const caballosStr = Array.isArray(c.caballos) ? c.caballos.join(' / ') : (c.caballos || '--');
+                return `
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 8px;"><strong>${c.n || '--'}</strong></td>
+                        <td style="padding: 8px;">${c.asociacion || '--'} ${c.criadero ? `<br><small style="color:#ffab91;">CRIADERO: ${c.criadero}</small>` : ''}</td>
+                        <td style="padding: 8px;">${jinetesStr}</td>
+                        <td style="padding: 8px;">${caballosStr}</td>
+                        <td style="padding: 8px;">${c.animal1 !== undefined ? c.animal1 : '--'}</td>
+                        <td style="padding: 8px;">${c.animal2 || '--'}</td>
+                        <td style="padding: 8px;">${c.animal3 || '--'}</td>
+                        <td style="padding: 8px;">${c.animal4 || '--'}</td>
+                        <td style="padding: 8px;"><strong>${c.resultado || '--'}</strong></td>
+                        <td style="padding: 8px; color: #ff5722; font-weight: bold;">${c.lugar || '--'}</td>
+                        <td style="padding: 8px;">
+                            <button onclick="deleteCollera(${c.n})" style="padding: 4px 8px; background: #c62828; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Borrar</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderGenealogiasTable() {
+            const tbody = document.getElementById('genealogias-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = (filteredGenealogias || []).map(g => `
+                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <td style="padding: 8px;"><strong>${g.nombre || '--'}</strong></td>
+                    <td style="padding: 8px;">${g.criadero || '--'}</td>
+                    <td style="padding: 8px;">${g.nacional || '--'}</td>
+                    <td style="padding: 8px;">${g.fn || '--'}</td>
+                    <td style="padding: 8px;">${g.alzada || '--'} / ${g.cincha || '--'} / ${g.cana || '--'}</td>
+                    <td style="padding: 8px;">${g.foto ? '📷 Con foto' : 'Sin foto'}</td>
+                    <td style="padding: 8px;"><button style="padding: 4px 8px; background: #444; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Editar</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderUsuariosTable() {
+            const tbody = document.getElementById('usuarios-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = `
+                <tr>
+                    <td style="padding: 10px;"><strong>ADMINISTRADOR PRINCIPAL</strong></td>
+                    <td style="padding: 10px;">admin@corralabierto.cl</td>
+                    <td style="padding: 10px;"><span style="color: #4caf50; font-weight: 700;">🟢 SOCIO ACTIVO</span></td>
+                    <td style="padding: 10px;"><button style="padding: 4px 8px; background: #444; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Configurar</button></td>
+                </tr>
+            `;
+        }
+
+        function renderAdminCalendarTable() {
+            const tbody = document.getElementById('calendar-admin-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = `
+                <tr>
+                    <td style="padding: 10px;"><strong>09 - 12 ABR</strong></td>
+                    <td style="padding: 10px;">77° Campeonato Nacional Champion de Chile 2026</td>
+                    <td style="padding: 10px;">Medialuna Monumental de Rancagua</td>
+                    <td style="padding: 10px;">Zona Centro / O'Higgins</td>
+                    <td style="padding: 10px;">Champion de Chile</td>
+                    <td style="padding: 10px;"><span style="color: #4caf50; font-weight: 700;">🔴 En Vivo</span></td>
+                    <td style="padding: 10px;"><button style="padding: 4px 8px; background: #0288d1; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Editar</button></td>
+                </tr>
+            `;
+        }
+
+        // FUNCIONES DE MODALES
+        function openRodeoModal() { document.getElementById('modal-rodeo-overlay').classList.add('active'); }
+        function closeRodeoModal() { document.getElementById('modal-rodeo-overlay').classList.remove('active'); }
+        function openColleraModal() { document.getElementById('modal-collera-overlay').classList.add('active'); }
+        function closeColleraModal() { document.getElementById('modal-collera-overlay').classList.remove('active'); }
+
+        function saveRodeo(e) {
+            e.preventDefault();
+            const id = document.getElementById('form-rodeo-id').value;
+            const nombre = document.getElementById('form-rodeo-nombre').value;
+            rodeos.push({ id, nombre, activo: true, logo_url: '' });
+            renderRodeosTable();
+            closeRodeoModal();
+        }
+
+        function saveCollera(e) {
+            e.preventDefault();
+            const n = parseInt(document.getElementById('form-n').value);
+            const asociacion = document.getElementById('form-asociacion').value;
+            const criadero = document.getElementById('form-criadero').value;
+            const jinetes = [document.getElementById('form-jinete1').value, document.getElementById('form-jinete2').value];
+            const caballos = [document.getElementById('form-caballo1').value, document.getElementById('form-caballo2').value];
+            
+            const newCollera = { n, asociacion, criadero, jinetes, caballos, animal1: '0', resultado: '0', rodeo_id: activeRodeoId };
+            filteredColleras.push(newCollera);
+            if (supabaseClient) {
+                supabaseClient.from('colleras').upsert(newCollera).then(()=>{}).catch(()=>{});
+            }
+            renderCollerasTable();
+            closeColleraModal();
+        }
+
+        async function deleteCollera(n) {
+            filteredColleras = filteredColleras.filter(c => c.n !== n);
+            if (supabaseClient) {
+                await supabaseClient.from('colleras').delete().eq('n', n).eq('rodeo_id', activeRodeoId);
+            }
+            renderCollerasTable();
+        }
+
+        // EJECUTAR CUANDO EL DOM ESTÉ LISTO
+        document.addEventListener('DOMContentLoaded', initAdmin1);
+    </script>
+</body>
+</html>
