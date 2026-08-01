@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Corral Abierto - Panel de Administración</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=6.0">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐴</text></svg>">
     <style>
@@ -101,6 +101,8 @@
                                     <th>ID Rodeo</th>
                                     <th>Nombre del Rodeo</th>
                                     <th>Logo</th>
+                                    <th>Fechas & Lugar / Medialuna</th>
+                                    <th>Asociación / Tipo</th>
                                     <th>Estado</th>
                                     <th>Acciones</th>
                                 </tr>
@@ -359,23 +361,68 @@
         </main>
     </div>
 
-    <!-- MODAL RODEOS -->
+    <!-- MODAL RODEOS DETALLADO CON EDICIÓN -->
     <div id="modal-rodeo-overlay" class="admin-modal-overlay">
-        <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 500px; border: 1px solid rgba(255,255,255,0.2);">
-            <h3 id="rodeo-modal-title" style="margin-top: 0; color: #ff5722;">Agregar Nuevo Rodeo</h3>
+        <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 600px; border: 1.5px solid #ff5722;">
+            <h3 id="rodeo-modal-title" style="margin-top: 0; color: #ff5722; font-family: 'Playfair Display', serif;">Agregar / Editar Rodeo</h3>
             <form id="form-rodeo" onsubmit="saveRodeo(event)">
                 <input type="hidden" id="form-rodeo-id-old">
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 0.8rem; margin-bottom: 4px;">ID del Rodeo (ej: clasificatorio-sur-2026)</label>
-                    <input type="text" id="form-rodeo-id" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">ID del Rodeo (ej: clasificatorio-sur-2026)</label>
+                        <input type="text" id="form-rodeo-id" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Categoría / Tipo de Rodeo</label>
+                        <select id="form-rodeo-tipo" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                            <option value="Champion de Chile">Champion de Chile</option>
+                            <option value="Clasificatorio">Clasificatorio</option>
+                            <option value="Zonal">Zonal</option>
+                            <option value="Primera con Puntos">Primera con Puntos</option>
+                            <option value="Provincial">Provincial</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 0.8rem; margin-bottom: 4px;">Nombre del Rodeo</label>
-                    <input type="text" id="form-rodeo-nombre" required style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Nombre Oficial del Rodeo</label>
+                    <input type="text" id="form-rodeo-nombre" required placeholder="ej: 77° Campeonato Nacional Champion de Chile 2026" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
                 </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Fechas del Evento (ej: 09 - 12 ABR 2026)</label>
+                        <input type="text" id="form-rodeo-fecha" placeholder="ej: 09 - 12 ABR 2026" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Medialuna / Lugar / Ciudad</label>
+                        <input type="text" id="form-rodeo-lugar" placeholder="ej: Medialuna Monumental de Rancagua" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Asociación / Región</label>
+                        <input type="text" id="form-rodeo-asociacion" placeholder="ej: Asociación O'Higgins" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">Estado del Rodeo</label>
+                        <select id="form-rodeo-activo" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                            <option value="true">🔴 En Transmisión Vivo / Activo</option>
+                            <option value="false">🏁 Finalizado / Bloqueado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">URL Logo / Insignia del Rodeo (opcional)</label>
+                    <input type="text" id="form-rodeo-logo" placeholder="https://..." style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                </div>
+
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
                     <button type="button" onclick="closeRodeoModal()" style="padding: 8px 16px; background: #444; color: #fff; border: none; border-radius: 6px; cursor: pointer;">Cancelar</button>
-                    <button type="submit" style="padding: 8px 16px; background: #ff5722; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">Guardar</button>
+                    <button type="submit" style="padding: 8px 16px; background: #ff5722; color: #fff; border: none; border-radius: 6px; font-weight: 700; cursor: pointer;">Guardar Rodeo</button>
                 </div>
             </form>
         </div>
@@ -582,7 +629,7 @@
             populateColleraHorseSelects();
         }
 
-        // CARGA DE DATOS DE RODEOS
+        // CARGA DE DATOS DE RODEOS DETALLADA
         async function loadRodeos() {
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
@@ -594,10 +641,10 @@
                 } catch(e) {}
             }
             rodeos = [
-                { id: 'champion-chile-2026', nombre: 'Champion de Chile 2026', activo: true, logo_url: '' },
-                { id: 'clasificatorio-sur-2026', nombre: 'Clasificatorio Sur 2026', activo: false, logo_url: '' },
-                { id: 'clasificatorio-centro-2026', nombre: 'Clasificatorio Centro 2026', activo: false, logo_url: '' },
-                { id: 'clasificatorio-norte-2026', nombre: 'Clasificatorio Norte 2026', activo: false, logo_url: '' }
+                { id: 'champion-chile-2026', nombre: '77° Campeonato Nacional Champion de Chile 2026', activo: true, logo_url: '', fecha: '09 - 12 ABR 2026', lugar: 'Medialuna Monumental de Rancagua', asociacion: 'O\'Higgins', tipo: 'Champion de Chile' },
+                { id: 'clasificatorio-sur-2026', nombre: 'Rodeo Clasificatorio Zona Sur Valdivia 2026', activo: false, logo_url: '', fecha: '06 - 08 MAR 2026', lugar: 'Medialuna Parque Saval, Valdivia', asociacion: 'Valdivia', tipo: 'Clasificatorio' },
+                { id: 'clasificatorio-centro-2026', nombre: 'Rodeo Clasificatorio Zona Centro San Clemente 2026', activo: false, logo_url: '', fecha: '13 - 15 MAR 2026', lugar: 'Medialuna de San Clemente', asociacion: 'Talca', tipo: 'Clasificatorio' },
+                { id: 'clasificatorio-norte-2026', nombre: 'Rodeo Clasificatorio Zona Norte Petorca 2026', activo: false, logo_url: '', fecha: '20 - 22 MAR 2026', lugar: 'Medialuna El Sobrante, Petorca', asociacion: 'Petorca', tipo: 'Clasificatorio' }
             ];
         }
 
@@ -618,7 +665,7 @@
             }
         }
 
-        // RENDERIZADO DE TABLAS
+        // RENDERIZADO DE TABLA DE RODEOS DETALLADA
         function renderRodeosTable() {
             const tbody = document.getElementById('rodeos-tbody');
             if (!tbody) return;
@@ -626,16 +673,22 @@
                 <tr>
                     <td><code>${r.id}</code></td>
                     <td><strong>${r.nombre}</strong></td>
-                    <td>${r.logo_url ? `<img src="${r.logo_url}" style="height: 30px;">` : 'Sin logo'}</td>
-                    <td><span style="color: ${r.activo ? '#4caf50' : '#f44336'}; font-weight: 700;">${r.activo ? 'Activo' : 'Bloqueado'}</span></td>
+                    <td>${r.logo_url ? `<img src="${r.logo_url}" style="height: 32px; border-radius: 4px;">` : '<span style="color:#8d6e63;">Sin logo</span>'}</td>
+                    <td>📅 ${r.fecha || 'Por definir'}<br><small style="color:#bcaaa4;">📍 ${r.lugar || 'Medialuna'}</small></td>
+                    <td>${r.asociacion || 'General'} <br><small style="color:#ffab91;">🏷️ ${r.tipo || 'Oficial'}</small></td>
+                    <td><span style="color: ${r.activo ? '#4caf50' : '#f44336'}; font-weight: 700;">${r.activo ? '🔴 En Vivo' : '🏁 Finalizado / Inactivo'}</span></td>
                     <td>
-                        <button onclick="selectRodeoForAdminDirect('${r.id}')" style="padding: 6px 12px; background: #ff5722; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">Seleccionar</button>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <button onclick="selectRodeoForAdminDirect('${r.id}')" style="padding: 4px 8px; background: #ff5722; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🎯 Seleccionar</button>
+                            <button onclick="editRodeo('${r.id}')" style="padding: 4px 8px; background: #0288d1; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">✏️ Editar</button>
+                            <button onclick="deleteRodeo('${r.id}')" style="padding: 4px 8px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🗑️ Borrar</button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
         }
 
-        function selectRodeoForAdminDirect(rId) {
+        window.selectRodeoForAdminDirect = function(rId) {
             activeRodeoId = rId;
             localStorage.setItem('activeRodeoId', rId);
             const titleEl = document.getElementById('active-rodeo-title');
@@ -645,7 +698,65 @@
                 filteredColleras = [...rodeoData];
                 renderCollerasTable();
             });
-        }
+        };
+
+        window.editRodeo = function(rId) {
+            const r = rodeos.find(item => item.id === rId);
+            if (!r) return;
+
+            document.getElementById('form-rodeo-id-old').value = r.id;
+            document.getElementById('form-rodeo-id').value = r.id;
+            document.getElementById('form-rodeo-nombre').value = r.nombre || '';
+            document.getElementById('form-rodeo-tipo').value = r.tipo || 'Champion de Chile';
+            document.getElementById('form-rodeo-fecha').value = r.fecha || '';
+            document.getElementById('form-rodeo-lugar').value = r.lugar || '';
+            document.getElementById('form-rodeo-asociacion').value = r.asociacion || '';
+            document.getElementById('form-rodeo-activo').value = r.activo ? 'true' : 'false';
+            document.getElementById('form-rodeo-logo').value = r.logo_url || '';
+
+            document.getElementById('rodeo-modal-title').innerText = "✏️ Editar Rodeo Existente";
+            openRodeoModal();
+        };
+
+        window.deleteRodeo = function(rId) {
+            if (!confirm(`¿Seguro que deseas eliminar el rodeo ${rId}?`)) return;
+            rodeos = rodeos.filter(r => r.id !== rId);
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('rodeos').delete().eq('id', rId).then(()=>{}).catch(()=>{});
+            }
+            renderRodeosTable();
+        };
+
+        window.saveRodeo = function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const oldId = document.getElementById('form-rodeo-id-old').value;
+            const id = document.getElementById('form-rodeo-id').value.trim();
+            const nombre = document.getElementById('form-rodeo-nombre').value.trim();
+            const tipo = document.getElementById('form-rodeo-tipo').value;
+            const fecha = document.getElementById('form-rodeo-fecha').value.trim();
+            const lugar = document.getElementById('form-rodeo-lugar').value.trim();
+            const asociacion = document.getElementById('form-rodeo-asociacion').value.trim();
+            const activo = document.getElementById('form-rodeo-activo').value === 'true';
+            const logo_url = document.getElementById('form-rodeo-logo').value.trim();
+
+            if (!id || !nombre) return;
+
+            const rodeoObj = { id, nombre, tipo, fecha, lugar, asociacion, activo, logo_url };
+
+            const existingIdx = rodeos.findIndex(r => r.id === (oldId || id));
+            if (existingIdx >= 0) {
+                rodeos[existingIdx] = rodeoObj;
+            } else {
+                rodeos.push(rodeoObj);
+            }
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('rodeos').upsert(rodeoObj).then(()=>{}).catch(()=>{});
+            }
+
+            renderRodeosTable();
+            closeRodeoModal();
+        };
 
         function renderCollerasTable() {
             const tbody = document.getElementById('colleras-tbody');
@@ -726,7 +837,6 @@
 
             const options = `<option value="">-- Buscar Caballo Registrado por SBT --</option>` +
                 (filteredGenealogias || []).map(g => {
-                    const sbt = (g.nacional || '').replace('SBT N° ', '').trim();
                     return `<option value="${g.nombre}">${g.nombre} (${g.criadero || 'Sin Criadero'}) [${g.nacional || 'Sin SBT'}]</option>`;
                 }).join('') +
                 `<option value="CUSTOM">+ Escribir Nombre de Caballo Personalizado</option>`;
@@ -776,7 +886,11 @@
         };
 
         // FUNCIONES DE MODALES Y AÑADIR
-        window.openRodeoModal = function() { document.getElementById('modal-rodeo-overlay').classList.add('active'); };
+        window.openRodeoModal = function() {
+            document.getElementById('form-rodeo-id-old').value = '';
+            document.getElementById('rodeo-modal-title').innerText = "Agregar Nuevo Rodeo";
+            document.getElementById('modal-rodeo-overlay').classList.add('active');
+        };
         window.closeRodeoModal = function() { document.getElementById('modal-rodeo-overlay').classList.remove('active'); };
         
         window.openColleraModal = function() {
@@ -793,20 +907,6 @@
 
         window.openAdminCalendarModal = function() { document.getElementById('modal-cal-event-overlay').classList.add('active'); };
         window.closeAdminCalendarModal = function() { document.getElementById('modal-cal-event-overlay').classList.remove('active'); };
-
-        window.saveRodeo = function(e) {
-            if (e && e.preventDefault) e.preventDefault();
-            const id = document.getElementById('form-rodeo-id').value.trim();
-            const nombre = document.getElementById('form-rodeo-nombre').value.trim();
-            if (!id || !nombre) return;
-            const newRodeo = { id, nombre, activo: true, logo_url: '' };
-            rodeos.push(newRodeo);
-            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                supabaseClient.from('rodeos').upsert(newRodeo).then(()=>{}).catch(()=>{});
-            }
-            renderRodeosTable();
-            closeRodeoModal();
-        };
 
         window.saveCollera = function(e) {
             if (e && e.preventDefault) e.preventDefault();
