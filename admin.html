@@ -4462,12 +4462,12 @@
                 document.getElementById('form-cal-event').reset();
             }
 
-            overlay.style.display = 'flex';
+            if (overlay) overlay.classList.add('active');
         }
 
         function closeAdminCalendarModal() {
             const overlay = document.getElementById('modal-cal-event-overlay');
-            if (overlay) overlay.style.display = 'none';
+            if (overlay) overlay.classList.remove('active');
         }
 
         async function saveAdminCalendarEvent(e) {
