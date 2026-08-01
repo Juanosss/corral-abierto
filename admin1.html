@@ -964,16 +964,24 @@
         function renderGenealogiasTable() {
             const tbody = document.getElementById('genealogias-tbody');
             if (!tbody) return;
-            tbody.innerHTML = (filteredGenealogias || []).map(g => `
-                <tr>
-                    <td><code style="color:#ffab91; font-weight:800;">${g.nacional || 'SBT Pendiente'}</code></td>
-                    <td><strong>${g.nombre || '--'}</strong> ${g.color ? `<br><small style="color:#bcaaa4;">${g.color}</small>` : ''}</td>
-                    <td>${g.criadero || '--'} ${g.dueno ? `<br><small style="color:#ffab91;">Criador: ${g.dueno}</small>` : ''}</td>
-                    <td>${g.fn || '--'} ${g.sexo ? `<br><small style="color:#8d6e63;">${g.sexo}</small>` : ''}</td>
-                    <td><strong>P: ${g.padre || '--'}</strong><br><small style="color:#bcaaa4;">M: ${g.madre || '--'}</small></td>
-                    <td><button style="padding: 4px 8px; background: #444; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Editar</button></td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = (filteredGenealogias || []).map(g => {
+                const safeId = String(g.id || (g.nacional || '').replace(/[^0-9]/g, '') || g.nombre);
+                return `
+                    <tr>
+                        <td><code style="color:#ffab91; font-weight:800;">${g.nacional || 'SBT Pendiente'}</code></td>
+                        <td><strong>${g.nombre || '--'}</strong> ${g.color ? `<br><small style="color:#bcaaa4;">${g.color}</small>` : ''}</td>
+                        <td>${g.criadero || '--'} ${g.dueno ? `<br><small style="color:#ffab91;">Criador: ${g.dueno}</small>` : ''}</td>
+                        <td>${g.fn || '--'} ${g.sexo ? `<br><small style="color:#8d6e63;">${g.sexo}</small>` : ''}</td>
+                        <td><strong>P: ${g.padre || '--'}</strong><br><small style="color:#bcaaa4;">M: ${g.madre || '--'}</small></td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button onclick="window.editGenealogia('${safeId}')" style="padding: 5px 10px; background: #0288d1; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">✏️ Editar</button>
+                                <button onclick="window.deleteGenealogia('${safeId}')" style="padding: 5px 10px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🗑️ Borrar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         // RENDERIZADO DE TABLA DE CALENDARIO DETALLADA CON BINDING 100% GARANTIZADO
@@ -1421,8 +1429,74 @@
         };
         window.closeColleraModal = function() { document.getElementById('modal-collera-overlay').classList.remove('active'); };
 
-        window.openGenealogiaModal = function() { document.getElementById('modal-genealogia-overlay').classList.add('active'); };
+        window.openGenealogiaModal = function() {
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+            setVal('form-gen-sbt', '');
+            setVal('form-gen-nombre', '');
+            setVal('form-gen-criadero', '');
+            setVal('form-gen-alzada', '');
+            setVal('form-gen-cincha', '');
+            setVal('form-gen-cana', '');
+            setVal('form-gen-foto', '');
+
+            const titleEl = document.getElementById('modal-genealogia-title');
+            if (titleEl) titleEl.innerText = "Registrar Ficha Genealógica por N° SBT / Registro";
+            const statusEl = document.getElementById('sbt-lookup-status');
+            if (statusEl) statusEl.innerText = "Extrae automáticamente desde https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=XXXXXX#gc los datos del caballo, criadero, ascendencia y fecha de nacimiento.";
+
+            document.getElementById('modal-genealogia-overlay').classList.add('active');
+        };
         window.closeGenealogiaModal = function() { document.getElementById('modal-genealogia-overlay').classList.remove('active'); };
+
+        window.editGenealogia = function(idOrSbt) {
+            const horse = (filteredGenealogias || []).find(g => 
+                String(g.id) === String(idOrSbt) || 
+                (g.nacional || '').replace(/[^0-9]/g, '') === String(idOrSbt).replace(/[^0-9]/g, '') ||
+                (g.nombre || '').toUpperCase() === String(idOrSbt).toUpperCase()
+            );
+            if (!horse) return;
+
+            const cleanSbt = (horse.nacional || '').replace(/[^0-9]/g, '') || (horse.id || '').replace(/[^0-9]/g, '');
+
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+            setVal('form-gen-sbt', cleanSbt);
+            setVal('form-gen-nombre', horse.nombre || '');
+            setVal('form-gen-criadero', horse.criadero || '');
+            setVal('form-gen-alzada', horse.alzada || '');
+            setVal('form-gen-cincha', horse.cincha || '');
+            setVal('form-gen-cana', horse.cana || '');
+            setVal('form-gen-foto', horse.foto || '');
+
+            const titleEl = document.getElementById('modal-genealogia-title');
+            if (titleEl) titleEl.innerText = "✏️ Editar Ficha de Caballo";
+
+            const overlay = document.getElementById('modal-genealogia-overlay');
+            if (overlay) overlay.classList.add('active');
+        };
+
+        window.deleteGenealogia = async function(idOrSbt) {
+            const horse = (filteredGenealogias || []).find(g => 
+                String(g.id) === String(idOrSbt) || 
+                (g.nacional || '').replace(/[^0-9]/g, '') === String(idOrSbt).replace(/[^0-9]/g, '') ||
+                (g.nombre || '').toUpperCase() === String(idOrSbt).toUpperCase()
+            );
+            if (!horse) return;
+
+            if (!confirm(`¿Seguro que deseas eliminar el registro del caballo ${horse.nombre}?`)) return;
+
+            filteredGenealogias = filteredGenealogias.filter(g => g !== horse);
+            if (typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) {
+                genealogiaData = genealogiaData.filter(g => g.id !== horse.id && g.nombre !== horse.nombre);
+                try { localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData)); } catch(err) {}
+            }
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try { await supabaseClient.from('genealogias').delete().eq('id', horse.id); } catch(err) {}
+            }
+
+            renderGenealogiasTable();
+            populateColleraHorseSelects();
+        };
 
         window.openBulkGenealogiaModal = function() { document.getElementById('modal-bulk-genealogia-overlay').classList.add('active'); };
         window.closeBulkGenealogiaModal = function() { document.getElementById('modal-bulk-genealogia-overlay').classList.remove('active'); };
@@ -1454,16 +1528,31 @@
             const cana = document.getElementById('form-gen-cana').value.trim();
             const foto = document.getElementById('form-gen-foto').value.trim();
 
-            const sbtFormatted = sbtNum ? `SBT N° ${sbtNum.replace(/[^0-9]/g, '')}` : 'SBT Pendiente';
+            const cleanSbt = sbtNum.replace(/[^0-9]/g, '');
+            const sbtFormatted = cleanSbt ? `SBT N° ${cleanSbt}` : 'SBT Pendiente';
 
-            // Evitar duplicados por SBT N°
-            const existingIdx = filteredGenealogias.findIndex(g => (g.nacional || '').replace(/[^0-9]/g, '') === sbtNum.replace(/[^0-9]/g, ''));
-            const newHorse = { id: `h-${Date.now()}`, nombre, criadero, alzada, cincha, cana, foto, nacional: sbtFormatted };
+            // Evitar duplicados por SBT N° o ID
+            const existingIdx = filteredGenealogias.findIndex(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.nombre || '').toUpperCase() === nombre.toUpperCase());
+            const newHorse = { id: `h-${cleanSbt || Date.now()}`, nombre: nombre.toUpperCase(), criadero, alzada, cincha, cana, foto, nacional: sbtFormatted };
 
             if (existingIdx >= 0) {
                 filteredGenealogias[existingIdx] = { ...filteredGenealogias[existingIdx], ...newHorse };
             } else {
                 filteredGenealogias.unshift(newHorse);
+            }
+
+            if (typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) {
+                const genIdx = genealogiaData.findIndex(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.nombre || '').toUpperCase() === nombre.toUpperCase());
+                if (genIdx >= 0) {
+                    genealogiaData[genIdx] = { ...genealogiaData[genIdx], ...newHorse };
+                } else {
+                    genealogiaData.unshift(newHorse);
+                }
+                try { localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData)); } catch(err) {}
+            }
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try { supabaseClient.from('genealogias').upsert(newHorse); } catch(err) {}
             }
 
             renderGenealogiasTable();
