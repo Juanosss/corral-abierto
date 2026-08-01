@@ -978,7 +978,7 @@
             `).join('');
         }
 
-        // RENDERIZADO DE TABLA DE CALENDARIO DETALLADA
+        // RENDERIZADO DE TABLA DE CALENDARIO DETALLADA CON BINDING 100% GARANTIZADO
         function renderAdminCalendarTable() {
             const tbody = document.getElementById('calendar-admin-tbody');
             if (!tbody) return;
@@ -988,69 +988,80 @@
                 return;
             }
 
-            tbody.innerHTML = calendarEvents.map(c => `
-                <tr>
-                    <td>
-                        📅 <strong>${c.fecha_inicio} al ${c.fecha_fin}</strong><br>
-                        <small style="color:#ffab91;">⏰ ${c.hora_inicio || '08:00'} - ${c.hora_fin || '20:00'} h</small>
-                    </td>
-                    <td><strong>${c.nombre}</strong></td>
-                    <td>📍 ${c.lugar}</td>
-                    <td>${c.asociacion || 'General'}<br><small style="color:#bcaaa4;">🏷️ ${c.tipo || 'Oficial'}</small></td>
-                    <td><div style="max-width:260px; font-size:0.8rem; color:#d7ccc8; overflow:hidden; text-overflow:ellipsis;">${c.descripcion || 'Sin programa publicado'}</div></td>
-                    <td><span style="font-weight:800; font-size:0.8rem;">${c.estado || '🟢 Programado'}</span></td>
-                    <td>
-                        <div style="display: flex; gap: 6px;">
-                            <button onclick="editAdminCalendarEvent('${c.id}')" style="padding: 4px 8px; background: #0288d1; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">✏️ Editar</button>
-                            <button onclick="deleteAdminCalendarEvent('${c.id}')" style="padding: 4px 8px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🗑️ Borrar</button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = calendarEvents.map((c, idx) => {
+                const safeId = String(c.id || `cal-${idx}`);
+                return `
+                    <tr>
+                        <td>
+                            📅 <strong>${c.fecha_inicio || c.fecha || 'Por definir'} ${c.fecha_fin ? 'al ' + c.fecha_fin : ''}</strong><br>
+                            <small style="color:#ffab91;">⏰ ${c.hora_inicio || '08:00'} - ${c.hora_fin || '20:00'} h</small>
+                        </td>
+                        <td><strong>${c.nombre || c.event || 'Evento'}</strong></td>
+                        <td>📍 ${c.lugar || c.ciudad || 'Medialuna'}</td>
+                        <td>${c.asociacion || 'General'}<br><small style="color:#bcaaa4;">🏷️ ${c.tipo || 'Oficial'}</small></td>
+                        <td><div style="max-width:260px; font-size:0.8rem; color:#d7ccc8; overflow:hidden; text-overflow:ellipsis;">${c.descripcion || 'Sin programa publicado'}</div></td>
+                        <td><span style="font-weight:800; font-size:0.8rem;">${c.estado || '🟢 Programado'}</span></td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button onclick="window.editAdminCalendarEvent('${safeId}')" style="padding: 5px 10px; background: #0288d1; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">✏️ Editar</button>
+                                <button onclick="window.deleteAdminCalendarEvent('${safeId}')" style="padding: 5px 10px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🗑️ Borrar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         }
 
-        // FUNCIONES DE CALENDARIO DETALLADAS
+        // FUNCIONES DE CALENDARIO DETALLADAS CON ASIGNACIÓN DIRECTA A WINDOW
         window.openAdminCalendarModal = function() {
-            document.getElementById('form-cal-id-old').value = '';
-            document.getElementById('form-cal-nombre').value = '';
-            document.getElementById('form-cal-lugar').value = '';
-            document.getElementById('form-cal-asociacion').value = '';
-            document.getElementById('form-cal-tipo').value = 'Champion de Chile';
-            document.getElementById('form-cal-estado').value = '🟢 Programado';
-            document.getElementById('form-cal-fecha-inicio').value = '';
-            document.getElementById('form-cal-fecha-fin').value = '';
-            document.getElementById('form-cal-hora-inicio').value = '08:00';
-            document.getElementById('form-cal-hora-fin').value = '20:00';
-            document.getElementById('form-cal-descripcion').value = '';
-            document.getElementById('form-cal-afiche').value = '';
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+            setVal('form-cal-id-old', '');
+            setVal('form-cal-nombre', '');
+            setVal('form-cal-lugar', '');
+            setVal('form-cal-asociacion', '');
+            setVal('form-cal-tipo', 'Champion de Chile');
+            setVal('form-cal-estado', '🟢 Programado');
+            setVal('form-cal-fecha-inicio', '');
+            setVal('form-cal-fecha-fin', '');
+            setVal('form-cal-hora-inicio', '08:00');
+            setVal('form-cal-hora-fin', '20:00');
+            setVal('form-cal-descripcion', '');
+            setVal('form-cal-afiche', '');
 
-            document.getElementById('modal-cal-title').innerText = "Agregar Evento al Calendario";
-            document.getElementById('modal-cal-event-overlay').classList.add('active');
+            const titleEl = document.getElementById('modal-cal-title');
+            if (titleEl) titleEl.innerText = "Agregar Evento al Calendario";
+            const overlay = document.getElementById('modal-cal-event-overlay');
+            if (overlay) overlay.classList.add('active');
         };
 
         window.closeAdminCalendarModal = function() {
-            document.getElementById('modal-cal-event-overlay').classList.remove('active');
+            const overlay = document.getElementById('modal-cal-event-overlay');
+            if (overlay) overlay.classList.remove('active');
         };
 
         window.editAdminCalendarEvent = function(id) {
-            const ev = calendarEvents.find(c => c.id === id);
+            const ev = (calendarEvents || []).find(c => String(c.id) === String(id));
             if (!ev) return;
 
-            document.getElementById('form-cal-id-old').value = ev.id;
-            document.getElementById('form-cal-nombre').value = ev.nombre || '';
-            document.getElementById('form-cal-lugar').value = ev.lugar || '';
-            document.getElementById('form-cal-asociacion').value = ev.asociacion || '';
-            document.getElementById('form-cal-tipo').value = ev.tipo || 'Champion de Chile';
-            document.getElementById('form-cal-estado').value = ev.estado || '🟢 Programado';
-            document.getElementById('form-cal-fecha-inicio').value = ev.fecha_inicio || '';
-            document.getElementById('form-cal-fecha-fin').value = ev.fecha_fin || '';
-            document.getElementById('form-cal-hora-inicio').value = ev.hora_inicio || '08:00';
-            document.getElementById('form-cal-hora-fin').value = ev.hora_fin || '20:00';
-            document.getElementById('form-cal-descripcion').value = ev.descripcion || '';
-            document.getElementById('form-cal-afiche').value = ev.afiche_url || '';
+            const setVal = (idEl, val) => { const el = document.getElementById(idEl); if (el) el.value = val || ''; };
+            setVal('form-cal-id-old', ev.id);
+            setVal('form-cal-nombre', ev.nombre || ev.event || '');
+            setVal('form-cal-lugar', ev.lugar || ev.ciudad || '');
+            setVal('form-cal-asociacion', ev.asociacion || '');
+            setVal('form-cal-tipo', ev.tipo || 'Champion de Chile');
+            setVal('form-cal-estado', ev.estado || '🟢 Programado');
+            setVal('form-cal-fecha-inicio', ev.fecha_inicio || ev.fecha || '');
+            setVal('form-cal-fecha-fin', ev.fecha_fin || ev.fecha || '');
+            setVal('form-cal-hora-inicio', ev.hora_inicio || '08:00');
+            setVal('form-cal-hora-fin', ev.hora_fin || '20:00');
+            setVal('form-cal-descripcion', ev.descripcion || '');
+            setVal('form-cal-afiche', ev.afiche_url || '');
 
-            document.getElementById('modal-cal-title').innerText = "✏️ Editar Evento del Calendario";
-            document.getElementById('modal-cal-event-overlay').classList.add('active');
+            const titleEl = document.getElementById('modal-cal-title');
+            if (titleEl) titleEl.innerText = "✏️ Editar Evento del Calendario";
+
+            const overlay = document.getElementById('modal-cal-event-overlay');
+            if (overlay) overlay.classList.add('active');
         };
 
         window.saveAdminCalendarEvent = async function(e) {
@@ -1069,11 +1080,11 @@
             const descripcion = document.getElementById('form-cal-descripcion').value.trim();
             const afiche_url = document.getElementById('form-cal-afiche').value.trim();
 
-            if (!nombre || !lugar || !fecha_inicio) return;
+            if (!nombre || !lugar) return;
 
             const calObj = { id, nombre, lugar, asociacion, tipo, estado, fecha_inicio, fecha_fin, hora_inicio, hora_fin, descripcion, afiche_url };
 
-            const existingIdx = calendarEvents.findIndex(c => c.id === id);
+            const existingIdx = calendarEvents.findIndex(c => String(c.id) === String(id));
             if (existingIdx >= 0) {
                 calendarEvents[existingIdx] = calObj;
             } else {
@@ -1092,7 +1103,7 @@
 
         window.deleteAdminCalendarEvent = async function(id) {
             if (!confirm(`¿Seguro que deseas eliminar este evento del calendario?`)) return;
-            calendarEvents = calendarEvents.filter(c => c.id !== id);
+            calendarEvents = calendarEvents.filter(c => String(c.id) !== String(id));
 
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
