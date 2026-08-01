@@ -995,11 +995,7 @@
             const dBoard = document.getElementById('admin-dashboard');
             if (lScreen) lScreen.style.display = 'none';
             if (dBoard) dBoard.style.display = 'block';
-            try {
-                initDashboard();
-            } catch(e) {
-                console.error("Error en initDashboard:", e);
-            }
+            initDashboard().catch(e => console.error("Error en initDashboard:", e));
         }
 
         // Auto-activación inmediata del Panel de Control al entrar a admin.html
@@ -1253,18 +1249,20 @@
 
         // INITIALIZE DASHBOARD
         async function initDashboard() {
-            await loadRodeos();
+            try { await loadRodeos(); } catch(e) { console.error("Error cargando rodeos:", e); }
             
-            if (!activeRodeoId && rodeos.length > 0) {
+            if (!activeRodeoId && rodeos && rodeos.length > 0) {
                 activeRodeoId = rodeos[0].id;
                 localStorage.setItem('activeRodeoId', activeRodeoId);
             }
 
             if (activeRodeoId) {
-                await loadRodeoColleras(activeRodeoId);
+                try { await loadRodeoColleras(activeRodeoId); } catch(e) { console.error("Error cargando colleras:", e); }
             } else {
                 rodeoData = [];
             }
+
+            try { await loadAdminCalendarData(); } catch(e) { console.error("Error cargando calendario:", e); }
             
             // AUTO-CURACIÓN: Si no hay colleras registradas para el Champion de Chile, las restaura por defecto automáticamente
             if (supabaseClient) {
@@ -1283,12 +1281,18 @@
                 }
             }
 
-            filteredColleras = [...rodeoData];
+            filteredColleras = Array.isArray(rodeoData) ? [...rodeoData] : [];
+            filteredGenealogias = Array.isArray(genealogiaData) ? [...genealogiaData] : [];
             
-            renderRodeosTable();
-            renderCollerasTable();
-            renderGenealogiasTable();
-            renderUsuariosTable();
+            try { populateRodeosDropdownInLiveConsole(); } catch(e) {}
+            try { populateLiveColleraDropdown(); } catch(e) {}
+            try { loadLiveControlState(); } catch(e) {}
+
+            try { renderRodeosTable(); } catch(e) { console.error("renderRodeosTable:", e); }
+            try { renderCollerasTable(); } catch(e) { console.error("renderCollerasTable:", e); }
+            try { renderGenealogiasTable(); } catch(e) { console.error("renderGenealogiasTable:", e); }
+            try { renderUsuariosTable(); } catch(e) { console.error("renderUsuariosTable:", e); }
+            try { renderAdminCalendarTable(); } catch(e) { console.error("renderAdminCalendarTable:", e); }
         }
 
         function renderRodeosTable() {
