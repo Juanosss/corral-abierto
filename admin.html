@@ -941,9 +941,99 @@
                     </div>
                 </form>
             </div>
-            <div class="admin-modal-footer">
-                <button class="admin-btn admin-btn-secondary" onclick="closeUsuarioModal()">Cancelar</button>
-                <button class="admin-btn admin-btn-primary" onclick="saveUsuario()">Guardar Cambios</button>
+    <!-- MODAL EVENTO CALENDARIO -->
+    <div id="modal-cal-event-overlay" class="admin-modal-overlay">
+        <div class="admin-modal" style="max-width: 600px;">
+            <div class="admin-modal-header">
+                <h3 id="modal-cal-event-title">Agregar Evento al Calendario</h3>
+                <button class="admin-modal-close" onclick="closeAdminCalendarModal()">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <form id="form-cal-event" onsubmit="saveAdminCalendarEvent(event)">
+                    <input type="hidden" id="form-cal-id">
+                    
+                    <div class="admin-input-group">
+                        <label class="admin-label">Nombre del Rodeo / Evento</label>
+                        <input type="text" id="form-cal-nombre" class="admin-input" required placeholder="ej: Rodeo Clasificatorio Sur Valdivia 2026">
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="admin-input-group">
+                            <label class="admin-label">Fecha Inicio</label>
+                            <input type="date" id="form-cal-fechainicio" class="admin-input" required>
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Fecha Término</label>
+                            <input type="date" id="form-cal-fechafin" class="admin-input" required>
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Texto Fecha (ej: 06 - 08 MAR)</label>
+                            <input type="text" id="form-cal-displayfecha" class="admin-input" required placeholder="06 - 08 MAR">
+                        </div>
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="admin-input-group">
+                            <label class="admin-label">Medialuna / Lugar</label>
+                            <input type="text" id="form-cal-medialuna" class="admin-input" required placeholder="ej: Medialuna Parque Saval">
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Ciudad</label>
+                            <input type="text" id="form-cal-ciudad" class="admin-input" required placeholder="ej: Valdivia">
+                        </div>
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="admin-input-group">
+                            <label class="admin-label">Zona / Región</label>
+                            <select id="form-cal-region" class="admin-input" required>
+                                <option value="Norte">Zona Norte</option>
+                                <option value="Centro">Zona Centro</option>
+                                <option value="Sur">Zona Sur</option>
+                                <option value="Austral">Zona Austral</option>
+                            </select>
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Asociación</label>
+                            <input type="text" id="form-cal-asociacion" class="admin-input" required placeholder="ej: Valdivia">
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Tipo de Rodeo</label>
+                            <select id="form-cal-tipo" class="admin-input" required>
+                                <option value="Champion de Chile">Champion de Chile</option>
+                                <option value="Clasificatorio">Clasificatorio</option>
+                                <option value="Zonal">Zonal</option>
+                                <option value="Primera con Puntos">Primera con Puntos</option>
+                                <option value="Provincial">Provincial</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="admin-input-group">
+                            <label class="admin-label">Estado</label>
+                            <select id="form-cal-estado" class="admin-input" required>
+                                <option value="proximo">Próximamente</option>
+                                <option value="envivo">🔴 En Transmisión Vivo</option>
+                                <option value="finalizado">🏁 Finalizado</option>
+                            </select>
+                        </div>
+                        <div class="admin-input-group">
+                            <label class="admin-label">Enlace URL (opcional)</label>
+                            <input type="text" id="form-cal-linkurl" class="admin-input" placeholder="ej: clasificatorio-sur-2026/index.html">
+                        </div>
+                    </div>
+
+                    <div class="admin-input-group">
+                        <label class="admin-label">Descripción</label>
+                        <textarea id="form-cal-descripcion" class="admin-input" rows="2" placeholder="Detalles adicionales del rodeo..."></textarea>
+                    </div>
+
+                    <div class="admin-modal-footer">
+                        <button type="button" class="admin-btn admin-btn-secondary" onclick="closeAdminCalendarModal()">Cancelar</button>
+                        <button type="submit" class="admin-btn admin-btn-primary">Guardar Evento</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -1106,16 +1196,23 @@
         }
 
         // TABS SWITCHER
-        function switchTab(tabId) {
+        window.switchTab = function(tabId, clickedBtn) {
             const tabs = document.querySelectorAll('.admin-tab-content');
             const btns = document.querySelectorAll('.admin-tab-btn');
             
             tabs.forEach(tab => tab.classList.remove('active'));
             btns.forEach(btn => btn.classList.remove('active'));
             
-            document.getElementById(tabId).classList.add('active');
-            event.target.classList.add('active');
-        }
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) targetTab.classList.add('active');
+            
+            if (clickedBtn) {
+                clickedBtn.classList.add('active');
+            } else {
+                const btn = document.querySelector(`[onclick*="${tabId}"]`);
+                if (btn) btn.classList.add('active');
+            }
+        };
 
         // Declaración de variables para multi-rodeos
         let activeRodeoId = localStorage.getItem('activeRodeoId') || '';
@@ -4263,81 +4360,9 @@
             if (successCount > 0) {
                 showToast(`¡Notificación de corte enviada con éxito a ${successCount} destinatarios!`);
             } else {
-    <!-- MODAL EVENTO CALENDARIO -->
-    <div id="modal-cal-event-overlay" class="admin-modal-overlay">
-        <div class="admin-modal" style="max-width: 600px;">
-            <div class="admin-modal-header">
-                <h3 id="modal-cal-event-title">Agregar Evento al Calendario</h3>
-                <button class="admin-modal-close" onclick="closeAdminCalendarModal()">&times;</button>
-            </div>
-            <div class="admin-modal-body">
-                <form id="form-cal-event" onsubmit="saveAdminCalendarEvent(event)">
-                    <input type="hidden" id="form-cal-id">
-                    
-                    <div class="admin-input-group">
-                        <label class="admin-label">Nombre del Rodeo / Evento</label>
-                        <input type="text" id="form-cal-nombre" class="admin-input" required placeholder="ej: Rodeo Clasificatorio Sur Valdivia 2026">
-                    </div>
-
-                    <div class="admin-form-row">
-                        <div class="admin-input-group">
-                            <label class="admin-label">Fecha Inicio</label>
-                            <input type="date" id="form-cal-fechainicio" class="admin-input" required>
-                        </div>
-                        <div class="admin-input-group">
-                            <label class="admin-label">Fecha Término</label>
-                            <input type="date" id="form-cal-fechafin" class="admin-input" required>
-                        </div>
-                        <div class="admin-input-group">
-                            <label class="admin-label">Texto Fecha (ej: 06 - 08 MAR)</label>
-                            <input type="text" id="form-cal-displayfecha" class="admin-input" required placeholder="06 - 08 MAR">
-                        </div>
-                    </div>
-
-                    <div class="admin-form-row">
-                        <div class="admin-input-group">
-                            <label class="admin-label">Medialuna / Lugar</label>
-                            <input type="text" id="form-cal-medialuna" class="admin-input" required placeholder="ej: Medialuna Parque Saval">
-                        </div>
-                        <div class="admin-input-group">
-                            <label class="admin-label">Ciudad</label>
-                            <input type="text" id="form-cal-ciudad" class="admin-input" required placeholder="ej: Valdivia">
-                        </div>
-                    </div>
-
-                    <div class="admin-form-row">
-                        <div class="admin-input-group">
-                            <label class="admin-label">Zona / Región</label>
-                            <select id="form-cal-region" class="admin-input" required>
-                                <option value="Norte">Zona Norte</option>
-                                <option value="Centro">Zona Centro</option>
-                                <option value="Sur">Zona Sur</option>
-                                <option value="Austral">Zona Austral</option>
-                            </select>
-                        </div>
-                        <div class="admin-input-group">
-                            <label class="admin-label">Asociación</label>
-                            <input type="text" id="form-cal-asociacion" class="admin-input" required placeholder="ej: Valdivia">
-                        </div>
-                        <div class="admin-input-group">
-                            <label class="admin-label">Tipo de Rodeo</label>
-                            <select id="form-cal-tipo" class="admin-input" required>
-                                <option value="Champion de Chile">Champion de Chile</option>
-                                <option value="Clasificatorio">Clasificatorio</option>
-                                <option value="Zonal">Zonal</option>
-                                <option value="Primera con Puntos">Primera con Puntos</option>
-                                <option value="Provincial">Provincial</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="admin-form-row">
-                        <div class="admin-input-group">
-                            <label class="admin-label">Estado</label>
-                            <select id="form-cal-estado" class="admin-input" required>
-                                <option value="proximo">Próximamente</option>
-                                <option value="envivo">🔴 En Transmisión Vivo</option>
-                                <option value="finalizado">🏁 Finalizado</option>
+                showToast("No se enviaron notificaciones SMS.", "error");
+            }
+        }
                             </select>
                         </div>
                         <div class="admin-input-group">
