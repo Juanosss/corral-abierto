@@ -1639,11 +1639,16 @@
             renderUsuariosTable();
         };
 
-        // LÓGICA INTELIGENTE DE DETECCIÓN AUTOMÁTICA DE CABALLOS POR SBT
+        // LÓGICA INTELIGENTE DE DETECCIÓN AUTOMÁTICA DE CABALLOS POR SBT O NOMBRE
         window.onColleraHorseInput = function(num, val) {
             const rawVal = (val || '').trim();
             const statusEl = document.getElementById(`collera-horse${num}-status`);
-            if (!statusEl) return;
+            const inputEl = document.getElementById(`form-caballo${num}`);
+            if (!statusEl || !inputEl) return;
+
+            // Limpiar datasets previos si el usuario modifica el texto
+            delete inputEl.dataset.sbt;
+            delete inputEl.dataset.resolvedName;
 
             if (!rawVal) {
                 statusEl.innerHTML = '';
@@ -1651,67 +1656,63 @@
             }
 
             const cleanSbt = rawVal.replace(/[^0-9]/g, '');
+            const rawUpper = rawVal.toUpperCase();
 
-            // Si el usuario ingresó números (ej: 100418 o 201030)
-            if (cleanSbt.length >= 4) {
-                statusEl.innerHTML = `<span style="color:#d4af37; font-weight:700;">⌛ Buscando N° SBT ${cleanSbt}...</span>`;
+            if (colleraHorseTimer[num]) clearTimeout(colleraHorseTimer[num]);
 
-                if (colleraHorseTimer[num]) clearTimeout(colleraHorseTimer[num]);
+            statusEl.innerHTML = `<span style="color:#ffab91; font-weight:700;">⌛ Buscando información del caballo...</span>`;
 
-                colleraHorseTimer[num] = setTimeout(async () => {
-                    // 1. Buscar en registros cargados localmente
-                    let horse = (filteredGenealogias || []).find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt);
-                    if (!horse && typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) {
-                        horse = genealogiaData.find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt);
+            colleraHorseTimer[num] = setTimeout(async () => {
+                let horse = null;
+
+                // 1. Buscar en catálogo local por SBT, ID o Nombre
+                for (const arr of [window.filteredGenealogias, window.genealogiaData, window.defaultGenealogiaData]) {
+                    if (Array.isArray(arr)) {
+                        horse = arr.find(g => {
+                            const sbtNum = (g.nacional || '').replace(/[^0-9]/g, '');
+                            const idNum = (g.id || '').replace(/[^0-9]/g, '');
+                            const nameUpper = (g.nombre || '').toUpperCase().trim();
+                            return (cleanSbt && cleanSbt.length >= 4 && (sbtNum === cleanSbt || idNum === cleanSbt)) ||
+                                   (rawUpper && nameUpper === rawUpper);
+                        });
+                        if (horse) break;
                     }
+                }
 
-                    // 2. Si no está en local, buscar en vivo en Caballo y Rodeo
-                    if (!horse) {
-                        horse = await window.fetchCaballoyRodeoData(cleanSbt);
-                        if (horse) {
-                            // Agregar a la base de datos de genealogías si no existía
-                            if (!filteredGenealogias.some(g => g.id === horse.id || g.nombre === horse.nombre)) {
-                                filteredGenealogias.unshift(horse);
-                                renderGenealogiasTable();
-                            }
-                        }
-                    }
-
+                // 2. Si no se encontró en local y el usuario ingresó un N° SBT (mínimo 4 dígitos), buscar en vivo
+                if (!horse && cleanSbt.length >= 4) {
+                    horse = await window.fetchCaballoyRodeoData(cleanSbt);
                     if (horse) {
-                        const inputEl = document.getElementById(`form-caballo${num}`);
-                        if (inputEl) {
-                            inputEl.dataset.sbt = cleanSbt;
-                            inputEl.dataset.resolvedName = horse.nombre;
+                        // Agregar a genealogías locales para futuras referencias
+                        if (!filteredGenealogias.some(g => g.id === horse.id || (g.nombre || '').toUpperCase() === horse.nombre)) {
+                            filteredGenealogias.unshift(horse);
+                            renderGenealogiasTable();
                         }
-
-                        // Autocompletar criadero si el campo de criadero está vacío
-                        const criaderoInput = document.getElementById('form-criadero');
-                        if (criaderoInput && (!criaderoInput.value || criaderoInput.value.trim() === '')) {
-                            if (horse.criadero && horse.criadero !== 'SIN CRIADERO ESPECIFICADO') {
-                                criaderoInput.value = horse.criadero;
-                            }
-                        }
-
-                        statusEl.innerHTML = `<span style="color:#4caf50; font-weight:800;">✅ Caballo Detectado: ${horse.nombre} (${horse.criadero || 'Sin Criadero'}) [SBT ${cleanSbt}]</span>`;
-                    } else {
-                        statusEl.innerHTML = `<span style="color:#f44336; font-weight:800;">❌ N° SBT ${cleanSbt} no encontrado en Caballo y Rodeo. Se registrará como N° SBT ${cleanSbt}.</span>`;
                     }
-                }, 400);
-            } else {
-                // Buscar por texto/nombre
-                const horse = (filteredGenealogias || []).find(g => g.nombre.toLowerCase().includes(rawVal.toLowerCase()));
+                }
+
                 if (horse) {
-                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:700;">✅ Coincide con: ${horse.nombre} (${horse.criadero || ''})</span>`;
+                    const detectedSbt = (horse.nacional || '').replace(/[^0-9]/g, '') || cleanSbt;
+                    inputEl.dataset.sbt = detectedSbt;
+                    inputEl.dataset.resolvedName = horse.nombre;
+
+                    // Autocompletar criadero si el campo está vacío
                     const criaderoInput = document.getElementById('form-criadero');
                     if (criaderoInput && (!criaderoInput.value || criaderoInput.value.trim() === '')) {
                         if (horse.criadero && horse.criadero !== 'SIN CRIADERO ESPECIFICADO') {
                             criaderoInput.value = horse.criadero;
                         }
                     }
+
+                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:800;">✅ Caballo Detectado: ${horse.nombre} (${horse.criadero || 'Sin Criadero'}) ${detectedSbt ? '[SBT ' + detectedSbt + ']' : ''}</span>`;
+                } else if (cleanSbt.length >= 4) {
+                    inputEl.dataset.sbt = cleanSbt;
+                    inputEl.dataset.resolvedName = rawUpper;
+                    statusEl.innerHTML = `<span style="color:#ffb74d; font-weight:800;">ℹ️ Se registrará con el N° SBT ${cleanSbt}.</span>`;
                 } else {
-                    statusEl.innerHTML = `<span style="color:#bcaaa4;">💡 Ingresa el N° de SBT (ej: 201030) o el Nombre del caballo.</span>`;
+                    statusEl.innerHTML = `<span style="color:#bcaaa4;">Nombre manual o N° de registro.</span>`;
                 }
-            }
+            }, 350);
         };
 
         // RENDERIZADO VISUAL ELEGANTE Y SERIO DEL ÁRBOL GENEALÓGICO DE 4 GENERACIONES
