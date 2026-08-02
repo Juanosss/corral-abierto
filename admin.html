@@ -1962,33 +1962,40 @@
             treeContainer.style.display = 'block';
         }
 
-        // EXTRAER FICHA REAL DE CABALLO DESDE CABALLO Y RODEO (https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=XXXXXX)
+        // EXTRAER FICHA REAL DE CABALLO DESDE CABALLO Y RODEO
         window.fetchCaballoyRodeoData = async function(cleanSbt) {
-            const targetUrl = `https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${cleanSbt}`;
-            const proxyUrls = [
-                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
-                `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
+            const targetUrls = [
+                `https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${cleanSbt}`,
+                `https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia_ficha.html?id=${cleanSbt}`,
+                `https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?busqueda=${cleanSbt}`
             ];
 
-            for (let proxyUrl of proxyUrls) {
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 7000);
+            const createProxies = (url) => [
+                `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+                `https://corsproxy.io/?${encodeURIComponent(url)}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
+            ];
 
-                    const resp = await fetch(proxyUrl, { signal: controller.signal });
-                    clearTimeout(timeoutId);
+            for (let targetUrl of targetUrls) {
+                const proxyUrls = createProxies(targetUrl);
+                for (let proxyUrl of proxyUrls) {
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-                    if (!resp.ok) continue;
-                    let htmlText = '';
-                    if (proxyUrl.includes('allorigins.win/get')) {
-                        const json = await resp.json();
-                        htmlText = json ? (json.contents || '') : '';
-                    } else {
-                        htmlText = await resp.text();
-                    }
+                        const resp = await fetch(proxyUrl, { signal: controller.signal });
+                        clearTimeout(timeoutId);
 
-                    if (!htmlText || htmlText.length < 200) continue;
+                        if (!resp.ok) continue;
+                        let htmlText = '';
+                        if (proxyUrl.includes('allorigins.win/get')) {
+                            const json = await resp.json();
+                            htmlText = json ? (json.contents || '') : '';
+                        } else {
+                            htmlText = await resp.text();
+                        }
+
+                        if (!htmlText || htmlText.length < 200) continue;
 
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlText, 'text/html');
@@ -2058,8 +2065,9 @@
                     console.warn(`Proxy fetch error for ${cleanSbt}:`, err);
                 }
             }
-            return null;
-        };
+        }
+        return null;
+    };
 
         window.lookupHorseBySBT = async function() {
             const sbtInput = document.getElementById('form-gen-sbt');
