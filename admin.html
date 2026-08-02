@@ -845,6 +845,37 @@
                             <label style="display: block; font-size: 0.74rem; font-weight: 700; color: #bcaaa4; margin-bottom: 4px;">Dueño / Criador</label>
                             <input type="text" id="form-gen-dueno" placeholder="ej: Juan Pérez" style="width: 100%; padding: 8px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid rgba(255,255,255,0.15); font-weight: 600; box-sizing: border-box;">
                         </div>
+                    <!-- EDICIÓN Y EDICIÓN MANUAL DEL PEDIGREE DE ASCENDENCIA -->
+                    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
+                        <span style="display: block; font-size: 0.78rem; font-weight: 800; color: #ffab91; text-transform: uppercase; margin-bottom: 8px;">🌳 Ascendencia Directa (Editable Manualmente)</span>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px;">
+                            <div>
+                                <label style="display: block; font-size: 0.74rem; font-weight: 700; color: #bcaaa4; margin-bottom: 3px;">♂ Padre</label>
+                                <input type="text" id="form-gen-padre" placeholder="ej: TALENTO" oninput="updateTreeFromInputs()" style="width: 100%; padding: 8px; border-radius: 6px; background: #140b08; color: #fff; border: 1px solid #555; font-weight: 700; text-transform: uppercase; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.74rem; font-weight: 700; color: #bcaaa4; margin-bottom: 3px;">♀ Madre</label>
+                                <input type="text" id="form-gen-madre" placeholder="ej: FANTASIA" oninput="updateTreeFromInputs()" style="width: 100%; padding: 8px; border-radius: 6px; background: #140b08; color: #fff; border: 1px solid #555; font-weight: 700; text-transform: uppercase; box-sizing: border-box;">
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
+                            <div>
+                                <label style="display: block; font-size: 0.68rem; color: #8d6e63;">♂ Abuelo Paterno</label>
+                                <input type="text" id="form-gen-abuelop" placeholder="Abuelo P." oninput="updateTreeFromInputs()" style="width: 100%; padding: 6px; border-radius: 5px; background: #0c0705; color: #fff; border: 1px solid #444; font-size: 0.78rem; text-transform: uppercase; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.68rem; color: #8d6e63;">♀ Abuela Paterna</label>
+                                <input type="text" id="form-gen-abuelap" placeholder="Abuela P." oninput="updateTreeFromInputs()" style="width: 100%; padding: 6px; border-radius: 5px; background: #0c0705; color: #fff; border: 1px solid #444; font-size: 0.78rem; text-transform: uppercase; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.68rem; color: #8d6e63;">♂ Abuelo Materno</label>
+                                <input type="text" id="form-gen-abuelom" placeholder="Abuelo M." oninput="updateTreeFromInputs()" style="width: 100%; padding: 6px; border-radius: 5px; background: #0c0705; color: #fff; border: 1px solid #444; font-size: 0.78rem; text-transform: uppercase; box-sizing: border-box;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.68rem; color: #8d6e63;">♀ Abuela Materna</label>
+                                <input type="text" id="form-gen-abuelam" placeholder="Abuela M." oninput="updateTreeFromInputs()" style="width: 100%; padding: 6px; border-radius: 5px; background: #0c0705; color: #fff; border: 1px solid #444; font-size: 0.78rem; text-transform: uppercase; box-sizing: border-box;">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- MEDIDAS MORFOLÓGICAS ESTRUCTURADAS -->
@@ -1806,6 +1837,40 @@
             </div>`;
         }
 
+        window.updateTreeFromInputs = function() {
+            const getVal = id => (document.getElementById(id) || {}).value || '';
+            const p  = getVal('form-gen-padre').trim().toUpperCase();
+            const m  = getVal('form-gen-madre').trim().toUpperCase();
+            const ap = getVal('form-gen-abuelop').trim().toUpperCase();
+            const am = getVal('form-gen-abuelap').trim().toUpperCase();
+            const bm = getVal('form-gen-abuelom').trim().toUpperCase();
+            const bh = getVal('form-gen-abuelam').trim().toUpperCase();
+            const sbt = getVal('form-gen-sbt').trim();
+            const nom = getVal('form-gen-nombre').trim().toUpperCase() || 'EJEMPLAR';
+
+            currentExtractedPedigree = {
+                ...(currentExtractedPedigree || {}),
+                padre: p,
+                madre: m,
+                abueloP: ap,
+                abuelaP: am,
+                abueloM: bm,
+                abuelaM: bh
+            };
+
+            renderGenealogyTreeVisual({
+                nombre: nom,
+                nacional: sbt ? `SBT N° ${sbt}` : '',
+                padre: p,
+                madre: m,
+                abueloP: ap,
+                abuelaP: am,
+                abueloM: bm,
+                abuelaM: bh,
+                gen3: (currentExtractedPedigree ? currentExtractedPedigree.gen3 : []) || []
+            });
+        };
+
         function renderGenealogyTreeVisual(horse) {
             const treeContainer = document.getElementById('tree-container');
             const treeVisual    = document.getElementById('tree-visual');
@@ -2179,6 +2244,14 @@
                 setVal('form-gen-fn',     horse.fn     || '');
                 setVal('form-gen-dueno',  horse.dueno  || '');
 
+                // Llenar campos de ascendencia directa editables
+                setVal('form-gen-padre',   horse.padre   || '');
+                setVal('form-gen-madre',   horse.madre   || '');
+                setVal('form-gen-abuelop', horse.abueloP || '');
+                setVal('form-gen-abuelap', horse.abuelaP || '');
+                setVal('form-gen-abuelom', horse.abueloM || '');
+                setVal('form-gen-abuelam', horse.abuelaM || '');
+
                 // Fotos: si la extracción trae algo, cargarlas
                 if (horse.foto) resetHorsePhotos(horse.foto);
 
@@ -2295,6 +2368,12 @@
             setVal('form-gen-color', '');
             setVal('form-gen-fn', '');
             setVal('form-gen-dueno', '');
+            setVal('form-gen-padre', '');
+            setVal('form-gen-madre', '');
+            setVal('form-gen-abuelop', '');
+            setVal('form-gen-abuelap', '');
+            setVal('form-gen-abuelom', '');
+            setVal('form-gen-abuelam', '');
             setVal('form-gen-foto', '');
             resetHorsePhotos(null);
 
@@ -2344,6 +2423,12 @@
             setVal('form-gen-color', horse.color || '');
             setVal('form-gen-fn',    horse.fn    || '');
             setVal('form-gen-dueno', horse.dueno || '');
+            setVal('form-gen-padre',   horse.padre   || '');
+            setVal('form-gen-madre',   horse.madre   || '');
+            setVal('form-gen-abuelop', horse.abueloP || '');
+            setVal('form-gen-abuelap', horse.abuelaP || '');
+            setVal('form-gen-abuelom', horse.abueloM || '');
+            setVal('form-gen-abuelam', horse.abuelaM || '');
             resetHorsePhotos(horse.foto || null);
 
             renderGenealogyTreeVisual(horse);
@@ -2497,10 +2582,25 @@
             const cleanSbt = sbtNum.replace(/[^0-9]/g, '');
             const sbtFormatted = cleanSbt ? `SBT N° ${cleanSbt}` : 'SBT Pendiente';
 
+            const manualPadre   = (document.getElementById('form-gen-padre')   || {value:''}).value.trim().toUpperCase();
+            const manualMadre   = (document.getElementById('form-gen-madre')   || {value:''}).value.trim().toUpperCase();
+            const manualAbueloP = (document.getElementById('form-gen-abuelop') || {value:''}).value.trim().toUpperCase();
+            const manualAbuelaP = (document.getElementById('form-gen-abuelap') || {value:''}).value.trim().toUpperCase();
+            const manualAbueloM = (document.getElementById('form-gen-abuelom') || {value:''}).value.trim().toUpperCase();
+            const manualAbuelaM = (document.getElementById('form-gen-abuelam') || {value:''}).value.trim().toUpperCase();
+
             // Evitar duplicados por SBT N° o ID
             const existingIdx = filteredGenealogias.findIndex(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.nombre || '').toUpperCase() === nombre.toUpperCase());
             const ped = currentExtractedPedigree || {};
+            
+            const finalPadre   = manualPadre   || ped.padre   || '';
+            const finalMadre   = manualMadre   || ped.madre   || '';
+            const finalAbueloP = manualAbueloP || ped.abueloP || '';
+            const finalAbuelaP = manualAbuelaP || ped.abuelaP || '';
+            const finalAbueloM = manualAbueloM || ped.abueloM || '';
+            const finalAbuelaM = manualAbuelaM || ped.abuelaM || '';
             const gen3 = ped.gen3 || [];
+
             const newHorse = { 
                 id: `h-${cleanSbt || Date.now()}`, 
                 nombre: nombre.toUpperCase(), 
@@ -2514,12 +2614,12 @@
                 dueno, 
                 foto: fotoStr, 
                 nacional: sbtFormatted,
-                padre: ped.padre || '',
-                madre: ped.madre || '',
-                abueloP: ped.abueloP || '',
-                abuelaP: ped.abuelaP || '',
-                abueloM: ped.abueloM || '',
-                abuelaM: ped.abuelaM || '',
+                padre: finalPadre,
+                madre: finalMadre,
+                abueloP: finalAbueloP,
+                abuelaP: finalAbuelaP,
+                abueloM: finalAbueloM,
+                abuelaM: finalAbuelaM,
                 gen3,
                 gen4: ped.gen4 || [],
                 bisP1: ped.bisP1 || gen3[0] || '',
