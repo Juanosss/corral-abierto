@@ -2303,23 +2303,42 @@
         };
 
         window.deleteGenealogia = async function(idOrSbt) {
-            const horse = (filteredGenealogias || []).find(g => 
-                String(g.id) === String(idOrSbt) || 
-                (g.nacional || '').replace(/[^0-9]/g, '') === String(idOrSbt).replace(/[^0-9]/g, '') ||
-                (g.nombre || '').toUpperCase() === String(idOrSbt).toUpperCase()
-            );
+            const cleanTarget = String(idOrSbt).replace(/[^0-9]/g, '');
+            const targetUpper = String(idOrSbt).toUpperCase().trim();
+
+            const horse = (filteredGenealogias || []).find(g => {
+                const sbtG = (g.nacional || '').replace(/[^0-9]/g, '') || (g.id || '').replace(/[^0-9]/g, '');
+                const nameG = (g.nombre || '').toUpperCase().trim();
+                return String(g.id) === String(idOrSbt) || (cleanTarget && sbtG === cleanTarget) || (targetUpper && nameG === targetUpper);
+            });
             if (!horse) return;
 
             if (!confirm(`¿Seguro que deseas eliminar el registro del caballo ${horse.nombre}?`)) return;
 
-            filteredGenealogias = filteredGenealogias.filter(g => g !== horse);
+            const horseSbt = (horse.nacional || '').replace(/[^0-9]/g, '') || (horse.id || '').replace(/[^0-9]/g, '');
+            const horseName = (horse.nombre || '').toUpperCase().trim();
+
+            const isMatch = (g) => {
+                const sbt = (g.nacional || '').replace(/[^0-9]/g, '') || (g.id || '').replace(/[^0-9]/g, '');
+                const name = (g.nombre || '').toUpperCase().trim();
+                return String(g.id) === String(horse.id) || (horseSbt && sbt === horseSbt) || (horseName && name === horseName);
+            };
+
+            filteredGenealogias = (filteredGenealogias || []).filter(g => !isMatch(g));
+
             if (typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) {
-                genealogiaData = genealogiaData.filter(g => g.id !== horse.id && g.nombre !== horse.nombre);
+                genealogiaData = genealogiaData.filter(g => !isMatch(g));
                 try { localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData)); } catch(err) {}
             }
 
+            if (typeof defaultGenealogiaData !== 'undefined' && Array.isArray(defaultGenealogiaData)) {
+                window.defaultGenealogiaData = defaultGenealogiaData.filter(g => !isMatch(g));
+            }
+
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                try { await supabaseClient.from('genealogias').delete().eq('id', horse.id); } catch(err) {}
+                try { 
+                    await supabaseClient.from('genealogias').delete().or(`id.eq.${horse.id},nombre.ilike.${horse.nombre}`); 
+                } catch(err) {}
             }
 
             renderGenealogiasTable();
