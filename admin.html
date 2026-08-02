@@ -47,9 +47,235 @@
             margin-bottom: 6px;
             display: inline-block;
         }
+
+        /* ===== LOGIN OVERLAY ===== */
+        #admin-login-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 50% 30%, #2c1008 0%, #140c0a 55%, #0a0604 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999999;
+            transition: opacity 0.5s ease;
+        }
+        #admin-login-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .login-card {
+            width: 100%;
+            max-width: 440px;
+            background: linear-gradient(145deg, #1f1007 0%, #120704 100%);
+            border: 1px solid rgba(255, 87, 34, 0.35);
+            border-radius: 20px;
+            padding: 44px 40px 36px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,87,34,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 180px; height: 180px;
+            background: radial-gradient(circle, rgba(255,87,34,0.12) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .login-card::after {
+            content: '';
+            position: absolute;
+            bottom: -40px; left: -40px;
+            width: 130px; height: 130px;
+            background: radial-gradient(circle, rgba(212,175,55,0.07) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        .login-logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+        .login-logo .horse-icon {
+            font-size: 3.2rem;
+            display: block;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 4px 12px rgba(255,87,34,0.5));
+        }
+        .login-logo h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.65rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 0 0 4px 0;
+            letter-spacing: 0.2px;
+        }
+        .login-logo .subtitle {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #ff5722;
+            display: block;
+        }
+        .login-divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255,87,34,0.4), transparent);
+            margin: 20px 0 28px;
+        }
+        .login-field {
+            margin-bottom: 16px;
+        }
+        .login-field label {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #bcaaa4;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 7px;
+        }
+        .login-field input {
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            background: rgba(0,0,0,0.5);
+            color: #fff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .login-field input:focus {
+            border-color: #ff5722;
+            box-shadow: 0 0 0 3px rgba(255,87,34,0.18);
+        }
+        .login-field input.error {
+            border-color: #ef5350;
+            box-shadow: 0 0 0 3px rgba(239,83,80,0.2);
+            animation: shake 0.35s ease;
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .login-error-msg {
+            background: rgba(239, 83, 80, 0.15);
+            border: 1px solid rgba(239, 83, 80, 0.4);
+            border-radius: 8px;
+            color: #ef9a9a;
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 9px 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+        .login-error-msg.visible {
+            display: block;
+        }
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #e65100 0%, #ff5722 100%);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 800;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            margin-top: 8px;
+            box-shadow: 0 6px 20px rgba(230, 81, 0, 0.45);
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+            letter-spacing: 0.3px;
+        }
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(230, 81, 0, 0.55);
+        }
+        .login-btn:active {
+            transform: translateY(0);
+            opacity: 0.9;
+        }
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .login-footer {
+            text-align: center;
+            margin-top: 22px;
+            color: #6d4c41;
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        /* Particles decorativas */
+        .login-particles {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 999998;
+        }
+        .login-particles span {
+            position: absolute;
+            width: 2px; height: 2px;
+            background: rgba(255, 87, 34, 0.4);
+            border-radius: 50%;
+            animation: float-particle linear infinite;
+        }
+        @keyframes float-particle {
+            0% { transform: translateY(100vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 0.5; }
+            100% { transform: translateY(-20px) scale(1); opacity: 0; }
+        }
     </style>
 </head>
 <body style="background-color: #140c0a; color: #ffffff;">
+
+    <!-- PARTÍCULAS DE FONDO DEL LOGIN -->
+    <div class="login-particles" id="login-particles"></div>
+
+    <!-- LOGIN OVERLAY - SE MUESTRA ANTES DEL DASHBOARD -->
+    <div id="admin-login-overlay">
+        <div class="login-card">
+            <div class="login-logo">
+                <span class="horse-icon">🐴</span>
+                <h1>Corral Abierto</h1>
+                <span class="subtitle">Panel de Administración</span>
+            </div>
+            <div class="login-divider"></div>
+
+            <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
+                <div class="login-field">
+                    <label for="login-email">Correo del Administrador</label>
+                    <input type="email" id="login-email" placeholder="admin@corralabierto.cl" autocomplete="email" required>
+                </div>
+                <div class="login-field">
+                    <label for="login-pass">Contraseña</label>
+                    <input type="password" id="login-pass" placeholder="••••••••••••" autocomplete="current-password" required>
+                </div>
+
+                <div class="login-error-msg" id="login-error">
+                    ⚠️ Credenciales incorrectas. Verifica tu correo y contraseña.
+                </div>
+
+                <button type="submit" class="login-btn" id="login-submit-btn">
+                    🔐 Ingresar al Panel
+                </button>
+            </form>
+
+            <div class="login-footer">
+                ACCESO RESTRINGIDO · SOLO PERSONAL AUTORIZADO
+            </div>
+        </div>
+    </div>
     <div class="app-container">
         <!-- HEADER -->
         <header class="app-header">
@@ -451,11 +677,11 @@
         </div>
     </div>
 
-    <!-- MODAL COLLERAS CON AUTODETECCIÓN INTELIGENTE POR N° SBT -->
+    <!-- MODAL COLLERAS CON AUTODETECCIÓN Y EDICIÓN COMPLETA DE PUNTAJES -->
     <div id="modal-collera-overlay" class="admin-modal-overlay">
-        <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 620px; border: 1.5px solid #ff5722; box-shadow: 0 20px 50px rgba(0,0,0,0.85);">
+        <div class="admin-modal" style="background: #1a0f0d; padding: 24px; border-radius: 16px; width: 90%; max-width: 650px; border: 1.5px solid #ff5722; box-shadow: 0 20px 50px rgba(0,0,0,0.85);">
             <h3 id="modal-collera-title" style="margin-top: 0; color: #ff5722; font-family: 'Playfair Display', serif; font-size: 1.35rem;">Agregar / Editar Collera</h3>
-            <p style="color: #bcaaa4; font-size: 0.82rem; margin-top: -6px; margin-bottom: 18px;">Ingresa el N° de Registro SBT de los caballos para autodetectarlos de Caballo y Rodeo.</p>
+            <p style="color: #bcaaa4; font-size: 0.82rem; margin-top: -6px; margin-bottom: 18px;">Ingresa o edita los datos de la collera, sus caballos (SBT) y sus puntajes por toro.</p>
             
             <form id="form-collera" onsubmit="saveCollera(event)">
                 <input type="hidden" id="form-collera-index">
@@ -498,6 +724,37 @@
                             <label style="display: block; font-size: 0.8rem; font-weight: 800; color: #ffab91; margin-bottom: 5px;">🐴 Caballo 2 (N° SBT o Nombre)</label>
                             <input type="text" id="form-caballo2" placeholder="ej: 201030 o RECONTENTO" required style="width: 100%; padding: 10px; border-radius: 6px; background: #000; color: #fff; border: 1.5px solid #ff5722; font-weight: 800;" oninput="onColleraHorseInput(2, this.value)">
                             <div id="collera-horse2-status" style="font-size: 0.78rem; margin-top: 5px;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- EDICIÓN Y AJUSTE MANUAL DE PUNTAJES Y POSICIÓN -->
+                <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.12); padding: 14px; border-radius: 10px; margin-bottom: 16px;">
+                    <span style="display: block; font-size: 0.78rem; font-weight: 800; color: #d4af37; text-transform: uppercase; margin-bottom: 8px;">🎯 Puntajes & Posición de la Collera (Edición / Ajustes)</span>
+                    <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;">
+                        <div>
+                            <label style="display: block; font-size: 0.72rem; color: #ccc; margin-bottom: 3px;">1er Toro</label>
+                            <input type="text" id="form-toro1" placeholder="0" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.72rem; color: #ccc; margin-bottom: 3px;">2do Toro</label>
+                            <input type="text" id="form-toro2" placeholder="--" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.72rem; color: #ccc; margin-bottom: 3px;">3er Toro</label>
+                            <input type="text" id="form-toro3" placeholder="--" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.72rem; color: #ccc; margin-bottom: 3px;">4to Toro</label>
+                            <input type="text" id="form-toro4" placeholder="--" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.72rem; color: #ffab91; margin-bottom: 3px;">Total Pts</label>
+                            <input type="text" id="form-resultado-total" placeholder="0" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #ffab91; border: 1px solid #ff5722; text-align: center; font-weight: 900;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.72rem; color: #ffab91; margin-bottom: 3px;">Lugar</label>
+                            <input type="text" id="form-lugar" placeholder="--" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #ff5722; text-align: center; font-weight: 800;">
                         </div>
                     </div>
                 </div>
@@ -1023,7 +1280,10 @@
                         <td><strong>${c.resultado || '--'}</strong></td>
                         <td style="color: #ff5722; font-weight: bold;">${c.lugar || '--'}</td>
                         <td>
-                            <button onclick="deleteCollera(${c.n})" style="padding: 4px 8px; background: #c62828; color: #fff; border: none; border-radius: 4px; cursor: pointer;">Borrar</button>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button onclick="window.editCollera(${c.n})" style="padding: 4px 8px; background: #0288d1; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">✏️ Editar</button>
+                                <button onclick="window.deleteCollera(${c.n})" style="padding: 4px 8px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🗑️ Borrar</button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -1616,6 +1876,44 @@
             document.getElementById('modal-rodeo-overlay').classList.add('active');
         };
         window.closeRodeoModal = function() { document.getElementById('modal-rodeo-overlay').classList.remove('active'); };
+
+        window.editCollera = function(colleraNum) {
+            const collera = (filteredColleras || []).find(c => parseInt(c.n) === parseInt(colleraNum));
+            if (!collera) return;
+
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+            setVal('form-collera-index', collera.n);
+            setVal('form-n', collera.n);
+            setVal('form-asociacion', collera.asociacion || '');
+            setVal('form-criadero', collera.criadero || '');
+            
+            const j1 = Array.isArray(collera.jinetes) ? collera.jinetes[0] : '';
+            const j2 = Array.isArray(collera.jinetes) ? collera.jinetes[1] : '';
+            setVal('form-jinete1', j1 || '');
+            setVal('form-jinete2', j2 || '');
+
+            const c1 = Array.isArray(collera.caballos) ? collera.caballos[0] : '';
+            const c2 = Array.isArray(collera.caballos) ? collera.caballos[1] : '';
+            setVal('form-caballo1', c1 || '');
+            setVal('form-caballo2', c2 || '');
+
+            setVal('form-toro1', collera.animal1 !== undefined ? collera.animal1 : '0');
+            setVal('form-toro2', collera.animal2 || '');
+            setVal('form-toro3', collera.animal3 || '');
+            setVal('form-toro4', collera.animal4 || '');
+            setVal('form-resultado-total', collera.resultado || '0');
+            setVal('form-lugar', collera.lugar || '');
+
+            const s1 = document.getElementById('collera-horse1-status');
+            const s2 = document.getElementById('collera-horse2-status');
+            if (s1) s1.innerHTML = '';
+            if (s2) s2.innerHTML = '';
+
+            const titleEl = document.getElementById('modal-collera-title');
+            if (titleEl) titleEl.innerText = `✏️ Editar Collera N° ${collera.n}`;
+
+            document.getElementById('modal-collera-overlay').classList.add('active');
+        };
         
         window.openColleraModal = function() {
             const s1 = document.getElementById('collera-horse1-status');
@@ -1623,10 +1921,29 @@
             if (s1) s1.innerHTML = '';
             if (s2) s2.innerHTML = '';
 
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+            setVal('form-collera-index', '');
+            setVal('form-n', '');
+            setVal('form-asociacion', '');
+            setVal('form-criadero', '');
+            setVal('form-jinete1', '');
+            setVal('form-jinete2', '');
+            setVal('form-caballo1', '');
+            setVal('form-caballo2', '');
+            setVal('form-toro1', '0');
+            setVal('form-toro2', '');
+            setVal('form-toro3', '');
+            setVal('form-toro4', '');
+            setVal('form-resultado-total', '0');
+            setVal('form-lugar', '');
+
             const el1 = document.getElementById('form-caballo1');
             const el2 = document.getElementById('form-caballo2');
-            if (el1) { delete el1.dataset.resolvedName; delete el1.dataset.sbt; el1.value = ''; }
-            if (el2) { delete el2.dataset.resolvedName; delete el2.dataset.sbt; el2.value = ''; }
+            if (el1) { delete el1.dataset.resolvedName; delete el1.dataset.sbt; }
+            if (el2) { delete el2.dataset.resolvedName; delete el2.dataset.sbt; }
+
+            const titleEl = document.getElementById('modal-collera-title');
+            if (titleEl) titleEl.innerText = "Agregar Collera por N° Registro/SBT";
 
             document.getElementById('modal-collera-overlay').classList.add('active');
         };
@@ -1709,6 +2026,7 @@
 
         window.saveCollera = function(e) {
             if (e && e.preventDefault) e.preventDefault();
+            const oldNum = document.getElementById('form-collera-index').value;
             const n = parseInt(document.getElementById('form-n').value);
             const asociacion = document.getElementById('form-asociacion').value.trim();
             const criadero = document.getElementById('form-criadero').value.trim();
@@ -1728,12 +2046,27 @@
 
             const jinetes = [document.getElementById('form-jinete1').value.trim(), document.getElementById('form-jinete2').value.trim()];
             const caballos = [caballo1Name, caballo2Name];
+
+            const animal1 = document.getElementById('form-toro1').value.trim();
+            const animal2 = document.getElementById('form-toro2').value.trim();
+            const animal3 = document.getElementById('form-toro3').value.trim();
+            const animal4 = document.getElementById('form-toro4').value.trim();
+            const resultado = document.getElementById('form-resultado-total').value.trim();
+            const lugar = document.getElementById('form-lugar').value.trim();
             
-            const newCollera = { n, asociacion, criadero, jinetes, caballos, animal1: '0', resultado: '0', rodeo_id: activeRodeoId };
-            filteredColleras.push(newCollera);
-            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                supabaseClient.from('colleras').upsert(newCollera).then(()=>{}).catch(()=>{});
+            const colleraObj = { n, asociacion, criadero, jinetes, caballos, animal1, animal2, animal3, animal4, resultado, lugar, rodeo_id: activeRodeoId };
+
+            const existingIdx = filteredGenealogias ? filteredColleras.findIndex(c => parseInt(c.n) === parseInt(oldNum || n)) : -1;
+            if (existingIdx >= 0) {
+                filteredColleras[existingIdx] = { ...filteredColleras[existingIdx], ...colleraObj };
+            } else {
+                filteredColleras.push(colleraObj);
             }
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('colleras').upsert(colleraObj).then(()=>{}).catch(()=>{});
+            }
+
             renderCollerasTable();
             closeColleraModal();
         };
@@ -1854,7 +2187,108 @@
         };
 
         // EJECUTAR EN CARGA
-        document.addEventListener('DOMContentLoaded', initAdminDirect);
+        // ================================================================
+        // SISTEMA DE LOGIN DEL PANEL DE ADMINISTRACIÓN
+        // ================================================================
+        const ADMIN_CREDS = { email: 'admin@corralabierto.cl', pass: 'Pinochet1973' };
+        const SESSION_KEY = 'ca_admin_session_v2';
+
+        function isAdminLoggedIn() {
+            try {
+                const s = sessionStorage.getItem(SESSION_KEY);
+                if (!s) return false;
+                const parsed = JSON.parse(s);
+                return parsed && parsed.authenticated === true;
+            } catch(e) { return false; }
+        }
+
+        function setAdminSession() {
+            sessionStorage.setItem(SESSION_KEY, JSON.stringify({ authenticated: true, ts: Date.now() }));
+        }
+
+        window.handleAdminLogin = function(e) {
+            e.preventDefault();
+            const emailEl  = document.getElementById('login-email');
+            const passEl   = document.getElementById('login-pass');
+            const errorEl  = document.getElementById('login-error');
+            const btnEl    = document.getElementById('login-submit-btn');
+
+            const emailVal = (emailEl.value || '').trim().toLowerCase();
+            const passVal  = (passEl.value || '').trim();
+
+            // Reset error state
+            emailEl.classList.remove('error');
+            passEl.classList.remove('error');
+            errorEl.classList.remove('visible');
+
+            if (emailVal === ADMIN_CREDS.email && passVal === ADMIN_CREDS.pass) {
+                // Credenciales correctas ✅
+                btnEl.textContent = '✅ Acceso concedido...';
+                btnEl.disabled = true;
+                setAdminSession();
+
+                const overlay = document.getElementById('admin-login-overlay');
+                const particles = document.getElementById('login-particles');
+                overlay.classList.add('hidden');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    if (particles) particles.style.display = 'none';
+                }, 550);
+
+                initAdminDirect();
+            } else {
+                // Credenciales incorrectas ❌
+                emailEl.classList.add('error');
+                passEl.classList.add('error');
+                errorEl.classList.add('visible');
+
+                // Quitar clases de error al volver a escribir
+                const resetErr = () => {
+                    emailEl.classList.remove('error');
+                    passEl.classList.remove('error');
+                    errorEl.classList.remove('visible');
+                    emailEl.removeEventListener('input', resetErr);
+                    passEl.removeEventListener('input', resetErr);
+                };
+                emailEl.addEventListener('input', resetErr);
+                passEl.addEventListener('input', resetErr);
+            }
+        };
+
+        // Generar partículas flotantes decorativas
+        function spawnLoginParticles() {
+            const container = document.getElementById('login-particles');
+            if (!container) return;
+            const count = 18;
+            for (let i = 0; i < count; i++) {
+                const span = document.createElement('span');
+                const size = Math.random() * 3 + 1;
+                span.style.cssText = `
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${Math.random() * 100}%;
+                    animation-duration: ${Math.random() * 10 + 8}s;
+                    animation-delay: ${Math.random() * 8}s;
+                    opacity: ${Math.random() * 0.5 + 0.2};
+                `;
+                container.appendChild(span);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generar efecto de partículas en el login
+            spawnLoginParticles();
+
+            // Si ya tiene sesión activa, saltarse el login directamente
+            if (isAdminLoggedIn()) {
+                const overlay = document.getElementById('admin-login-overlay');
+                const particles = document.getElementById('login-particles');
+                if (overlay) overlay.style.display = 'none';
+                if (particles) particles.style.display = 'none';
+                initAdminDirect();
+            }
+            // Si no, el login overlay permanece visible hasta que el usuario ingrese sus credenciales
+        });
     </script>
 </body>
 </html>
