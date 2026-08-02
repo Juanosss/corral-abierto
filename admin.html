@@ -2597,7 +2597,12 @@
             const inputVal = document.getElementById('bulk-sbt-input').value.trim();
             if (!inputVal) return;
 
-            const sbtList = inputVal.split(/[\n,]+/).map(s => s.trim().replace(/[^0-9]/g, '')).filter(s => s.length > 0);
+            // Extraer números limpios incluso si pegan URLs completas (ej: https://.../?id=335836#gc)
+            const sbtList = inputVal.split(/[\n,\s]+/).map(item => {
+                const match = item.match(/id=([0-9]+)/i);
+                if (match && match[1]) return match[1];
+                return item.trim().replace(/[^0-9]/g, '');
+            }).filter(s => s.length > 0);
             if (sbtList.length === 0) return;
 
             alert(`Procesando extracción masiva de ${sbtList.length} caballos desde Caballo y Rodeo... Presiona Aceptar.`);
