@@ -1795,13 +1795,13 @@
             renderFotoPreview();
         }
 
-        // ── BRANCHING GENEALOGY TREE ────────────────────────────────────────
-        function makeTreeNode(label, name, isMale) {
-            if (!name) return '';
-            const glyph = isMale === true ? '<span style="color:#64b5f6;">♂</span>' : isMale === false ? '<span style="color:#f48fb1;">♀</span>' : '';
-            return `<div class="tree-node">
+        // ── BRANCHING GENEALOGY TREE (COMPACT REALISTIC PEDIGREE) ──────────────
+        function makeTreeNode(label, name, isMale, genClass = '') {
+            if (!name) return `<div class="tree-node empty ${genClass}"></div>`;
+            const glyph = isMale === true ? '<span style="color:#64b5f6; font-size:0.75rem;">♂</span>' : isMale === false ? '<span style="color:#f48fb1; font-size:0.75rem;">♀</span>' : '';
+            return `<div class="tree-node ${genClass}">
                 <div class="tree-label">${label}</div>
-                <div class="tree-name">${glyph} ${name}</div>
+                <div class="tree-name">${glyph} <span>${name}</span></div>
             </div>`;
         }
 
@@ -1827,76 +1827,136 @@
 
             treeVisual.innerHTML = `
 <style>
-.gtree { display: flex; align-items: stretch; gap: 0; font-family: 'Inter', sans-serif; }
-.gtree-col { display: flex; flex-direction: column; justify-content: space-around; }
-.gtree-col + .gtree-col { margin-left: 0; }
+.gtree-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    font-family: 'Inter', system-ui, sans-serif;
+    padding: 6px 2px;
+}
+.gtree-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+}
 .tree-node {
-    background: linear-gradient(145deg, #201009 0%, #160b06 100%);
-    border: 1px solid rgba(255,87,34,0.25);
-    border-radius: 8px;
-    padding: 7px 11px;
+    background: #1c1412;
+    border: 1px solid rgba(255, 87, 34, 0.25);
+    border-radius: 10px;
+    padding: 6px 10px;
     margin: 3px 0;
-    min-width: 110px;
+    width: 140px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.tree-node:hover {
+    border-color: rgba(255, 87, 34, 0.6);
+    transform: translateY(-1px);
+}
+.tree-node.empty {
+    visibility: hidden;
+    height: 38px;
+}
+.tree-label {
+    font-size: 0.58rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #ffab91;
+    margin-bottom: 2px;
+}
+.tree-name {
+    font-weight: 800;
+    color: #ffffff;
+    font-size: 0.72rem;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tree-node.gen2 { width: 130px; padding: 5px 8px; }
+.tree-node.gen2 .tree-name { font-size: 0.68rem; }
+.tree-node.gen3 { width: 125px; padding: 4px 8px; }
+.tree-node.gen3 .tree-name { font-size: 0.65rem; color: #e0e0e0; }
+
+/* LINEAS CONECTORAS RAMIFICADAS ESTILO BRACKET */
+.gtree-connector {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    width: 20px;
     flex-shrink: 0;
     position: relative;
 }
-.tree-node.gen1 { border-left: 3px solid #ff5722; min-width: 120px; }
-.tree-node.gen2 { border-left: 3px solid rgba(212,175,55,0.7); min-width: 112px; }
-.tree-node.gen3 { border-left: 3px solid rgba(188,170,164,0.55); min-width: 108px; font-size: 0.78rem; }
-.tree-label { font-size: 0.62rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; color: #ff5722; margin-bottom: 3px; }
-.tree-node.gen2 .tree-label { color: #d4af37; }
-.tree-node.gen3 .tree-label { color: #8d6e63; }
-.tree-name { font-weight: 700; color: #fff; font-size: 0.82rem; line-height: 1.25; }
-.tree-node.gen3 .tree-name { font-size: 0.75rem; color: #d7ccc8; }
-.branch-lines { display: flex; flex-direction: column; justify-content: space-around; width: 22px; flex-shrink: 0; }
-.branch-h { flex: 1; display: flex; align-items: center; }
-.branch-h::before { content: ''; display: block; width: 100%; height: 1.5px; background: rgba(255,87,34,0.35); }
-.branch-v-wrap { position: relative; display: flex; flex-direction: column; justify-content: space-around; }
-.branch-v { width: 22px; flex-shrink: 0; position: relative; }
-.branch-v::before { content:''; position:absolute; left: 50%; top:0; bottom:0; width:1.5px; background: rgba(212,175,55,0.3); }
-.branch-v::after { content:''; position:absolute; left:50%; width:50%; height:1.5px; background: rgba(212,175,55,0.3); top: 50%; }
+.bracket-pair {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.bracket-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 25%;
+    bottom: 25%;
+    border-left: 1.5px solid rgba(255, 87, 34, 0.4);
+    border-top: 1.5px solid rgba(255, 87, 34, 0.4);
+    border-bottom: 1.5px solid rgba(255, 87, 34, 0.4);
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+.bracket-out {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    width: 50%;
+    height: 1.5px;
+    background: rgba(255, 87, 34, 0.4);
+}
 </style>
-<div class="gtree">
+
+<div class="gtree-wrap">
     <!-- GEN 1: PADRE / MADRE -->
-    <div class="gtree-col" style="justify-content: space-around; gap:4px;">
-        ${makeTreeNode('PADRE', horse.padre, true).replace('class="tree-node"','class="tree-node gen1"')}
-        ${makeTreeNode('MADRE', horse.madre, false).replace('class="tree-node"','class="tree-node gen1"')}
+    <div class="gtree-col" style="justify-content: space-around; gap: 40px;">
+        ${makeTreeNode('PADRE', horse.padre, true, 'gen1')}
+        ${makeTreeNode('MADRE', horse.madre, false, 'gen1')}
     </div>
 
-    <!-- CONNECTOR 1→2 -->
-    <div style="display:flex; flex-direction:column; justify-content:space-around; width:22px;">
-        <div class="branch-h"></div>
-        <div class="branch-h"></div>
+    <!-- CONECTOR 1 -> 2 -->
+    <div class="gtree-connector">
+        <div style="height: 50%; border-left: 1.5px solid rgba(255,87,34,0.35); border-top: 1.5px solid rgba(255,87,34,0.35); border-bottom: 1.5px solid rgba(255,87,34,0.35); margin: 20% 0; border-radius: 4px 0 0 4px;"></div>
     </div>
 
     <!-- GEN 2: ABUELOS -->
-    <div class="gtree-col" style="gap:4px;">
-        ${makeTreeNode('ABUELO P.', horse.abueloP, true).replace('class="tree-node"','class="tree-node gen2"')}
-        ${makeTreeNode('ABUELA P.', horse.abuelaP, false).replace('class="tree-node"','class="tree-node gen2"')}
-        ${makeTreeNode('ABUELO M.', horse.abueloM, true).replace('class="tree-node"','class="tree-node gen2"')}
-        ${makeTreeNode('ABUELA M.', horse.abuelaM, false).replace('class="tree-node"','class="tree-node gen2"')}
+    <div class="gtree-col" style="gap: 8px;">
+        ${makeTreeNode('ABUELO P.', horse.abueloP, true, 'gen2')}
+        ${makeTreeNode('ABUELA P.', horse.abuelaP, false, 'gen2')}
+        <div style="height: 12px;"></div>
+        ${makeTreeNode('ABUELO M.', horse.abueloM, true, 'gen2')}
+        ${makeTreeNode('ABUELA M.', horse.abuelaM, false, 'gen2')}
     </div>
 
-    <!-- CONNECTOR 2→3 -->
-    <div style="display:flex; flex-direction:column; justify-content:space-around; width:22px;">
-        <div class="branch-h"></div>
-        <div class="branch-h"></div>
-        <div class="branch-h"></div>
-        <div class="branch-h"></div>
+    <!-- CONECTOR 2 -> 3 -->
+    <div class="gtree-connector">
+        <div style="height: 38%; border-left: 1.5px solid rgba(255,87,34,0.3); border-top: 1.5px solid rgba(255,87,34,0.3); border-bottom: 1.5px solid rgba(255,87,34,0.3); margin-top: 5%; margin-bottom: 15%; border-radius: 4px 0 0 4px;"></div>
+        <div style="height: 38%; border-left: 1.5px solid rgba(255,87,34,0.3); border-top: 1.5px solid rgba(255,87,34,0.3); border-bottom: 1.5px solid rgba(255,87,34,0.3); margin-top: 15%; margin-bottom: 5%; border-radius: 4px 0 0 4px;"></div>
     </div>
 
     <!-- GEN 3: BISABUELOS -->
-    ${(bisAP1M || bisAP1H || bisAP2M || bisAP2H || bisAM1M || bisAM1H || bisAM2M || bisAM2H) ? `
-    <div class="gtree-col" style="gap:4px;">
-        ${bisAP1M ? makeTreeNode('BISABUELO P.1', bisAP1M, true).replace('class="tree-node"','class="tree-node gen3"') : ''}
-        ${bisAP1H ? makeTreeNode('BISABUELA P.1', bisAP1H, false).replace('class="tree-node"','class="tree-node gen3"') : ''}
-        ${bisAP2M ? makeTreeNode('BISABUELO P.2', bisAP2M, true).replace('class="tree-node"','class="tree-node gen3"') : ''}
-        ${bisAP2H ? makeTreeNode('BISABUELA P.2', bisAP2H, false).replace('class="tree-node"','class="tree-node gen3"') : ''}
-        ${bisAM1M ? makeTreeNode('BISABUELO M.1', bisAM1M, true).replace('class="tree-node"','class="tree-node gen3"') : ''}
-        ${bisAM1H ? makeTreeNode('BISABUELA M.1', bisAM1H, false).replace('class="tree-node"','class="tree-node gen3"') : ''}
-        ${bisAM2M ? makeTreeNode('BISABUELO M.2', bisAM2M, true).replace('class="tree-node"','class="tree-node gen3"') : ''}
-        ${bisAM2H ? makeTreeNode('BISABUELA M.2', bisAM2H, false).replace('class="tree-node"','class="tree-node gen3"') : ''}
-    </div>` : ''}
+    <div class="gtree-col" style="gap: 4px;">
+        ${makeTreeNode('BISABUELO P.1', bisAP1M, true, 'gen3')}
+        ${makeTreeNode('BISABUELA P.1', bisAP1H, false, 'gen3')}
+        ${makeTreeNode('BISABUELO P.2', bisAP2M, true, 'gen3')}
+        ${makeTreeNode('BISABUELA P.2', bisAP2H, false, 'gen3')}
+        ${makeTreeNode('BISABUELO M.1', bisAM1M, true, 'gen3')}
+        ${makeTreeNode('BISABUELA M.1', bisAM1H, false, 'gen3')}
+        ${makeTreeNode('BISABUELO M.2', bisAM2M, true, 'gen3')}
+        ${makeTreeNode('BISABUELA M.2', bisAM2H, false, 'gen3')}
+    </div>
 </div>`;
 
             treeContainer.style.display = 'block';
