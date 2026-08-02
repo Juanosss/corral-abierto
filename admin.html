@@ -1999,44 +1999,72 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlText, 'text/html');
 
-                    const extractTag = (label) => {
-                        const reg = new RegExp(`<strong>\\s*${label}:?\\s*<\\/strong>\\s*([^<\\n\\r]+)`, 'i');
-                        const m = htmlText.match(reg);
-                        return m && m[1] ? m[1].trim() : '';
+                    // Función flexible para buscar etiquetas en celdas de tabla o divs
+                    const extractField = (labels) => {
+                        for (let label of labels) {
+                            // Buscar en <td> o <div> que contengan la etiqueta
+                            const elements = Array.from(doc.querySelectorAll('td, div, p, span, strong, b'));
+                            for (let el of elements) {
+                                const text = el.textContent.trim();
+                                const reg = new RegExp(`^${label}:?\\s*(.*)$`, 'i');
+                                if (reg.test(text)) {
+                                    const match = text.match(reg);
+                                    if (match && match[1] && match[1].length > 0) return match[1].trim();
+                                    // Si la celda actual sólo tiene el título, ver el siguiente hermano
+                                    if (el.nextElementSibling) return el.nextElementSibling.textContent.trim();
+                                }
+                            }
+                            // Regex sobre HTML completo como fallback
+                            const regHTML = new RegExp(`<strong>\\s*${label}:?\\s*<\\/strong>\\s*([^<\\n\\r]+)`, 'i');
+                            const m = htmlText.match(regHTML);
+                            if (m && m[1]) return m[1].trim();
+                        }
+                        return '';
                     };
 
-                    const rotEl = doc.querySelector('.rot-2 em');
-                    let nombre = extractTag('Nombre') || (rotEl ? rotEl.textContent.trim() : '');
+                    const rotEl = doc.querySelector('.rot-2 em, .rot-2, h1, h2, title');
+                    let nombre = extractField(['Nombre', 'Ejemplar', 'Nombre del Caballo']);
+                    if (!nombre && rotEl) {
+                        const rawTitle = rotEl.textContent.replace(/Genealogía/gi, '').replace(/Caballo y Rodeo/gi, '').trim();
+                        if (rawTitle.length > 1 && !rawTitle.includes('Portal') && !rawTitle.includes('Búsqueda')) {
+                            nombre = rawTitle;
+                        }
+                    }
 
-                    if (nombre && (nombre.includes('DEBE INGRESAR') || nombre.includes('BÚSQUEDA DE GENEALOGÍA'))) {
+                    if (nombre && (nombre.includes('DEBE INGRESAR') || nombre.includes('BÚSQUEDA DE GENEALOGÍA') || nombre.includes('Portal'))) {
                         nombre = '';
                     }
 
-                    const criadero = extractTag('Criadero');
-                    const color = extractTag('Color') || extractTag('Pelaje');
-                    const fn = extractTag('Nacimiento') || extractTag('F.N.');
-                    const criador = extractTag('Criador') || extractTag('Dueño');
-                    const sexo = extractTag('Sexo');
+                    const criadero = extractField(['Criadero']);
+                    const color    = extractField(['Color', 'Pelaje']);
+                    const fn       = extractField(['Nacimiento', 'F.N.', 'Fecha Nacimiento']);
+                    const criador  = extractField(['Criador', 'Dueño']);
+                    const sexo     = extractField(['Sexo']);
 
-                    // Extracción de Generaciones del Árbol Genealógico
-                    const n1_c1 = doc.querySelector('.n1 .c1') ? doc.querySelector('.n1 .c1').textContent.trim() : '';
-                    const n1_c2 = doc.querySelector('.n1 .c2') ? doc.querySelector('.n1 .c2').textContent.trim() : '';
+                    // Extracción de 4 Generaciones del Árbol Genealógico
+                    const getTreeText = (selector) => {
+                        const el = doc.querySelector(selector);
+                        return el ? el.textContent.replace(/[♂♀]/g, '').trim() : '';
+                    };
 
-                    const n2_c1 = doc.querySelector('.n2 .c1') ? doc.querySelector('.n2 .c1').textContent.trim() : '';
-                    const n2_c2 = doc.querySelector('.n2 .c2') ? doc.querySelector('.n2 .c2').textContent.trim() : '';
-                    const n2_c3 = doc.querySelector('.n2 .c3') ? doc.querySelector('.n2 .c3').textContent.trim() : '';
-                    const n2_c4 = doc.querySelector('.n2 .c4') ? doc.querySelector('.n2 .c4').textContent.trim() : '';
+                    const n1_c1 = getTreeText('.n1 .c1') || extractField(['Padre']);
+                    const n1_c2 = getTreeText('.n1 .c2') || extractField(['Madre']);
+
+                    const n2_c1 = getTreeText('.n2 .c1');
+                    const n2_c2 = getTreeText('.n2 .c2');
+                    const n2_c3 = getTreeText('.n2 .c3');
+                    const n2_c4 = getTreeText('.n2 .c4');
 
                     const gen3 = [];
                     for (let i = 1; i <= 8; i++) {
-                        const el = doc.querySelector(`.n3 .c${i}`);
-                        if (el) gen3.push(el.textContent.trim());
+                        const text = getTreeText(`.n3 .c${i}`);
+                        if (text) gen3.push(text);
                     }
 
                     const gen4 = [];
                     for (let i = 1; i <= 16; i++) {
-                        const el = doc.querySelector(`.n4 .c${i}`) || doc.querySelector(`.n4 a:nth-child(${i}) .c${i}`);
-                        if (el) gen4.push(el.textContent.trim());
+                        const text = getTreeText(`.n4 .c${i}`) || getTreeText(`.n4 a:nth-child(${i}) .c${i}`);
+                        if (text) gen4.push(text);
                     }
 
                     if (nombre && nombre.length > 1) {
