@@ -2442,6 +2442,8 @@
 
             // Evitar duplicados por SBT N° o ID
             const existingIdx = filteredGenealogias.findIndex(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.nombre || '').toUpperCase() === nombre.toUpperCase());
+            const ped = currentExtractedPedigree || {};
+            const gen3 = ped.gen3 || [];
             const newHorse = { 
                 id: `h-${cleanSbt || Date.now()}`, 
                 nombre: nombre.toUpperCase(), 
@@ -2455,7 +2457,22 @@
                 dueno, 
                 foto: fotoStr, 
                 nacional: sbtFormatted,
-                ...(currentExtractedPedigree || {})
+                padre: ped.padre || '',
+                madre: ped.madre || '',
+                abueloP: ped.abueloP || '',
+                abuelaP: ped.abuelaP || '',
+                abueloM: ped.abueloM || '',
+                abuelaM: ped.abuelaM || '',
+                gen3,
+                gen4: ped.gen4 || [],
+                bisP1: ped.bisP1 || gen3[0] || '',
+                bisP2: ped.bisP2 || gen3[1] || '',
+                bisP3: ped.bisP3 || gen3[2] || '',
+                bisP4: ped.bisP4 || gen3[3] || '',
+                bisM1: ped.bisM1 || gen3[4] || '',
+                bisM2: ped.bisM2 || gen3[5] || '',
+                bisM3: ped.bisM3 || gen3[6] || '',
+                bisM4: ped.bisM4 || gen3[7] || ''
             };
 
             if (existingIdx >= 0) {

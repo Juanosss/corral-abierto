@@ -343,11 +343,11 @@
                                             <div class="tree-bisabuelos-group">
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuelo P.1</span>
-                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisP1 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisP1 || (h.gen3 && h.gen3[0]) || '--'}</span>
                                                 </div>
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuela P.1</span>
-                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisP2 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisP2 || (h.gen3 && h.gen3[1]) || '--'}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -360,11 +360,11 @@
                                             <div class="tree-bisabuelos-group">
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuelo P.2</span>
-                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisP3 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisP3 || (h.gen3 && h.gen3[2]) || '--'}</span>
                                                 </div>
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuela P.2</span>
-                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisP4 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisP4 || (h.gen3 && h.gen3[3]) || '--'}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -387,11 +387,11 @@
                                             <div class="tree-bisabuelos-group">
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuelo M.1</span>
-                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisM1 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisM1 || (h.gen3 && h.gen3[4]) || '--'}</span>
                                                 </div>
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuela M.1</span>
-                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisM2 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisM2 || (h.gen3 && h.gen3[5]) || '--'}</span>
                                                 </div>
                                             </div>
                                         </div>
@@ -404,11 +404,11 @@
                                             <div class="tree-bisabuelos-group">
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuelo M.2</span>
-                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisM3 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-m">♂</span> ${h.bisM3 || (h.gen3 && h.gen3[6]) || '--'}</span>
                                                 </div>
                                                 <div class="tree-box bisabuelo-box">
                                                     <span class="role-label">Bisabuela M.2</span>
-                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisM4 || '--'}</span>
+                                                    <span class="name-label"><span class="gender-f">♀</span> ${h.bisM4 || (h.gen3 && h.gen3[7]) || '--'}</span>
                                                 </div>
                                             </div>
                                         </div>
