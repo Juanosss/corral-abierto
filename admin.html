@@ -668,8 +668,17 @@
                 </div>
 
                 <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">URL Logo / Insignia del Rodeo (opcional)</label>
-                    <input type="text" id="form-rodeo-logo" placeholder="https://..." style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #222; color: #fff;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 6px;">Logo / Insignia del Rodeo (opcional)</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="form-rodeo-logo" placeholder="Pegar URL de imagen (https://...)" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #0c0705; color: #fff; font-size: 0.88rem;">
+                        <label style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: rgba(255,87,34,0.12); border: 1px dashed rgba(255,87,34,0.5); border-radius: 6px; cursor: pointer; white-space: nowrap; color: #ffab91; font-size: 0.8rem; font-weight: 700;" title="Subir desde dispositivo">
+                            📁 Archivo
+                            <input type="file" accept="image/*" onchange="loadImageFromFile(this, 'form-rodeo-logo')" style="display:none;">
+                        </label>
+                    </div>
+                    <div id="form-rodeo-logo-preview" style="margin-top: 8px; display: none;">
+                        <img id="form-rodeo-logo-img" style="max-height: 60px; border-radius: 6px; border: 1px solid rgba(255,87,34,0.3);">
+                    </div>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
@@ -1023,8 +1032,17 @@
                 </div>
 
                 <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 4px;">URL Afiche Promocional / Imagen (opcional)</label>
-                    <input type="text" id="form-cal-afiche" placeholder="https://..." style="width: 100%; padding: 8px; border-radius: 6px; background: #222; color: #fff; border: 1px solid #555;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 700; margin-bottom: 6px;">Afiche Promocional / Imagen (opcional)</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <input type="text" id="form-cal-afiche" placeholder="Pegar URL de imagen (https://...)" style="flex: 1; padding: 8px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid #555; font-size: 0.88rem;">
+                        <label style="display: flex; align-items: center; gap: 5px; padding: 8px 12px; background: rgba(255,87,34,0.12); border: 1px dashed rgba(255,87,34,0.5); border-radius: 6px; cursor: pointer; white-space: nowrap; color: #ffab91; font-size: 0.8rem; font-weight: 700;" title="Subir desde dispositivo">
+                            📁 Archivo
+                            <input type="file" accept="image/*" onchange="loadImageFromFile(this, 'form-cal-afiche')" style="display:none;">
+                        </label>
+                    </div>
+                    <div id="form-cal-afiche-preview" style="margin-top: 8px; display: none;">
+                        <img id="form-cal-afiche-img" style="max-height: 80px; border-radius: 6px; border: 1px solid rgba(255,87,34,0.3);">
+                    </div>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
@@ -1697,6 +1715,28 @@
             const hiddenEl = document.getElementById('form-gen-foto');
             if (hiddenEl) hiddenEl.value = JSON.stringify(horsePhotos.map(f => f.src));
         }
+
+        // HELPER GLOBAL: Carga imagen desde archivo local y la pone en el campo destino
+        window.loadImageFromFile = function(input, targetInputId) {
+            const file = input.files && input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const dataUrl = e.target.result;
+                // Llenar el campo de texto con el data-URL
+                const targetEl = document.getElementById(targetInputId);
+                if (targetEl) targetEl.value = dataUrl;
+                // Mostrar preview si existe contenedor específico
+                const previewWrap = document.getElementById(targetInputId + '-preview');
+                const previewImg  = document.getElementById(targetInputId + '-img');
+                if (previewWrap && previewImg) {
+                    previewImg.src = dataUrl;
+                    previewWrap.style.display = 'block';
+                }
+            };
+            reader.readAsDataURL(file);
+            input.value = ''; // reset input para poder cargar el mismo archivo otra vez
+        };
 
         window.addFotoFromUrl = function() {
             const urlEl = document.getElementById('form-gen-foto-url');
