@@ -305,10 +305,10 @@
                         <h2>Panel de Administración</h2>
                         <p>Gestiona colleras, puntajes, medidas morfológicas y genealogía en tiempo real</p>
                     </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <a href="index.html" class="admin-btn admin-btn-secondary" style="text-decoration: none; font-weight: 700; padding: 10px 18px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff;">Ir al Inicio 🏠</a>
-                        <button onclick="adminLogout()" style="text-decoration: none; font-weight: 700; padding: 10px 18px; background: rgba(198,40,40,0.25); border: 1px solid rgba(198,40,40,0.55); border-radius: 8px; color: #ef9a9a; cursor: pointer; transition: background 0.2s, border-color 0.2s; font-size: inherit; font-family: inherit;" onmouseover="this.style.background='rgba(198,40,40,0.45)'; this.style.borderColor='rgba(198,40,40,0.8)'" onmouseout="this.style.background='rgba(198,40,40,0.25)'; this.style.borderColor='rgba(198,40,40,0.55)'">Cerrar Sesión</button>
-                    </div>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <a href="index.html" class="admin-btn admin-btn-secondary" style="text-decoration: none; font-weight: 700; padding: 10px 18px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff;">Ir al Inicio</a>
+                            <button onclick="adminLogout()" style="padding: 10px 18px; background: rgba(198,40,40,0.2); border: 1px solid rgba(198,40,40,0.5); border-radius: 8px; color: #ef9a9a; font-weight: 700; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(198,40,40,0.4)'" onmouseout="this.style.background='rgba(198,40,40,0.2)'">🚪 Cerrar Sesión</button>
+                        </div>
                 </div>
 
                 <!-- Navegación de Pestañas Dashboard -->
@@ -802,8 +802,8 @@
                 <div style="background: rgba(212, 175, 55, 0.06); border: 1px solid rgba(212, 175, 55, 0.3); padding: 18px; border-radius: 12px; margin-bottom: 22px;">
                     <label style="display: block; font-size: 0.8rem; font-weight: 800; color: #d4af37; margin-bottom: 8px; letter-spacing: 0.5px;">CONSULTAR NÚMERO DE REGISTRO SNA / SBT (ej: 201030, 231456)</label>
                     <div style="display: flex; gap: 10px;">
-                        <input type="text" id="form-gen-sbt" placeholder="Ingresa el N° de Registro (ej: 201030)" required style="flex: 1; padding: 11px 14px; border-radius: 8px; background: #080403; color: #fff; border: 1.5px solid rgba(255,87,34,0.5); font-weight: 800; font-size: 1.05rem; letter-spacing: 0.5px;">
-                        <button type="button" id="btn-consultar-sna" onclick="lookupHorseBySBT()" style="padding: 11px 22px; background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: #fff; border: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(255,87,34,0.4); white-space: nowrap;">
+                        <input type="text" id="form-gen-sbt" placeholder="Ingresa el N° de Registro (ej: 201030)" required style="flex: 1; padding: 11px 14px; border-radius: 8px; background: #080403; color: #fff; border: 1.5px solid rgba(212, 175, 55, 0.4); font-weight: 800; font-size: 1.05rem; letter-spacing: 0.5px;">
+                        <button type="button" onclick="lookupHorseBySBT()" style="padding: 11px 22px; background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: #fff; border: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(255,87,34,0.35); white-space: nowrap;">
                             🔍 Consultar SNA
                         </button>
                     </div>
@@ -827,23 +827,23 @@
                         </div>
                     </div>
 
-                    <!-- CAMPOS EXTRA DE LA FICHA SNA -->
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+                    <!-- DATOS ADICIONALES EXTRAÍDOS DEL SNA -->
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 14px;">
                         <div>
-                            <label style="display: block; font-size: 0.72rem; font-weight: 700; color: #bcaaa4; margin-bottom: 4px;">Sexo</label>
-                            <input type="text" id="form-gen-sexo" placeholder="ej: MACHO" style="width: 100%; padding: 8px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid rgba(255,255,255,0.15); font-weight: 600;">
+                            <label style="display: block; font-size: 0.74rem; font-weight: 700; color: #bcaaa4; margin-bottom: 4px;">Sexo</label>
+                            <input type="text" id="form-gen-sexo" placeholder="Macho / Hembra" style="width: 100%; padding: 8px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid rgba(255,255,255,0.15); font-weight: 600; box-sizing: border-box;">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.72rem; font-weight: 700; color: #bcaaa4; margin-bottom: 4px;">Pelaje / Color</label>
-                            <input type="text" id="form-gen-color" placeholder="ej: BAYO" style="width: 100%; padding: 8px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid rgba(255,255,255,0.15); font-weight: 600;">
+                            <label style="display: block; font-size: 0.74rem; font-weight: 700; color: #bcaaa4; margin-bottom: 4px;">Color / Pelaje</label>
+                            <input type="text" id="form-gen-color" placeholder="ej: Tordillo" style="width: 100%; padding: 8px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid rgba(255,255,255,0.15); font-weight: 600; box-sizing: border-box;">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.72rem; font-weight: 700; color: #bcaaa4; margin-bottom: 4px;">Fecha Nacimiento</label>
-                            <input type="text" id="form-gen-fn" placeholder="ej: 2007-10-19" style="width: 100%; padding: 8px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid rgba(255,255,255,0.15); font-weight: 600;">
+                            <label style="display: block; font-size: 0.74rem; font-weight: 700; color: #bcaaa4; margin-bottom: 4px;">Fecha de Nacimiento</label>
+                            <input type="text" id="form-gen-fn" placeholder="ej: 15/03/2018" style="width: 100%; padding: 8px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid rgba(255,255,255,0.15); font-weight: 600; box-sizing: border-box;">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.72rem; font-weight: 700; color: #bcaaa4; margin-bottom: 4px;">Criador</label>
-                            <input type="text" id="form-gen-criador" placeholder="ej: EL TREBOL S.A." style="width: 100%; padding: 8px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid rgba(255,255,255,0.15); font-weight: 600;">
+                            <label style="display: block; font-size: 0.74rem; font-weight: 700; color: #bcaaa4; margin-bottom: 4px;">Dueño / Criador</label>
+                            <input type="text" id="form-gen-dueno" placeholder="ej: Juan Pérez" style="width: 100%; padding: 8px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid rgba(255,255,255,0.15); font-weight: 600; box-sizing: border-box;">
                         </div>
                     </div>
 
@@ -1901,22 +1901,24 @@
 
             treeContainer.style.display = 'block';
         }
+
+        // EXTRAER FICHA REAL DE CABALLO DESDE CABALLO Y RODEO (https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=XXXXXX)
         window.fetchCaballoyRodeoData = async function(cleanSbt) {
             const targetUrl = `https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${cleanSbt}`;
             const proxyUrls = [
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`,
-                `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`,
-                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`
+                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
+                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
             ];
 
             for (let proxyUrl of proxyUrls) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 10000);
+                    const timeoutId = setTimeout(() => controller.abort(), 6000);
+
                     const resp = await fetch(proxyUrl, { signal: controller.signal });
                     clearTimeout(timeoutId);
-                    if (!resp.ok) continue;
 
+                    if (!resp.ok) continue;
                     let htmlText = '';
                     if (proxyUrl.includes('/get?url=')) {
                         const json = await resp.json();
@@ -1925,85 +1927,78 @@
                         htmlText = await resp.text();
                     }
 
-                    // Verificar que la respuesta realmente contiene datos del caballo
-                    if (!htmlText || !htmlText.includes('info-caballo')) continue;
+                    if (!htmlText || (!htmlText.includes('info-caballo') && !htmlText.includes('Genealogía') && !htmlText.includes('Registro SNA'))) {
+                        continue;
+                    }
 
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlText, 'text/html');
 
-                    // --- Extrae campo de <dt><strong>Label:</strong> Valor</dt>
-                    const extractDT = (label) => {
-                        const dts = doc.querySelectorAll('.info-caballo dt');
-                        for (const dt of dts) {
-                            const strong = dt.querySelector('strong');
-                            if (strong && strong.textContent.trim().toLowerCase().startsWith(label.toLowerCase())) {
-                                // El valor está como texto del dt, sin el strong
-                                const full = dt.textContent.trim();
-                                const after = full.slice(strong.textContent.length).replace(/^[:\s]+/, '').trim();
-                                if (after) return after;
-                            }
-                        }
-                        // Fallback: buscar via regex en htmlText
-                        const reg = new RegExp(`<strong>\\s*${label}:?\\s*</strong>\\s*([^<\\n\\r]+)`, 'i');
+                    const extractTag = (label) => {
+                        const reg = new RegExp(`<strong>\\s*${label}:?\\s*<\\/strong>\\s*([^<\\n\\r]+)`, 'i');
                         const m = htmlText.match(reg);
                         return m && m[1] ? m[1].trim() : '';
                     };
 
-                    // Datos básicos del ejemplar
-                    const nombre   = extractDT('Nombre');
-                    const criadero = extractDT('Criadero');
-                    const color    = extractDT('Color');
-                    const fnNac    = extractDT('Nacimiento');
-                    const criador  = extractDT('Criador');
-                    const sexo     = extractDT('Sexo');
+                    const rotEl = doc.querySelector('.rot-2 em');
+                    const nombre = extractTag('Nombre') || (rotEl ? rotEl.textContent.trim() : '');
+                    const criadero = extractTag('Criadero');
+                    const color = extractTag('Color');
+                    const fn = extractTag('Nacimiento');
+                    const criador = extractTag('Criador');
+                    const sexo = extractTag('Sexo');
 
-                    if (!nombre) continue; // Página no tiene datos válidos
+                    // Extracción de 4 Generaciones del Árbol Genealógico
+                    const n1_c1 = doc.querySelector('.n1 .c1') ? doc.querySelector('.n1 .c1').textContent.trim() : '';
+                    const n1_c2 = doc.querySelector('.n1 .c2') ? doc.querySelector('.n1 .c2').textContent.trim() : '';
 
-                    // --- Generación 1: Padre / Madre
-                    const padre = doc.querySelector('.n1 .c1') ? doc.querySelector('.n1 .c1').textContent.trim() : '';
-                    const madre = doc.querySelector('.n1 .c2') ? doc.querySelector('.n1 .c2').textContent.trim() : '';
+                    const n2_c1 = doc.querySelector('.n2 .c1') ? doc.querySelector('.n2 .c1').textContent.trim() : '';
+                    const n2_c2 = doc.querySelector('.n2 .c2') ? doc.querySelector('.n2 .c2').textContent.trim() : '';
+                    const n2_c3 = doc.querySelector('.n2 .c3') ? doc.querySelector('.n2 .c3').textContent.trim() : '';
+                    const n2_c4 = doc.querySelector('.n2 .c4') ? doc.querySelector('.n2 .c4').textContent.trim() : '';
 
-                    // --- Generación 2: Abuelos
-                    const abueloP = doc.querySelector('.n2 .c1') ? doc.querySelector('.n2 .c1').textContent.trim() : '';
-                    const abuelaP = doc.querySelector('.n2 .c2') ? doc.querySelector('.n2 .c2').textContent.trim() : '';
-                    const abueloM = doc.querySelector('.n2 .c3') ? doc.querySelector('.n2 .c3').textContent.trim() : '';
-                    const abuelaM = doc.querySelector('.n2 .c4') ? doc.querySelector('.n2 .c4').textContent.trim() : '';
-
-                    // --- Generación 3: Bisabuelos (8 nodos)
                     const gen3 = [];
                     for (let i = 1; i <= 8; i++) {
                         const el = doc.querySelector(`.n3 .c${i}`);
-                        gen3.push(el ? el.textContent.trim() : '');
+                        if (el) gen3.push(el.textContent.trim());
                     }
 
-                    // --- Generación 4: Tatarabuelos (16 nodos, envueltos en <a>)
                     const gen4 = [];
                     for (let i = 1; i <= 16; i++) {
-                        const el = doc.querySelector(`.n4 .c${i}`) || doc.querySelector(`.n4 a:nth-child(${i}) div`);
-                        gen4.push(el ? el.textContent.trim() : '');
+                        const el = doc.querySelector(`.n4 .c${i}`) || doc.querySelector(`.n4 a:nth-child(${i}) .c${i}`);
+                        if (el) gen4.push(el.textContent.trim());
                     }
 
-                    return {
-                        id: `h-${cleanSbt}`,
-                        nombre: nombre.toUpperCase(),
-                        criadero: criadero ? criadero.toUpperCase() : '',
-                        criador: criador || '',
-                        color: color || '',
-                        sexo: sexo || '',
-                        fn: fnNac || '',
-                        nacional: `SBT N° ${cleanSbt}`,
-                        alzada: '', cincha: '', cana: '', foto: '',
-                        padre, madre,
-                        abueloP, abuelaP, abueloM, abuelaM,
-                        gen3, gen4
-                    };
-
+                    if (nombre) {
+                        return {
+                            id: `h-${cleanSbt}`,
+                            nombre: nombre.toUpperCase(),
+                            criadero: criadero ? criadero.toUpperCase() : 'SIN CRIADERO ESPECIFICADO',
+                            dueno: criador || '',
+                            color: color || '',
+                            sexo: sexo || '',
+                            nacional: `SBT N° ${cleanSbt}`,
+                            fn: fn ? `F.N. ${fn}` : '',
+                            alzada: '',
+                            cincha: '',
+                            cana: '',
+                            foto: '',
+                            padre: n1_c1,
+                            madre: n1_c2,
+                            abueloP: n2_c1,
+                            abuelaP: n2_c2,
+                            abueloM: n2_c3,
+                            abuelaM: n2_c4,
+                            gen3,
+                            gen4
+                        };
+                    }
                 } catch(err) {
-                    console.warn(`Proxy error para SBT ${cleanSbt}:`, err.message);
+                    console.warn(`Proxy fetch error for ${cleanSbt}:`, err);
                 }
             }
             return null;
-
+        };
 
         window.lookupHorseBySBT = async function() {
             const sbtInput = document.getElementById('form-gen-sbt');
@@ -2022,70 +2017,64 @@
                 return;
             }
 
+            // --- Mostrar estado de carga
+            const btn = document.querySelector('button[onclick="lookupHorseBySBT()"]');
+            if (btn) { btn.disabled = true; btn.textContent = '⏳ Consultando...'; }
             if (statusEl) {
-                statusEl.innerHTML = `<span style="color:#d4af37; font-weight:700;">⌛ Conectando con Caballo y Rodeo para extraer la ficha y el árbol genealógico del N° ${cleanSbt}...</span>`;
+                statusEl.innerHTML = `<span style="color:#d4af37; font-weight:700;">⏳ Conectando con SNA / Caballo y Rodeo para el N° ${cleanSbt}...</span>`;
             }
 
-            // 1. Extraer directamente de Caballo y Rodeo (https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=XXXXXX)
+            // 1. Intentar extraer en vivo desde caballoyrodeo.cl
             let horse = await window.fetchCaballoyRodeoData(cleanSbt);
 
-            // 2. Si la consulta en vivo no responde, buscar en registros locales existentes en la base de datos
+            // 2. Fallback: buscar en registros locales
             if (!horse) {
-                if (typeof filteredGenealogias !== 'undefined' && Array.isArray(filteredGenealogias)) {
-                    horse = filteredGenealogias.find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt);
-                }
-                if (!horse && typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) {
-                    horse = genealogiaData.find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt);
-                }
-                if (!horse && typeof defaultGenealogiaData !== 'undefined' && Array.isArray(defaultGenealogiaData)) {
-                    horse = defaultGenealogiaData.find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt);
+                for (const arr of [window.filteredGenealogias, window.genealogiaData, window.defaultGenealogiaData]) {
+                    if (Array.isArray(arr)) {
+                        horse = arr.find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt);
+                        if (horse) break;
+                    }
                 }
             }
+
+            // Restaurar botón
+            if (btn) { btn.disabled = false; btn.textContent = '🔍 Consultar SNA'; }
 
             if (horse) {
                 const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-                setVal('form-gen-nombre',  horse.nombre   || '');
+                setVal('form-gen-nombre',   horse.nombre   || '');
                 setVal('form-gen-criadero', horse.criadero || '');
-                setVal('form-gen-sexo',    horse.sexo     || '');
-                setVal('form-gen-color',   horse.color    || '');
-                setVal('form-gen-fn',      horse.fn       || '');
-                setVal('form-gen-criador', horse.criador  || horse.dueno || '');
-                setVal('form-gen-alzada',  horse.alzada   || '');
-                setVal('form-gen-cincha',  horse.cincha   || '');
-                setVal('form-gen-cana',    horse.cana     || '');
+                setVal('form-gen-alzada',   horse.alzada   || '');
+                setVal('form-gen-cincha',   horse.cincha   || '');
+                setVal('form-gen-cana',     horse.cana     || '');
 
-                // Fotos: resetear y cargar si las hay
-                resetHorsePhotos(horse.foto || null);
+                // Campos extra si existen en el formulario
+                setVal('form-gen-sexo',   horse.sexo   || '');
+                setVal('form-gen-color',  horse.color  || '');
+                setVal('form-gen-fn',     horse.fn     || '');
+                setVal('form-gen-dueno',  horse.dueno  || '');
 
-                // Árbol genealógico
+                // Fotos: si la extracción trae algo, cargarlas
+                if (horse.foto) resetHorsePhotos(horse.foto);
+
+                // Mostrar árbol genealógico
                 renderGenealogyTreeVisual(horse);
 
-                // Mensaje de éxito
-                const info = [
-                    horse.nombre,
-                    horse.criadero ? `Criadero: ${horse.criadero}` : '',
-                    horse.sexo     ? horse.sexo : '',
-                    horse.color    ? `Pelaje: ${horse.color}` : '',
-                    horse.fn       ? `F.Nac: ${horse.fn}` : ''
-                ].filter(Boolean).join(' — ');
-
                 if (statusEl) {
-                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:800;">✅ Ficha extraída: ${info}</span>`;
+                    const extras = [horse.sexo, horse.color ? 'Pelaje: ' + horse.color : '', horse.fn].filter(Boolean).join(' · ');
+                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:800;">✅ Ficha encontrada: <strong>${horse.nombre}</strong> — ${horse.criadero}${extras ? ' — ' + extras : ''}</span>`;
                 }
             } else {
                 renderGenealogyTreeVisual(null);
                 if (statusEl) {
-                    statusEl.innerHTML = `<div style="background:rgba(244,67,54,0.12); border:1px solid rgba(244,67,54,0.4); border-radius:8px; padding:10px 14px; margin-top:6px;">
-                        <span style="color:#ef5350; font-weight:800; font-size:0.88rem;">❌ No se encontró el N° SBT ${cleanSbt} en el registro SNA de Caballo y Rodeo.</span><br>
-                        <span style="color:#bcaaa4; font-size:0.78rem;">Verifica que el número sea correcto, o ingresa los datos manualmente en los campos de abajo.</span>
-                    </div>`;
+                    statusEl.innerHTML = `<span style="color:#f44336; font-weight:800;">❌ No se encontró información para el N° SBT ${cleanSbt} en Caballo y Rodeo.</span>`;
                 }
+                // Alerta visible al usuario
+                alert(`❌ No se encontró el N° SBT ${cleanSbt} en el SNA / Caballo y Rodeo.\n\nVerifica el número o ingresa los datos manualmente.`);
             }
         };
 
-        window.onSBTNumberInput = function(val) {
-            // No auto-search: sólo se busca al presionar "Consultar SNA"
-        };
+        // El campo SBT ya no lanza búsqueda automática — sólo al pulsar "Consultar SNA"
 
         // FUNCIONES DE MODALES Y AÑADIR
         window.openRodeoModal = function() {
@@ -2175,11 +2164,11 @@
             setVal('form-gen-alzada', '');
             setVal('form-gen-cincha', '');
             setVal('form-gen-cana', '');
-            setVal('form-gen-foto', '');
             setVal('form-gen-sexo', '');
             setVal('form-gen-color', '');
             setVal('form-gen-fn', '');
-            setVal('form-gen-criador', '');
+            setVal('form-gen-dueno', '');
+            setVal('form-gen-foto', '');
             resetHorsePhotos(null);
 
             renderGenealogyTreeVisual(null);
@@ -2210,6 +2199,10 @@
             setVal('form-gen-alzada', horse.alzada || '');
             setVal('form-gen-cincha', horse.cincha || '');
             setVal('form-gen-cana', horse.cana || '');
+            setVal('form-gen-sexo',  horse.sexo  || '');
+            setVal('form-gen-color', horse.color || '');
+            setVal('form-gen-fn',    horse.fn    || '');
+            setVal('form-gen-dueno', horse.dueno || '');
             resetHorsePhotos(horse.foto || null);
 
             renderGenealogyTreeVisual(horse);
@@ -2328,9 +2321,13 @@
             const criadero = document.getElementById('form-gen-criadero').value.trim();
             const alzada = document.getElementById('form-gen-alzada').value.trim();
             const cincha = document.getElementById('form-gen-cincha').value.trim();
-            const cana = document.getElementById('form-gen-cana').value.trim();
+            const cana    = document.getElementById('form-gen-cana').value.trim();
+            const sexo    = (document.getElementById('form-gen-sexo')  || {value:''}).value.trim();
+            const color   = (document.getElementById('form-gen-color') || {value:''}).value.trim();
+            const fn      = (document.getElementById('form-gen-fn')    || {value:''}).value.trim();
+            const dueno   = (document.getElementById('form-gen-dueno') || {value:''}).value.trim();
             // Collect photos from the multi-photo array
-            const foto = horsePhotos.map(f => f.src);
+            const foto    = horsePhotos.map(f => f.src);
             const fotoStr = foto.length > 0 ? JSON.stringify(foto) : '';
 
             const cleanSbt = sbtNum.replace(/[^0-9]/g, '');
@@ -2338,7 +2335,7 @@
 
             // Evitar duplicados por SBT N° o ID
             const existingIdx = filteredGenealogias.findIndex(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.nombre || '').toUpperCase() === nombre.toUpperCase());
-            const newHorse = { id: `h-${cleanSbt || Date.now()}`, nombre: nombre.toUpperCase(), criadero, alzada, cincha, cana, foto: fotoStr, nacional: sbtFormatted };
+            const newHorse = { id: `h-${cleanSbt || Date.now()}`, nombre: nombre.toUpperCase(), criadero, alzada, cincha, cana, sexo, color, fn, dueno, foto: fotoStr, nacional: sbtFormatted };
 
             if (existingIdx >= 0) {
                 filteredGenealogias[existingIdx] = { ...filteredGenealogias[existingIdx], ...newHorse };
