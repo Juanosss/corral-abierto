@@ -2102,6 +2102,17 @@
             if (btn) { btn.disabled = false; btn.textContent = '🔍 Consultar SNA'; }
 
             if (horse) {
+                currentExtractedPedigree = {
+                    padre: horse.padre || '',
+                    madre: horse.madre || '',
+                    abueloP: horse.abueloP || '',
+                    abuelaP: horse.abuelaP || '',
+                    abueloM: horse.abueloM || '',
+                    abuelaM: horse.abuelaM || '',
+                    gen3: horse.gen3 || [],
+                    gen4: horse.gen4 || []
+                };
+
                 const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
                 setVal('form-gen-nombre',   horse.nombre   || '');
                 setVal('form-gen-criadero', horse.criadero || '');
@@ -2126,6 +2137,7 @@
                     statusEl.innerHTML = `<span style="color:#4caf50; font-weight:800;">✅ Ficha encontrada: <strong>${horse.nombre}</strong> — ${horse.criadero}${extras ? ' — ' + extras : ''}</span>`;
                 }
             } else {
+                currentExtractedPedigree = null;
                 renderGenealogyTreeVisual(null);
                 if (statusEl) {
                     statusEl.innerHTML = `<span style="color:#f44336; font-weight:800;">❌ No se encontró información para el N° SBT ${cleanSbt} en Caballo y Rodeo.</span>`;
@@ -2191,7 +2203,7 @@
 
             const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
             setVal('form-collera-index', '');
-            setVal('form-n', '');
+            setVal('form-n', (filteredColleras.length + 1));
             setVal('form-asociacion', '');
             setVal('form-criadero', '');
             setVal('form-jinete1', '');
@@ -2211,13 +2223,14 @@
             if (el2) { delete el2.dataset.resolvedName; delete el2.dataset.sbt; }
 
             const titleEl = document.getElementById('modal-collera-title');
-            if (titleEl) titleEl.innerText = "Agregar Collera por N° Registro/SBT";
+            if (titleEl) titleEl.innerText = "➕ Agregar Nueva Collera";
 
             document.getElementById('modal-collera-overlay').classList.add('active');
         };
         window.closeColleraModal = function() { document.getElementById('modal-collera-overlay').classList.remove('active'); };
 
         window.openGenealogiaModal = function() {
+            currentExtractedPedigree = null;
             const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
             setVal('form-gen-sbt', '');
             setVal('form-gen-nombre', '');
@@ -2241,7 +2254,10 @@
 
             document.getElementById('modal-genealogia-overlay').classList.add('active');
         };
-        window.closeGenealogiaModal = function() { document.getElementById('modal-genealogia-overlay').classList.remove('active'); };
+        window.closeGenealogiaModal = function() { 
+            currentExtractedPedigree = null;
+            document.getElementById('modal-genealogia-overlay').classList.remove('active'); 
+        };
 
         window.editGenealogia = function(idOrSbt) {
             const horse = (filteredGenealogias || []).find(g => 
@@ -2251,15 +2267,26 @@
             );
             if (!horse) return;
 
+            currentExtractedPedigree = {
+                padre: horse.padre || '',
+                madre: horse.madre || '',
+                abueloP: horse.abueloP || '',
+                abuelaP: horse.abuelaP || '',
+                abueloM: horse.abueloM || '',
+                abuelaM: horse.abuelaM || '',
+                gen3: horse.gen3 || [],
+                gen4: horse.gen4 || []
+            };
+
             const cleanSbt = (horse.nacional || '').replace(/[^0-9]/g, '') || (horse.id || '').replace(/[^0-9]/g, '');
 
             const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
             setVal('form-gen-sbt', cleanSbt);
             setVal('form-gen-nombre', horse.nombre || '');
             setVal('form-gen-criadero', horse.criadero || '');
-            setVal('form-gen-alzada', horse.alzada || '');
-            setVal('form-gen-cincha', horse.cincha || '');
-            setVal('form-gen-cana', horse.cana || '');
+            setVal('form-gen-alzada',   horse.alzada   || '');
+            setVal('form-gen-cincha',   horse.cincha   || '');
+            setVal('form-gen-cana',     horse.cana     || '');
             setVal('form-gen-sexo',  horse.sexo  || '');
             setVal('form-gen-color', horse.color || '');
             setVal('form-gen-fn',    horse.fn    || '');
@@ -2396,7 +2423,21 @@
 
             // Evitar duplicados por SBT N° o ID
             const existingIdx = filteredGenealogias.findIndex(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.nombre || '').toUpperCase() === nombre.toUpperCase());
-            const newHorse = { id: `h-${cleanSbt || Date.now()}`, nombre: nombre.toUpperCase(), criadero, alzada, cincha, cana, sexo, color, fn, dueno, foto: fotoStr, nacional: sbtFormatted };
+            const newHorse = { 
+                id: `h-${cleanSbt || Date.now()}`, 
+                nombre: nombre.toUpperCase(), 
+                criadero, 
+                alzada, 
+                cincha, 
+                cana, 
+                sexo, 
+                color, 
+                fn, 
+                dueno, 
+                foto: fotoStr, 
+                nacional: sbtFormatted,
+                ...(currentExtractedPedigree || {})
+            };
 
             if (existingIdx >= 0) {
                 filteredGenealogias[existingIdx] = { ...filteredGenealogias[existingIdx], ...newHorse };
