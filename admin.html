@@ -2341,6 +2341,10 @@
                 } catch(err) {}
             }
 
+            if (typeof window.syncGenealogiaDataToSupabase === 'function') {
+                window.syncGenealogiaDataToSupabase();
+            }
+
             renderGenealogiasTable();
         };
 
@@ -2495,6 +2499,10 @@
                 try { supabaseClient.from('genealogias').upsert(newHorse); } catch(err) {}
             }
 
+            if (typeof window.syncGenealogiaDataToSupabase === 'function') {
+                window.syncGenealogiaDataToSupabase();
+            }
+
             renderGenealogiasTable();
             closeGenealogiaModal();
         };
@@ -2524,6 +2532,15 @@
                         }
                         addedCount++;
                     }
+                }
+            }
+
+            if (addedCount > 0) {
+                if (typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) {
+                    try { localStorage.setItem('genealogiaData', JSON.stringify(genealogiaData)); } catch(err) {}
+                }
+                if (typeof window.syncGenealogiaDataToSupabase === 'function') {
+                    window.syncGenealogiaDataToSupabase();
                 }
             }
 
