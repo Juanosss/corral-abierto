@@ -845,39 +845,6 @@
                             <label style="display: block; font-size: 0.74rem; font-weight: 700; color: #bcaaa4; margin-bottom: 4px;">Dueño / Criador</label>
                             <input type="text" id="form-gen-dueno" placeholder="ej: Juan Pérez" style="width: 100%; padding: 8px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid rgba(255,255,255,0.15); font-weight: 600; box-sizing: border-box;">
                         </div>
-                    <!-- EDICIÓN Y EDICIÓN MANUAL DEL PEDIGREE DE ASCENDENCIA -->
-                    <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
-                        <span style="display: block; font-size: 0.78rem; font-weight: 800; color: #ffab91; text-transform: uppercase; margin-bottom: 8px;">🌳 Ascendencia Directa (Editable Manualmente)</span>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 8px;">
-                            <div>
-                                <label style="display: block; font-size: 0.74rem; font-weight: 700; color: #bcaaa4; margin-bottom: 3px;">♂ Padre</label>
-                                <input type="text" id="form-gen-padre" placeholder="ej: TALENTO" oninput="updateTreeFromInputs()" style="width: 100%; padding: 8px; border-radius: 6px; background: #140b08; color: #fff; border: 1px solid #555; font-weight: 700; text-transform: uppercase; box-sizing: border-box;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.74rem; font-weight: 700; color: #bcaaa4; margin-bottom: 3px;">♀ Madre</label>
-                                <input type="text" id="form-gen-madre" placeholder="ej: FANTASIA" oninput="updateTreeFromInputs()" style="width: 100%; padding: 8px; border-radius: 6px; background: #140b08; color: #fff; border: 1px solid #555; font-weight: 700; text-transform: uppercase; box-sizing: border-box;">
-                            </div>
-                        </div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;">
-                            <div>
-                                <label style="display: block; font-size: 0.68rem; color: #8d6e63;">♂ Abuelo Paterno</label>
-                                <input type="text" id="form-gen-abuelop" placeholder="Abuelo P." oninput="updateTreeFromInputs()" style="width: 100%; padding: 6px; border-radius: 5px; background: #0c0705; color: #fff; border: 1px solid #444; font-size: 0.78rem; text-transform: uppercase; box-sizing: border-box;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.68rem; color: #8d6e63;">♀ Abuela Paterna</label>
-                                <input type="text" id="form-gen-abuelap" placeholder="Abuela P." oninput="updateTreeFromInputs()" style="width: 100%; padding: 6px; border-radius: 5px; background: #0c0705; color: #fff; border: 1px solid #444; font-size: 0.78rem; text-transform: uppercase; box-sizing: border-box;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.68rem; color: #8d6e63;">♂ Abuelo Materno</label>
-                                <input type="text" id="form-gen-abuelom" placeholder="Abuelo M." oninput="updateTreeFromInputs()" style="width: 100%; padding: 6px; border-radius: 5px; background: #0c0705; color: #fff; border: 1px solid #444; font-size: 0.78rem; text-transform: uppercase; box-sizing: border-box;">
-                            </div>
-                            <div>
-                                <label style="display: block; font-size: 0.68rem; color: #8d6e63;">♀ Abuela Materna</label>
-                                <input type="text" id="form-gen-abuelam" placeholder="Abuela M." oninput="updateTreeFromInputs()" style="width: 100%; padding: 6px; border-radius: 5px; background: #0c0705; color: #fff; border: 1px solid #444; font-size: 0.78rem; text-transform: uppercase; box-sizing: border-box;">
-                            </div>
-                        </div>
-                    </div>
-
                     <!-- MEDIDAS MORFOLÓGICAS ESTRUCTURADAS -->
                     <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 10px; margin-bottom: 14px;">
                         <span style="display: block; font-size: 0.78rem; font-weight: 800; color: #ffab91; text-transform: uppercase; margin-bottom: 8px;">📐 Medidas Morfológicas Oficiales</span>
@@ -897,6 +864,14 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- EDICIÓN MANUAL DE ASCENDENCIA (OCULTA DETRÁS DEL ÁRBOL VISUAL) -->
+                    <input type="hidden" id="form-gen-padre">
+                    <input type="hidden" id="form-gen-madre">
+                    <input type="hidden" id="form-gen-abuelop">
+                    <input type="hidden" id="form-gen-abuelap">
+                    <input type="hidden" id="form-gen-abuelom">
+                    <input type="hidden" id="form-gen-abuelam">
 
                     <!-- GALERÍA DE FOTOGRAFÍAS: MÚLTIPLE (URL + ARCHIVO) -->
                     <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); padding: 14px; border-radius: 10px;">
