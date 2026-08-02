@@ -255,11 +255,11 @@
             <form id="admin-login-form" onsubmit="handleAdminLogin(event)">
                 <div class="login-field">
                     <label for="login-email">Correo del Administrador</label>
-                    <input type="email" id="login-email" placeholder="admin@corralabierto.cl" autocomplete="email" required>
+                    <input type="email" id="login-email" autocomplete="email" required>
                 </div>
                 <div class="login-field">
                     <label for="login-pass">Contraseña</label>
-                    <input type="password" id="login-pass" placeholder="••••••••••••" autocomplete="current-password" required>
+                    <input type="password" id="login-pass" autocomplete="current-password" required>
                 </div>
 
                 <div class="login-error-msg" id="login-error">
@@ -305,7 +305,10 @@
                         <h2>Panel de Administración</h2>
                         <p>Gestiona colleras, puntajes, medidas morfológicas y genealogía en tiempo real</p>
                     </div>
-                    <a href="index.html" class="admin-btn admin-btn-secondary" style="text-decoration: none; font-weight: 700; padding: 10px 18px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff;">Ir al Inicio 🏠</a>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <a href="index.html" class="admin-btn admin-btn-secondary" style="text-decoration: none; font-weight: 700; padding: 10px 18px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff;">Ir al Inicio 🏠</a>
+                        <button onclick="adminLogout()" style="padding: 10px 18px; background: rgba(198,40,40,0.2); border: 1px solid rgba(198,40,40,0.5); border-radius: 8px; color: #ef9a9a; font-weight: 700; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(198,40,40,0.4)'" onmouseout="this.style.background='rgba(198,40,40,0.2)'">🚪 Cerrar Sesión</button>
+                    </div>
                 </div>
 
                 <!-- Navegación de Pestañas Dashboard -->
@@ -2205,6 +2208,24 @@
         function setAdminSession() {
             sessionStorage.setItem(SESSION_KEY, JSON.stringify({ authenticated: true, ts: Date.now() }));
         }
+
+        window.adminLogout = function() {
+            if (!confirm('¿Seguro que quieres cerrar la sesión de administrador?')) return;
+            sessionStorage.removeItem(SESSION_KEY);
+            // Restaurar overlay de login
+            const overlay = document.getElementById('admin-login-overlay');
+            const particles = document.getElementById('login-particles');
+            if (overlay) { overlay.style.display = 'flex'; overlay.classList.remove('hidden'); }
+            if (particles) particles.style.display = 'block';
+            // Limpiar campos
+            const emailEl = document.getElementById('login-email');
+            const passEl  = document.getElementById('login-pass');
+            const btnEl   = document.getElementById('login-submit-btn');
+            if (emailEl) emailEl.value = '';
+            if (passEl)  passEl.value  = '';
+            if (btnEl)   { btnEl.textContent = '🔐 Ingresar al Panel'; btnEl.disabled = false; }
+            document.getElementById('login-error').classList.remove('visible');
+        };
 
         window.handleAdminLogin = function(e) {
             e.preventDefault();
