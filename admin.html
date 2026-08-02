@@ -1996,6 +1996,10 @@
                         }
 
                         if (!htmlText || htmlText.length < 200) continue;
+                        if (htmlText.includes('DEBE INGRESAR AL MENOS UNO DE LOS SIGUIENTES DATOS') || htmlText.includes('BÚSQUEDA DE GENEALOGÍA')) {
+                            // La URL directa no retornó un resultado directo sino la página de formulario de búsqueda
+                            continue;
+                        }
 
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlText, 'text/html');
@@ -2006,9 +2010,14 @@
                         return m && m[1] ? m[1].trim() : '';
                     };
 
-                    const rotEl = doc.querySelector('.rot-2 em, .rot-2, h1, h2');
+                    const rotEl = doc.querySelector('.rot-2 em');
                     let nombre = extractTag('Nombre');
-                    if (!nombre && rotEl) nombre = rotEl.textContent.replace(/Genealogía/i, '').trim();
+                    if (!nombre && rotEl) nombre = rotEl.textContent.trim();
+
+                    // Ignorar si el texto capturado es el mensaje del formulario de búsqueda
+                    if (nombre && (nombre.includes('DEBE INGRESAR') || nombre.includes('BÚSQUEDA'))) {
+                        nombre = '';
+                    }
 
                     const criadero = extractTag('Criadero');
                     const color = extractTag('Color') || extractTag('Pelaje');
