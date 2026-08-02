@@ -307,7 +307,7 @@
                     </div>
                         <div style="display: flex; gap: 10px; align-items: center;">
                             <a href="index.html" class="admin-btn admin-btn-secondary" style="text-decoration: none; font-weight: 700; padding: 10px 18px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: #fff;">Ir al Inicio</a>
-                            <button onclick="adminLogout()" style="padding: 10px 18px; background: rgba(198,40,40,0.2); border: 1px solid rgba(198,40,40,0.5); border-radius: 8px; color: #ef9a9a; font-weight: 700; cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(198,40,40,0.4)'" onmouseout="this.style.background='rgba(198,40,40,0.2)'">🚪 Cerrar Sesión</button>
+                            <button onclick="adminLogout()" style="padding: 10px 18px; background: rgba(198,40,40,0.2); border: 1px solid rgba(198,40,40,0.5); border-radius: 8px; color: #ef9a9a; font-weight: 700; cursor: pointer; transition: background 0.2s; display: inline-flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(198,40,40,0.4)'" onmouseout="this.style.background='rgba(198,40,40,0.2)'">Cerrar Sesión</button>
                         </div>
                 </div>
 
@@ -782,27 +782,27 @@
 
     <!-- MODAL GENEALOGÍA / REGISTRO CABALLO POR N° SBT DESIGN PRO & SERIO -->
     <div id="modal-genealogia-overlay" class="admin-modal-overlay">
-        <div class="admin-modal" style="background: linear-gradient(145deg, #180e0b 0%, #0d0604 100%); padding: 30px; border-radius: 18px; width: 92%; max-width: 820px; max-height: 92vh; overflow-y: auto; border: 1px solid rgba(212, 175, 55, 0.35); box-shadow: 0 20px 60px rgba(0,0,0,0.95);">
+        <div class="admin-modal" style="background: linear-gradient(145deg, #180e0b 0%, #0d0604 100%); padding: 30px; border-radius: 18px; width: 92%; max-width: 820px; max-height: 92vh; overflow-y: auto; border: 1px solid rgba(255, 87, 34, 0.35); box-shadow: 0 20px 60px rgba(0,0,0,0.95);">
             
-            <!-- HEADER DE REGISTRO ELEGANTE Y SERIO -->
-            <div style="border-bottom: 1px solid rgba(212, 175, 55, 0.2); padding-bottom: 16px; margin-bottom: 22px; display: flex; justify-content: space-between; align-items: center;">
+            <!-- HEADER MODAL -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid rgba(255,87,34,0.2); padding-bottom: 15px;">
                 <div>
-                    <h3 id="modal-genealogia-title" style="margin: 0; color: #d4af37; font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 800; letter-spacing: 0.3px;">
+                    <h3 id="modal-genealogia-title" style="margin: 0; color: #ffab91; font-family: 'Playfair Display', serif; font-size: 1.45rem; font-weight: 800; letter-spacing: 0.3px;">
                         🐴 Ficha Genealógica & Registro de Morfología
                     </h3>
                     <p style="margin: 4px 0 0 0; color: #bcaaa4; font-size: 0.82rem;">Sistema Oficial de Verificación e Integración con Caballo y Rodeo (SNA / SBT)</p>
                 </div>
-                <span style="background: rgba(212, 175, 55, 0.12); color: #d4af37; border: 1px solid rgba(212, 175, 55, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase;">
+                <span style="background: rgba(255, 87, 34, 0.15); color: #ffab91; border: 1px solid rgba(255, 87, 34, 0.4); padding: 4px 12px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; text-transform: uppercase;">
                     Verificación Oficial
                 </span>
             </div>
 
             <form id="form-genealogia" onsubmit="saveGenealogia(event)">
                 <!-- BÚSQUEDA / EXTRACCIÓN DIRECTA DESDE CABALLO Y RODEO (caballoyrodeo.cl) -->
-                <div style="background: rgba(212, 175, 55, 0.06); border: 1px solid rgba(212, 175, 55, 0.3); padding: 18px; border-radius: 12px; margin-bottom: 22px;">
-                    <label style="display: block; font-size: 0.8rem; font-weight: 800; color: #d4af37; margin-bottom: 8px; letter-spacing: 0.5px;">CONSULTAR NÚMERO DE REGISTRO SNA / SBT (ej: 201030, 231456)</label>
+                <div style="background: rgba(255, 87, 34, 0.06); border: 1px solid rgba(255, 87, 34, 0.3); padding: 18px; border-radius: 12px; margin-bottom: 22px;">
+                    <label style="display: block; font-size: 0.8rem; font-weight: 800; color: #ffab91; margin-bottom: 8px; letter-spacing: 0.5px;">CONSULTAR NÚMERO DE REGISTRO SNA / SBT (ej: 201030, 231456)</label>
                     <div style="display: flex; gap: 10px;">
-                        <input type="text" id="form-gen-sbt" placeholder="Ingresa el N° de Registro (ej: 201030)" required style="flex: 1; padding: 11px 14px; border-radius: 8px; background: #080403; color: #fff; border: 1.5px solid rgba(212, 175, 55, 0.4); font-weight: 800; font-size: 1.05rem; letter-spacing: 0.5px;">
+                        <input type="text" id="form-gen-sbt" placeholder="Ingresa el N° de Registro (ej: 201030)" required style="flex: 1; padding: 11px 14px; border-radius: 8px; background: #080403; color: #fff; border: 1.5px solid rgba(255, 87, 34, 0.4); font-weight: 800; font-size: 1.05rem; letter-spacing: 0.5px;">
                         <button type="button" onclick="lookupHorseBySBT()" style="padding: 11px 22px; background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: #fff; border: none; border-radius: 8px; font-weight: 800; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(255,87,34,0.35); white-space: nowrap;">
                             🔍 Consultar SNA
                         </button>
@@ -812,7 +812,7 @@
 
                 <!-- INFORMACIÓN PRINCIPAL DE LA FICHA -->
                 <div style="margin-bottom: 20px;">
-                    <h4 style="margin: 0 0 12px 0; font-size: 0.85rem; color: #d4af37; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 6px;">
+                    <h4 style="margin: 0 0 12px 0; font-size: 0.85rem; color: #ffab91; text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; border-bottom: 1px dashed rgba(255,87,34,0.25); padding-bottom: 6px;">
                         📋 Información del Ejemplar
                     </h4>
                     
@@ -877,7 +877,7 @@
                         <!-- AGREGAR POR URL -->
                         <div style="display: flex; gap: 8px; margin-bottom: 8px;">
                             <input type="text" id="form-gen-foto-url" placeholder="Pegar URL de foto (https://...)" style="flex: 1; padding: 8px 12px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid rgba(255,255,255,0.18); font-size: 0.85rem;">
-                            <button type="button" onclick="addFotoFromUrl()" style="padding: 8px 14px; background: rgba(212,175,55,0.2); border: 1px solid rgba(212,175,55,0.4); border-radius: 6px; color: #d4af37; font-weight: 700; cursor: pointer; white-space: nowrap;">➕ URL</button>
+                            <button type="button" onclick="addFotoFromUrl()" style="padding: 8px 14px; background: rgba(255,87,34,0.18); border: 1px solid rgba(255,87,34,0.4); border-radius: 6px; color: #ffab91; font-weight: 700; cursor: pointer; white-space: nowrap;">➕ URL</button>
                         </div>
 
                         <!-- AGREGAR DESDE ARCHIVO LOCAL -->
@@ -891,11 +891,11 @@
                     </div>
                 </div>
 
-                <!-- ÁRBOL GENEALÓGICO VISUAL TIPO RAMA -->
-                <div id="tree-container" style="display: none; background: rgba(0,0,0,0.45); border: 1.5px solid rgba(212, 175, 55, 0.3); border-radius: 14px; padding: 16px 12px; margin-top: 20px; overflow-x: auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(212,175,55,0.2); padding-bottom: 10px; margin-bottom: 14px;">
-                        <h4 style="margin: 0; color: #d4af37; font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 800;">🌳 Árbol de Ascendencia (Pedigree 4G)</h4>
-                        <span id="tree-horse-name" style="color: #fff; font-weight: 800; font-size: 0.8rem; background: rgba(212,175,55,0.15); padding: 2px 10px; border-radius: 6px; border: 1px solid rgba(212,175,55,0.3);"></span>
+                <!-- ÁRBOL GENEALÓGICO VISUAL TIPO RAMA (VISTA PREVIA DE ASCENDENCIA) -->
+                <div id="tree-container" style="display: none; background: rgba(12,7,5,0.85); border: 1.5px solid rgba(255, 87, 34, 0.4); border-radius: 14px; padding: 16px 12px; margin-top: 20px; overflow-x: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,87,34,0.25); padding-bottom: 10px; margin-bottom: 14px;">
+                        <h4 style="margin: 0; color: #ffab91; font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 800;">🌳 Vista Previa de Ascendencia (Pedigree Oficial)</h4>
+                        <span id="tree-horse-name" style="color: #fff; font-weight: 800; font-size: 0.8rem; background: rgba(255,87,34,0.15); padding: 2px 10px; border-radius: 6px; border: 1px solid rgba(255,87,34,0.4);"></span>
                     </div>
                     <div id="tree-visual"><!-- Árbol cargado dinámicamente --></div>
                 </div>
@@ -903,7 +903,7 @@
                 <!-- BOTONES DE ACCIÓN SERIOS Y DESTACADOS -->
                 <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 18px;">
                     <button type="button" onclick="closeGenealogiaModal()" style="padding: 10px 22px; background: #33221c; color: #ccc; border: 1px solid #555; border-radius: 8px; font-weight: 700; cursor: pointer;">Cancelar</button>
-                    <button type="submit" style="padding: 10px 26px; background: linear-gradient(135deg, #d4af37 0%, #b8860b 100%); color: #000; border: none; border-radius: 8px; font-weight: 900; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);">💾 Guardar Ficha del Caballo</button>
+                    <button type="submit" style="padding: 10px 26px; background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: #fff; border: none; border-radius: 8px; font-weight: 900; font-size: 0.95rem; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 87, 34, 0.4);">💾 Guardar Ficha del Caballo</button>
                 </div>
             </form>
         </div>
