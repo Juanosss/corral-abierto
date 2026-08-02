@@ -1967,29 +1967,28 @@
             const targetUrl = `https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${cleanSbt}`;
             const proxyUrls = [
                 `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
-                `https://api.allorigins.win/raw?url=${encodeURIComponent(targetUrl)}`
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+                `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
             ];
 
             for (let proxyUrl of proxyUrls) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 6000);
+                    const timeoutId = setTimeout(() => controller.abort(), 7000);
 
                     const resp = await fetch(proxyUrl, { signal: controller.signal });
                     clearTimeout(timeoutId);
 
                     if (!resp.ok) continue;
                     let htmlText = '';
-                    if (proxyUrl.includes('/get?url=')) {
+                    if (proxyUrl.includes('allorigins.win/get')) {
                         const json = await resp.json();
                         htmlText = json ? (json.contents || '') : '';
                     } else {
                         htmlText = await resp.text();
                     }
 
-                    if (!htmlText || (!htmlText.includes('info-caballo') && !htmlText.includes('Genealogía') && !htmlText.includes('Registro SNA'))) {
-                        continue;
-                    }
+                    if (!htmlText || htmlText.length < 200) continue;
 
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlText, 'text/html');
@@ -2000,12 +1999,14 @@
                         return m && m[1] ? m[1].trim() : '';
                     };
 
-                    const rotEl = doc.querySelector('.rot-2 em');
-                    const nombre = extractTag('Nombre') || (rotEl ? rotEl.textContent.trim() : '');
+                    const rotEl = doc.querySelector('.rot-2 em, .rot-2, h1, h2');
+                    let nombre = extractTag('Nombre');
+                    if (!nombre && rotEl) nombre = rotEl.textContent.replace(/Genealogía/i, '').trim();
+
                     const criadero = extractTag('Criadero');
-                    const color = extractTag('Color');
-                    const fn = extractTag('Nacimiento');
-                    const criador = extractTag('Criador');
+                    const color = extractTag('Color') || extractTag('Pelaje');
+                    const fn = extractTag('Nacimiento') || extractTag('F.N.');
+                    const criador = extractTag('Criador') || extractTag('Dueño');
                     const sexo = extractTag('Sexo');
 
                     // Extracción de 4 Generaciones del Árbol Genealógico
@@ -2029,16 +2030,16 @@
                         if (el) gen4.push(el.textContent.trim());
                     }
 
-                    if (nombre) {
+                    if (nombre && nombre.length > 1) {
                         return {
                             id: `h-${cleanSbt}`,
                             nombre: nombre.toUpperCase(),
-                            criadero: criadero ? criadero.toUpperCase() : 'SIN CRIADERO ESPECIFICADO',
+                            criadero: criadero ? criadero.toUpperCase() : '',
                             dueno: criador || '',
                             color: color || '',
                             sexo: sexo || '',
                             nacional: `SBT N° ${cleanSbt}`,
-                            fn: fn ? `F.N. ${fn}` : '',
+                            fn: fn ? `${fn}` : '',
                             alzada: '',
                             cincha: '',
                             cana: '',
