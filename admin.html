@@ -2102,16 +2102,25 @@
             const sbtInput = document.getElementById('form-gen-sbt');
             if (!sbtInput) return;
 
-            const rawSbt = sbtInput.value.trim();
+            let rawSbt = sbtInput.value.trim();
             const statusEl = document.getElementById('sbt-lookup-status');
             if (!rawSbt) {
-                if (statusEl) statusEl.innerHTML = `<span style="color:#ffa726;">Por favor ingresa un N° de Registro SBT.</span>`;
+                if (statusEl) statusEl.innerHTML = `<span style="color:#ffa726;">Por favor ingresa un N° de Registro SBT o URL.</span>`;
                 return;
+            }
+
+            // Extraer ID si el usuario pegó el link completo con o sin hashtag (ej: https://.../?id=335836#gc)
+            if (rawSbt.includes('id=')) {
+                const matchId = rawSbt.match(/id=([0-9]+)/i);
+                if (matchId && matchId[1]) {
+                    rawSbt = matchId[1];
+                    sbtInput.value = rawSbt; // Limpiar el input dejando sólo el número
+                }
             }
 
             const cleanSbt = rawSbt.replace(/[^0-9]/g, '');
             if (!cleanSbt) {
-                if (statusEl) statusEl.innerHTML = `<span style="color:#ffa726;">Por favor ingresa un número de SBT válido.</span>`;
+                if (statusEl) statusEl.innerHTML = `<span style="color:#ffa726;">Por favor ingresa un número de SBT válido o un enlace de Caballo y Rodeo.</span>`;
                 return;
             }
 
