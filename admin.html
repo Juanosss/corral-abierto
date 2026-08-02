@@ -1965,42 +1965,36 @@
 
         // EXTRAER FICHA REAL DE CABALLO DESDE CABALLO Y RODEO
         window.fetchCaballoyRodeoData = async function(cleanSbt) {
-            const targetUrls = [
-                `https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${cleanSbt}`,
-                `https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia_ficha.html?id=${cleanSbt}`,
-                `https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?busqueda=${cleanSbt}`
+            const targetUrl = `https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${cleanSbt}`;
+            const proxyUrls = [
+                `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`,
+                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(targetUrl)}`,
+                `https://corsproxy.io/?${encodeURIComponent(targetUrl)}`
             ];
 
-            const createProxies = (url) => [
-                `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
-                `https://corsproxy.io/?${encodeURIComponent(url)}`,
-                `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`
-            ];
+            for (let proxyUrl of proxyUrls) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 7000);
 
-            for (let targetUrl of targetUrls) {
-                const proxyUrls = createProxies(targetUrl);
-                for (let proxyUrl of proxyUrls) {
-                    try {
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 6000);
+                    const resp = await fetch(proxyUrl, { signal: controller.signal });
+                    clearTimeout(timeoutId);
 
-                        const resp = await fetch(proxyUrl, { signal: controller.signal });
-                        clearTimeout(timeoutId);
+                    if (!resp.ok) continue;
+                    let htmlText = '';
+                    if (proxyUrl.includes('allorigins.win/get') || proxyUrl.includes('/get?url=')) {
+                        const json = await resp.json();
+                        htmlText = json ? (json.contents || '') : '';
+                    } else {
+                        htmlText = await resp.text();
+                    }
 
-                        if (!resp.ok) continue;
-                        let htmlText = '';
-                        if (proxyUrl.includes('allorigins.win/get')) {
-                            const json = await resp.json();
-                            htmlText = json ? (json.contents || '') : '';
-                        } else {
-                            htmlText = await resp.text();
-                        }
-
-                        if (!htmlText || htmlText.length < 200) continue;
-                        if (htmlText.includes('DEBE INGRESAR AL MENOS UNO DE LOS SIGUIENTES DATOS') || htmlText.includes('BÚSQUEDA DE GENEALOGÍA')) {
-                            // La URL directa no retornó un resultado directo sino la página de formulario de búsqueda
-                            continue;
-                        }
+                    if (!htmlText || htmlText.length < 200) continue;
+                    
+                    // Si el HTML contiene el aviso de que no se encontró o que requiere ingresar parámetros, omitir
+                    if (htmlText.includes('DEBE INGRESAR AL MENOS UNO DE LOS SIGUIENTES DATOS')) {
+                        continue;
+                    }
 
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(htmlText, 'text/html');
@@ -2012,11 +2006,9 @@
                     };
 
                     const rotEl = doc.querySelector('.rot-2 em');
-                    let nombre = extractTag('Nombre');
-                    if (!nombre && rotEl) nombre = rotEl.textContent.trim();
+                    let nombre = extractTag('Nombre') || (rotEl ? rotEl.textContent.trim() : '');
 
-                    // Ignorar si el texto capturado es el mensaje del formulario de búsqueda
-                    if (nombre && (nombre.includes('DEBE INGRESAR') || nombre.includes('BÚSQUEDA'))) {
+                    if (nombre && (nombre.includes('DEBE INGRESAR') || nombre.includes('BÚSQUEDA DE GENEALOGÍA'))) {
                         nombre = '';
                     }
 
@@ -2026,7 +2018,7 @@
                     const criador = extractTag('Criador') || extractTag('Dueño');
                     const sexo = extractTag('Sexo');
 
-                    // Extracción de 4 Generaciones del Árbol Genealógico
+                    // Extracción de Generaciones del Árbol Genealógico
                     const n1_c1 = doc.querySelector('.n1 .c1') ? doc.querySelector('.n1 .c1').textContent.trim() : '';
                     const n1_c2 = doc.querySelector('.n1 .c2') ? doc.querySelector('.n1 .c2').textContent.trim() : '';
 
@@ -2051,12 +2043,12 @@
                         return {
                             id: `h-${cleanSbt}`,
                             nombre: nombre.toUpperCase(),
-                            criadero: criadero ? criadero.toUpperCase() : '',
+                            criadero: criadero ? criadero.toUpperCase() : 'SIN CRIADERO ESPECIFICADO',
                             dueno: criador || '',
                             color: color || '',
                             sexo: sexo || '',
                             nacional: `SBT N° ${cleanSbt}`,
-                            fn: fn ? `${fn}` : '',
+                            fn: fn ? `F.N. ${fn}` : '',
                             alzada: '',
                             cincha: '',
                             cana: '',
@@ -2075,9 +2067,8 @@
                     console.warn(`Proxy fetch error for ${cleanSbt}:`, err);
                 }
             }
-        }
-        return null;
-    };
+            return null;
+        };
 
         window.lookupHorseBySBT = async function() {
             const sbtInput = document.getElementById('form-gen-sbt');
