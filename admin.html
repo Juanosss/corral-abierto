@@ -2096,11 +2096,18 @@
             // 1. Intentar extraer en vivo desde caballoyrodeo.cl
             let horse = await window.fetchCaballoyRodeoData(cleanSbt);
 
-            // 2. Fallback: buscar en registros locales
+            // 2. Fallback: buscar en registros locales existentes por SBT, ID o Nombre
             if (!horse) {
+                const searchValUpper = rawSbt.toUpperCase();
                 for (const arr of [window.filteredGenealogias, window.genealogiaData, window.defaultGenealogiaData]) {
                     if (Array.isArray(arr)) {
-                        horse = arr.find(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt);
+                        horse = arr.find(g => {
+                            const sbtNum = (g.nacional || '').replace(/[^0-9]/g, '');
+                            const idNum = (g.id || '').replace(/[^0-9]/g, '');
+                            const nameUpper = (g.nombre || '').toUpperCase();
+                            return (cleanSbt && (sbtNum === cleanSbt || idNum === cleanSbt)) || 
+                                   (searchValUpper && nameUpper === searchValUpper);
+                        });
                         if (horse) break;
                     }
                 }
