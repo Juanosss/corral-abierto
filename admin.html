@@ -2212,20 +2212,10 @@
                 setVal('form-gen-alzada',   horse.alzada   || '');
                 setVal('form-gen-cincha',   horse.cincha   || '');
                 setVal('form-gen-cana',     horse.cana     || '');
-
-                // Campos extra si existen en el formulario
-                setVal('form-gen-sexo',   horse.sexo   || '');
-                setVal('form-gen-color',  horse.color  || '');
-                setVal('form-gen-fn',     horse.fn     || '');
-                setVal('form-gen-dueno',  horse.dueno  || '');
-
-                // Llenar campos de ascendencia directa editables
-                setVal('form-gen-padre',   horse.padre   || '');
-                setVal('form-gen-madre',   horse.madre   || '');
-                setVal('form-gen-abuelop', horse.abueloP || '');
-                setVal('form-gen-abuelap', horse.abuelaP || '');
-                setVal('form-gen-abuelom', horse.abueloM || '');
-                setVal('form-gen-abuelam', horse.abuelaM || '');
+                setVal('form-gen-sexo',     horse.sexo     || '');
+                setVal('form-gen-color',    horse.color    || '');
+                setVal('form-gen-fn',       horse.fn       || '');
+                setVal('form-gen-dueno',    horse.dueno    || '');
 
                 // Fotos: si la extracción trae algo, cargarlas
                 if (horse.foto) resetHorsePhotos(horse.foto);
