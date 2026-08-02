@@ -2094,6 +2094,7 @@
             setVal('form-gen-cincha', '');
             setVal('form-gen-cana', '');
             setVal('form-gen-foto', '');
+            resetHorsePhotos(null);
 
             renderGenealogyTreeVisual(null);
 
@@ -2123,7 +2124,7 @@
             setVal('form-gen-alzada', horse.alzada || '');
             setVal('form-gen-cincha', horse.cincha || '');
             setVal('form-gen-cana', horse.cana || '');
-            setVal('form-gen-foto', horse.foto || '');
+            resetHorsePhotos(horse.foto || null);
 
             renderGenealogyTreeVisual(horse);
 
@@ -2215,14 +2216,16 @@
             const alzada = document.getElementById('form-gen-alzada').value.trim();
             const cincha = document.getElementById('form-gen-cincha').value.trim();
             const cana = document.getElementById('form-gen-cana').value.trim();
-            const foto = document.getElementById('form-gen-foto').value.trim();
+            // Collect photos from the multi-photo array
+            const foto = horsePhotos.map(f => f.src);
+            const fotoStr = foto.length > 0 ? JSON.stringify(foto) : '';
 
             const cleanSbt = sbtNum.replace(/[^0-9]/g, '');
             const sbtFormatted = cleanSbt ? `SBT N° ${cleanSbt}` : 'SBT Pendiente';
 
             // Evitar duplicados por SBT N° o ID
             const existingIdx = filteredGenealogias.findIndex(g => (g.nacional || '').replace(/[^0-9]/g, '') === cleanSbt || (g.nombre || '').toUpperCase() === nombre.toUpperCase());
-            const newHorse = { id: `h-${cleanSbt || Date.now()}`, nombre: nombre.toUpperCase(), criadero, alzada, cincha, cana, foto, nacional: sbtFormatted };
+            const newHorse = { id: `h-${cleanSbt || Date.now()}`, nombre: nombre.toUpperCase(), criadero, alzada, cincha, cana, foto: fotoStr, nacional: sbtFormatted };
 
             if (existingIdx >= 0) {
                 filteredGenealogias[existingIdx] = { ...filteredGenealogias[existingIdx], ...newHorse };
