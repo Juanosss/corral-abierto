@@ -731,35 +731,36 @@
                     </div>
                 </div>
 
-                <!-- EDICIÓN Y AJUSTE MANUAL DE PUNTAJES Y POSICIÓN -->
-                <div style="background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255,255,255,0.12); padding: 14px; border-radius: 10px; margin-bottom: 16px;">
-                    <span style="display: block; font-size: 0.78rem; font-weight: 800; color: #d4af37; text-transform: uppercase; margin-bottom: 8px;">🎯 Puntajes & Posición de la Collera (Edición / Ajustes)</span>
+                <!-- PUNTAJES AUTO-CALCULADOS -->
+                <div style="background: rgba(255, 87, 34, 0.06); border: 1px solid rgba(255,87,34,0.25); padding: 14px; border-radius: 10px; margin-bottom: 16px;">
+                    <span style="display: block; font-size: 0.78rem; font-weight: 800; color: #ffab91; text-transform: uppercase; margin-bottom: 8px;">🎯 Puntajes por Toro (Total y Lugar se calculan solos)</span>
                     <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;">
                         <div>
-                            <label style="display: block; font-size: 0.72rem; color: #ccc; margin-bottom: 3px;">1er Toro</label>
-                            <input type="text" id="form-toro1" placeholder="0" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800;">
+                            <label style="display: block; font-size: 0.72rem; color: #bcaaa4; margin-bottom: 3px;">1er Toro</label>
+                            <input type="text" id="form-toro1" placeholder="0" oninput="recalcColleraScore()" style="width: 100%; padding: 7px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800; box-sizing: border-box;">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.72rem; color: #ccc; margin-bottom: 3px;">2do Toro</label>
-                            <input type="text" id="form-toro2" placeholder="--" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800;">
+                            <label style="display: block; font-size: 0.72rem; color: #bcaaa4; margin-bottom: 3px;">2do Toro</label>
+                            <input type="text" id="form-toro2" placeholder="--" oninput="recalcColleraScore()" style="width: 100%; padding: 7px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800; box-sizing: border-box;">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.72rem; color: #ccc; margin-bottom: 3px;">3er Toro</label>
-                            <input type="text" id="form-toro3" placeholder="--" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800;">
+                            <label style="display: block; font-size: 0.72rem; color: #bcaaa4; margin-bottom: 3px;">3er Toro</label>
+                            <input type="text" id="form-toro3" placeholder="--" oninput="recalcColleraScore()" style="width: 100%; padding: 7px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800; box-sizing: border-box;">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.72rem; color: #ccc; margin-bottom: 3px;">4to Toro</label>
-                            <input type="text" id="form-toro4" placeholder="--" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800;">
+                            <label style="display: block; font-size: 0.72rem; color: #bcaaa4; margin-bottom: 3px;">4to Toro</label>
+                            <input type="text" id="form-toro4" placeholder="--" oninput="recalcColleraScore()" style="width: 100%; padding: 7px; border-radius: 6px; background: #0c0705; color: #fff; border: 1px solid #555; text-align: center; font-weight: 800; box-sizing: border-box;">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.72rem; color: #ffab91; margin-bottom: 3px;">Total Pts</label>
-                            <input type="text" id="form-resultado-total" placeholder="0" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #ffab91; border: 1px solid #ff5722; text-align: center; font-weight: 900;">
+                            <label style="display: block; font-size: 0.72rem; color: #ff5722; margin-bottom: 3px; font-weight: 800;">Total Pts ⚡</label>
+                            <input type="text" id="form-resultado-total" readonly placeholder="0" style="width: 100%; padding: 7px; border-radius: 6px; background: rgba(255,87,34,0.12); color: #ff5722; border: 1.5px solid #ff5722; text-align: center; font-weight: 900; cursor: default; box-sizing: border-box;">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 0.72rem; color: #ffab91; margin-bottom: 3px;">Lugar</label>
-                            <input type="text" id="form-lugar" placeholder="--" style="width: 100%; padding: 7px; border-radius: 6px; background: #000; color: #fff; border: 1px solid #ff5722; text-align: center; font-weight: 800;">
+                            <label style="display: block; font-size: 0.72rem; color: #ff5722; margin-bottom: 3px; font-weight: 800;">Lugar 🏆</label>
+                            <input type="text" id="form-lugar" readonly placeholder="--" style="width: 100%; padding: 7px; border-radius: 6px; background: rgba(255,87,34,0.12); color: #ff5722; border: 1.5px solid #ff5722; text-align: center; font-weight: 900; cursor: default; box-sizing: border-box;">
                         </div>
                     </div>
+                    <small style="display: block; margin-top: 8px; color: #6d4c41; font-size: 0.72rem;">⚡ Total y Lugar se recalculan automáticamente al ingresar los puntajes por toro.</small>
                 </div>
 
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
@@ -2037,8 +2038,8 @@
             setVal('form-toro2', collera.animal2 || '');
             setVal('form-toro3', collera.animal3 || '');
             setVal('form-toro4', collera.animal4 || '');
-            setVal('form-resultado-total', collera.resultado || '0');
-            setVal('form-lugar', collera.lugar || '');
+            // Recalculate automatically; readonly fields update via recalcColleraScore
+            setTimeout(recalcColleraScore, 0);
 
             const s1 = document.getElementById('collera-horse1-status');
             const s2 = document.getElementById('collera-horse2-status');
@@ -2160,6 +2161,33 @@
 
         window.openBulkGenealogiaModal = function() { document.getElementById('modal-bulk-genealogia-overlay').classList.add('active'); };
         window.closeBulkGenealogiaModal = function() { document.getElementById('modal-bulk-genealogia-overlay').classList.remove('active'); };
+
+        // AUTO-CÁLCULO: TOTAL Y LUGAR
+        window.recalcColleraScore = function() {
+            const ids = ['form-toro1', 'form-toro2', 'form-toro3', 'form-toro4'];
+            let total = 0;
+            ids.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                const num = parseFloat((el.value || '').replace(',', '.'));
+                if (!isNaN(num)) total += num;
+            });
+
+            const totalEl = document.getElementById('form-resultado-total');
+            if (totalEl) totalEl.value = total;
+
+            // Calcular Lugar: contar cuántas colleras existentes (excluir la que se está editando) tienen más puntos
+            const currentN = parseInt(document.getElementById('form-collera-index').value || '-1');
+            const rivals = (filteredColleras || []).filter(c => parseInt(c.n) !== currentN);
+            const higherCount = rivals.filter(c => {
+                const r = parseFloat(String(c.resultado || '0').replace(',', '.'));
+                return !isNaN(r) && r > total;
+            }).length;
+            const lugar = higherCount + 1;
+
+            const lugarEl = document.getElementById('form-lugar');
+            if (lugarEl) lugarEl.value = lugar + '°';
+        };
 
         window.saveCollera = function(e) {
             if (e && e.preventDefault) e.preventDefault();
