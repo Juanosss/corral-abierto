@@ -239,6 +239,57 @@
 </head>
 <body style="background-color: #140c0a; color: #ffffff;">
 
+    <!-- OVERLAY 2FA VERIFICACIÓN DINÁMICA -->
+    <div id="2fa-overlay" style="position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 30%, #2c1008 0%, #140c0a 65%, #0a0604 100%); display: flex; align-items: center; justify-content: center; z-index: 9999999; padding: 20px;">
+        <div style="width: 100%; max-width: 420px; background: linear-gradient(145deg, #1f1007 0%, #120704 100%); border: 1.5px solid rgba(255, 87, 34, 0.4); border-radius: 20px; padding: 36px 30px; box-shadow: 0 30px 80px rgba(0,0,0,0.9); text-align: center; position: relative;">
+            
+            <div style="font-size: 3rem; margin-bottom: 10px;">🔐</div>
+            <h2 style="font-family: 'Playfair Display', serif; color: #ff5722; margin: 0 0 6px 0; font-size: 1.6rem;">Autenticación 2FA</h2>
+            <p style="color: #bcaaa4; font-size: 0.88rem; margin: 0 0 20px 0; line-height: 1.4;">Ingresa el código dinámico de 6 dígitos desde tu app autenticadora (Google Authenticator / Authy).</p>
+
+            <!-- Pestañas Config / Verificar -->
+            <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 20px;">
+                <button type="button" id="btn-2fa-verify-tab" onclick="switch2FATab('verify')" style="padding: 6px 14px; background: #ff5722; color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">🔑 Ingresar Token</button>
+                <button type="button" id="btn-2fa-setup-tab" onclick="switch2FATab('setup')" style="padding: 6px 14px; background: rgba(255,255,255,0.1); color: #bcaaa4; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">📲 Escanear QR / Configurar</button>
+            </div>
+
+            <!-- VISTA 1: VERIFICAR TOKEN -->
+            <div id="view-2fa-verify" style="display: block;">
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="2fa-token-input" maxlength="6" pattern="[0-9]*" placeholder="000000" style="width: 200px; font-size: 2rem; font-weight: 900; letter-spacing: 8px; text-align: center; padding: 10px; border-radius: 10px; border: 2px solid #ff5722; background: #0c0705; color: #fff; font-family: monospace; outline: none;" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onkeyup="if(this.value.length===6) verify2FAToken();">
+                </div>
+
+                <div id="2fa-timer-bar-wrap" style="width: 200px; height: 4px; background: rgba(255,255,255,0.1); margin: 0 auto 16px auto; border-radius: 2px; overflow: hidden;">
+                    <div id="2fa-timer-bar" style="width: 100%; height: 100%; background: #ff5722; transition: width 1s linear;"></div>
+                </div>
+
+                <div id="2fa-error-msg" style="color: #ff5252; font-size: 0.85rem; font-weight: 700; margin-bottom: 15px; display: none;">
+                    ⚠️ Código 2FA inválido o expirado. Inténtalo de nuevo.
+                </div>
+
+                <button type="button" onclick="verify2FAToken()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: #fff; border: none; border-radius: 10px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(230,81,0,0.4);">
+                    DESBLOQUEAR PANEL ADMIN
+                </button>
+            </div>
+
+            <!-- VISTA 2: CONFIGURACIÓN / ESCANEAR QR -->
+            <div id="view-2fa-setup" style="display: none;">
+                <div style="background: #ffffff; padding: 12px; border-radius: 12px; display: inline-block; margin-bottom: 12px;">
+                    <img id="2fa-qr-img" style="width: 160px; height: 160px; display: block;" alt="Código QR 2FA">
+                </div>
+                <div style="font-size: 0.78rem; color: #bcaaa4; margin-bottom: 12px;">
+                    Escanea este código QR con <strong>Google Authenticator</strong> o <strong>Authy</strong> en tu celular.
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; color: #ffab91; word-break: break-all; margin-bottom: 16px;">
+                    Secret Key: <code id="2fa-secret-code" style="color: #fff; font-weight: 800;">---</code>
+                </div>
+                <button type="button" onclick="switch2FATab('verify')" style="width: 100%; padding: 10px; background: rgba(255,87,34,0.2); border: 1px solid #ff5722; color: #fff; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer;">
+                    ✅ Ya lo escaneé -> Volver a Ingresar Token
+                </button>
+            </div>
+
+        </div>
+    </div>
 
     <div class="app-container">
         <!-- HEADER -->
@@ -2747,32 +2798,139 @@
 
         // EJECUTAR EN CARGA
         // ================================================================
-        // SISTEMA DE LOGIN DEL PANEL DE ADMINISTRACIÓN
+        // SISTEMA DE AUTENTICACIÓN 2FA DINÁMICA (TOTP 30 SEG)
         // ================================================================
-        const ADMIN_CREDS = { email: 'admin@corralabierto.cl', pass: 'Pinochet1973' };
-        const SESSION_KEY = 'ca_admin_session_v2';
+        // Secret Base32 por defecto para Corral Abierto Admin
+        const TOTP_SECRET_KEY = "JBSWY3DPEHPK3PXP"; 
 
-        function isAdminLoggedIn() {
+        // Generador de OTP usando HMAC-SHA1 en JS puro
+        async function generateTOTPToken(secret, timeStep = 30) {
             try {
-                const s = sessionStorage.getItem(SESSION_KEY);
-                if (!s) return false;
-                const parsed = JSON.parse(s);
-                return parsed && parsed.authenticated === true;
-            } catch(e) { return false; }
+                // Decodificar Base32
+                const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+                let bits = "";
+                for (let i = 0; i < secret.length; i++) {
+                    const val = alphabet.indexOf(secret.charAt(i).toUpperCase());
+                    if (val >= 0) bits += val.toString(2).padStart(5, '0');
+                }
+                const bytes = new Uint8Array(bits.match(/.{1,8}/g).map(b => parseInt(b, 2)));
+
+                // Bloque de tiempo epoch de 30 segundos
+                const epoch = Math.floor(Date.now() / 1000);
+                const timeHex = Math.floor(epoch / timeStep).toString(16).padStart(16, '0');
+                const timeBytes = new Uint8Array(8);
+                for (let i = 0; i < 8; i++) {
+                    timeBytes[i] = parseInt(timeHex.substr(i * 2, 2), 16);
+                }
+
+                // Importar clave HMAC
+                const cryptoKey = await window.crypto.subcrypto || window.crypto.subtle.importKey(
+                    "raw", bytes, { name: "HMAC", hash: "SHA-1" }, false, ["sign"]
+                );
+                const signature = await window.crypto.subtle.sign("HMAC", cryptoKey, timeBytes);
+                const sigBytes = new Uint8Array(signature);
+
+                // Truncamiento dinámico
+                const offset = sigBytes[sigBytes.length - 1] & 0xf;
+                const binary = ((sigBytes[offset] & 0x7f) << 24) |
+                               ((sigBytes[offset + 1] & 0xff) << 16) |
+                               ((sigBytes[offset + 2] & 0xff) << 8) |
+                               (sigBytes[offset + 3] & 0xff);
+                const otp = (binary % 1000000).toString().padStart(6, '0');
+                return otp;
+            } catch(err) {
+                console.error("Error calculando TOTP:", err);
+                return null;
+            }
         }
 
-        function setAdminSession() {
-            sessionStorage.setItem(SESSION_KEY, JSON.stringify({ authenticated: true, ts: Date.now() }));
+        window.switch2FATab = function(tabName) {
+            const vVerify = document.getElementById('view-2fa-verify');
+            const vSetup  = document.getElementById('view-2fa-setup');
+            const btnV    = document.getElementById('btn-2fa-verify-tab');
+            const btnS    = document.getElementById('btn-2fa-setup-tab');
+
+            if (tabName === 'verify') {
+                if (vVerify) vVerify.style.display = 'block';
+                if (vSetup)  vSetup.style.display = 'none';
+                if (btnV) { btnV.style.background = '#ff5722'; btnV.style.color = '#fff'; }
+                if (btnS) { btnS.style.background = 'rgba(255,255,255,0.1)'; btnS.style.color = '#bcaaa4'; }
+            } else {
+                if (vVerify) vVerify.style.display = 'none';
+                if (vSetup)  vSetup.style.display = 'block';
+                if (btnS) { btnS.style.background = '#ff5722'; btnS.style.color = '#fff'; }
+                if (btnV) { btnV.style.background = 'rgba(255,255,255,0.1)'; btnV.style.color = '#bcaaa4'; }
+                
+                // Generar QR de escaneo usando servicio QR público rápido
+                const otpUri = `otpauth://totp/Corral%20Abierto%20Admin:admin@corralabierto.cl?secret=${TOTP_SECRET_KEY}&issuer=CorralAbierto`;
+                const qrImg = document.getElementById('2fa-qr-img');
+                const secretCodeEl = document.getElementById('2fa-secret-code');
+                if (qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(otpUri)}`;
+                if (secretCodeEl) secretCodeEl.innerText = TOTP_SECRET_KEY;
+            }
+        };
+
+        window.verify2FAToken = async function() {
+            const inputEl = document.getElementById('2fa-token-input');
+            const errorEl = document.getElementById('2fa-error-msg');
+            const overlay = document.getElementById('2fa-overlay');
+            if (!inputEl) return;
+
+            const tokenEntered = inputEl.value.trim();
+            if (tokenEntered.length !== 6) return;
+
+            // Calcular token esperado para la ventana actual de 30s
+            const expectedToken = await generateTOTPToken(TOTP_SECRET_KEY);
+
+            if (tokenEntered === expectedToken) {
+                // Token correcto ✅ -> Desbloquear panel
+                if (errorEl) errorEl.style.display = 'none';
+                sessionStorage.setItem('ca_2fa_authenticated', 'true');
+                if (overlay) {
+                    overlay.style.transition = 'opacity 0.4s ease';
+                    overlay.style.opacity = '0';
+                    setTimeout(() => { overlay.style.display = 'none'; }, 400);
+                }
+                initAdminDirect();
+                if (typeof window.showToast === 'function') window.showToast(`🔒 Acceso 2FA Verificado. ¡Bienvenido!`);
+            } else {
+                // Token incorrecto ❌
+                if (errorEl) errorEl.style.display = 'block';
+                inputEl.value = '';
+                inputEl.focus();
+            }
+        };
+
+        function start2FATimerBar() {
+            const bar = document.getElementById('2fa-timer-bar');
+            if (!bar) return;
+            setInterval(() => {
+                const seconds = 30 - (Math.floor(Date.now() / 1000) % 30);
+                const pct = (seconds / 30) * 100;
+                bar.style.width = pct + '%';
+            }, 1000);
         }
 
         window.adminLogout = function() {
-            // Simplemente recargar la página
+            sessionStorage.removeItem('ca_2fa_authenticated');
             window.location.reload();
         };
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Entrar directo al panel sin login
-            initAdminDirect();
+            start2FATimerBar();
+
+            // Verificar si ya completó el 2FA en esta sesión del navegador
+            const is2FAVerified = sessionStorage.getItem('ca_2fa_authenticated') === 'true';
+            const overlay = document.getElementById('2fa-overlay');
+
+            if (is2FAVerified) {
+                if (overlay) overlay.style.display = 'none';
+                initAdminDirect();
+            } else {
+                if (overlay) overlay.style.display = 'flex';
+                const inputEl = document.getElementById('2fa-token-input');
+                if (inputEl) inputEl.focus();
+            }
         });
     </script>
 </body>
