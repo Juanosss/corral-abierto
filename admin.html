@@ -315,7 +315,7 @@
                 <div class="admin-tabs-nav">
                     <button class="admin-tab-btn active" id="btn-tab-rodeos" onclick="switchAdminTab('tab-rodeos', this)">Gestión de Rodeos</button>
                     <button class="admin-tab-btn" id="btn-tab-colleras" onclick="switchAdminTab('tab-colleras', this)">Colleras & Resultados</button>
-                    <button class="admin-tab-btn" id="btn-tab-calendario" onclick="switchAdminTab('tab-calendario', this)">📅 Calendario de Rodeos</button>
+                    <button class="admin-tab-btn" id="btn-tab-calendario" onclick="switchAdminTab('tab-calendario', this)">Calendario de Rodeos</button>
                     <button class="admin-tab-btn" id="btn-tab-genealogias" onclick="switchAdminTab('tab-genealogias', this)">Genealogía & Morfología</button>
                     <button class="admin-tab-btn" id="btn-tab-backup" onclick="switchAdminTab('tab-backup', this)">Respaldos & Backup</button>
                     <button class="admin-tab-btn" id="btn-tab-usuarios" onclick="switchAdminTab('tab-usuarios', this)">Control de Socios</button>
@@ -533,9 +533,10 @@
                             <h3 style="margin: 0; color: #ff5722; font-family: 'Playfair Display', serif;">🐴 Registros Genealógicos & Morfológicos por N° SBT</h3>
                             <p style="color: var(--text-muted); font-size: 0.85rem; margin: 4px 0 0 0;">Busca o extrae caballos directamente por su Número de Registro SBT desde Caballo y Rodeo.</p>
                         </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button onclick="openBulkGenealogiaModal()" class="admin-btn admin-btn-secondary" style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-weight: 700; cursor: pointer;">⚡ Carga Masiva por N° Registro</button>
-                            <button onclick="openGenealogiaModal()" class="admin-btn admin-btn-primary" style="padding: 0.5rem 1rem; background: #ff5722; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer;">➕ Registrar Caballo por SBT</button>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="text" id="genealogia-quick-search" placeholder="🔍 Buscar por nombre o SBT..." oninput="filterGenealogiasTable(this.value)" style="padding: 0.5rem 0.8rem; background: #0c0705; color: #fff; border: 1px solid rgba(255,87,34,0.4); border-radius: 8px; font-size: 0.85rem; width: 210px; font-weight: 600;">
+                            <button onclick="openBulkGenealogiaModal()" class="admin-btn admin-btn-secondary" style="padding: 0.5rem 1rem; background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; font-weight: 700; cursor: pointer; white-space: nowrap;">⚡ Carga Masiva por N° Registro</button>
+                            <button onclick="openGenealogiaModal()" class="admin-btn admin-btn-primary" style="padding: 0.5rem 1rem; background: #ff5722; color: #fff; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; white-space: nowrap;">➕ Registrar Caballo por SBT</button>
                         </div>
                     </div>
 
@@ -1351,10 +1352,15 @@
             }).join('');
         }
 
-        function renderGenealogiasTable() {
+        function renderGenealogiasTable(dataToRender) {
             const tbody = document.getElementById('genealogias-tbody');
             if (!tbody) return;
-            tbody.innerHTML = (filteredGenealogias || []).map(g => {
+            const list = dataToRender || filteredGenealogias || [];
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color: #bcaaa4;">No se encontraron caballos registrados.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map(g => {
                 const safeId = String(g.id || (g.nacional || '').replace(/[^0-9]/g, '') || g.nombre);
                 return `
                     <tr>
@@ -1373,6 +1379,21 @@
                 `;
             }).join('');
         }
+
+        window.filterGenealogiasTable = function(query) {
+            const q = (query || '').trim().toLowerCase();
+            if (!q) {
+                renderGenealogiasTable();
+                return;
+            }
+            const filtered = (filteredGenealogias || []).filter(g => {
+                const name = (g.nombre || '').toLowerCase();
+                const sbt = (g.nacional || '').toLowerCase();
+                const criadero = (g.criadero || '').toLowerCase();
+                return name.includes(q) || sbt.includes(q) || criadero.includes(q);
+            });
+            renderGenealogiasTable(filtered);
+        };
 
         // RENDERIZADO DE TABLA DE CALENDARIO DETALLADA CON BINDING 100% GARANTIZADO
         function renderAdminCalendarTable() {
