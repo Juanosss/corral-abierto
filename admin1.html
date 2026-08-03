@@ -2898,18 +2898,13 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Generar efecto de partículas en el login
-            spawnLoginParticles();
-
-            // Si ya tiene sesión activa, saltarse el login directamente
-            if (isAdminLoggedIn()) {
-                const overlay = document.getElementById('admin-login-overlay');
-                const particles = document.getElementById('login-particles');
-                if (overlay) overlay.style.display = 'none';
-                if (particles) particles.style.display = 'none';
-                initAdminDirect();
-            }
-            // Si no, el login overlay permanece visible hasta que el usuario ingrese sus credenciales
+            // En admin1.html el acceso es directo sin requerir contraseña
+            const overlay = document.getElementById('admin-login-overlay');
+            const particles = document.getElementById('login-particles');
+            if (overlay) overlay.style.display = 'none';
+            if (particles) particles.style.display = 'none';
+            setAdminSession();
+            initAdminDirect();
         });
     </script>
 </body>
