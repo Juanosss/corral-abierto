@@ -144,6 +144,9 @@
         function cleanLogoUrl(rawLogo) {
             if (!rawLogo || typeof rawLogo !== 'string') return DEFAULT_LOGO_SVG;
             let logo = rawLogo.trim();
+            if (logo.startsWith('data:image')) {
+                return logo; // Permitir imágenes base64 subidas desde archivos locales
+            }
             if (logo.startsWith('{') || logo.startsWith('[') || logo.includes('"corridaActual"')) {
                 return DEFAULT_LOGO_SVG;
             }
@@ -151,7 +154,7 @@
                 logo = logo.split('|')[0].trim();
             }
             if (!logo || logo.length < 5 || logo.includes('caballoyrodeo.cl')) {
-                return DEFAULT_LOGO_SVG; // Reemplazar URLs externas bloqueadas por el vector confiable
+                return DEFAULT_LOGO_SVG;
             }
             return logo;
         }
@@ -167,6 +170,13 @@
                 } catch(e) {
                     console.warn("Supabase rodeos table not available, using local fallback.", e);
                 }
+            }
+
+            if (!rodeos || rodeos.length === 0) {
+                try {
+                    const rawLocal = localStorage.getItem('rodeosData');
+                    if (rawLocal) rodeos = JSON.parse(rawLocal);
+                } catch(e) {}
             }
 
             if (!rodeos || rodeos.length === 0) {

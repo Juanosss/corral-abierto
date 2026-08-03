@@ -1287,9 +1287,13 @@
             if (!confirm(`¿Seguro que deseas eliminar el rodeo ${rId}?`)) return;
             rodeos = rodeos.filter(r => r.id !== rId);
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+            try { localStorage.setItem('rodeosData', JSON.stringify(rodeos)); } catch(e) {}
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 supabaseClient.from('rodeos').delete().eq('id', rId).then(()=>{}).catch(()=>{});
             }
             renderRodeosTable();
+            if (typeof window.showToast === 'function') window.showToast(`🗑️ Rodeo eliminado correctamente.`);
         };
 
         window.saveRodeo = function(e) {
@@ -1315,12 +1319,15 @@
                 rodeos.push(rodeoObj);
             }
 
+            try { localStorage.setItem('rodeosData', JSON.stringify(rodeos)); } catch(e) {}
+
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 supabaseClient.from('rodeos').upsert(rodeoObj).then(()=>{}).catch(()=>{});
             }
 
             renderRodeosTable();
             closeRodeoModal();
+            if (typeof window.showToast === 'function') window.showToast(`✅ Rodeo "${nombre}" guardado y sincronizado.`);
         };
 
         function renderCollerasTable() {
