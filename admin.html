@@ -239,7 +239,7 @@
 </head>
 <body style="background-color: #140c0a; color: #ffffff;">
 
-    <!-- Login overlay removido: acceso directo al panel -->
+
     <div class="app-container">
         <!-- HEADER -->
         <header class="app-header">
@@ -2765,66 +2765,54 @@
             document.getElementById('login-error').classList.remove('visible');
         };
 
-        window.handleAdminLogin = function() {
-            const emailEl = document.getElementById('login-email');
-            const passEl  = document.getElementById('login-pass');
-            const errorEl = document.getElementById('login-error');
-            const btnEl   = document.getElementById('login-submit-btn');
-
-            if (!emailEl || !passEl) {
-                alert('Error: no se encontraron los campos de login.');
-                return;
-            }
+        window.handleAdminLogin = function(e) {
+            e.preventDefault();
+            const emailEl  = document.getElementById('login-email');
+            const passEl   = document.getElementById('login-pass');
+            const errorEl  = document.getElementById('login-error');
+            const btnEl    = document.getElementById('login-submit-btn');
 
             const emailVal = (emailEl.value || '').trim().toLowerCase();
             const passVal  = (passEl.value || '').trim();
 
-            if (errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
+            // Reset error state
+            emailEl.classList.remove('error');
+            passEl.classList.remove('error');
+            errorEl.classList.remove('visible');
 
-            const OK_EMAIL = ['admin@corralabierto.cl', 'admin'];
-            const OK_PASS  = 'Pinochet1973';
+            if (emailVal === ADMIN_CREDS.email && passVal === ADMIN_CREDS.pass) {
+                // Credenciales correctas ✅
+                btnEl.textContent = '✅ Acceso concedido...';
+                btnEl.disabled = true;
+                setAdminSession();
 
-            const emailOk = OK_EMAIL.includes(emailVal);
-            const passOk  = passVal === OK_PASS;
-
-            if (emailOk && passOk) {
-                if (btnEl) { btnEl.textContent = '✅ Acceso concedido...'; btnEl.disabled = true; }
-
-                try { sessionStorage.setItem('ca_admin_session_v2', JSON.stringify({ authenticated: true, ts: Date.now() })); } catch(e) {}
-
-                const overlay   = document.getElementById('admin-login-overlay');
+                const overlay = document.getElementById('admin-login-overlay');
                 const particles = document.getElementById('login-particles');
-                if (overlay)   { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.display = 'none'; }, 400); }
-                if (particles) { particles.style.display = 'none'; }
-
-                try {
-                    initAdminDirect();
-                } catch(err) {
-                    console.error('initAdminDirect error:', err);
-                    if (errorEl) { errorEl.style.display = 'block'; errorEl.textContent = '⚠️ Error al iniciar panel: ' + err.message; }
-                    if (btnEl) { btnEl.textContent = '🔐 Ingresar al Panel'; btnEl.disabled = false; }
-                }
-            } else {
-                if (errorEl) {
-                    errorEl.style.display = 'block';
-                    errorEl.textContent = '⚠️ Credenciales incorrectas. Correo: admin@corralabierto.cl · Contraseña: Pinochet1973';
-                }
-                if (emailEl) emailEl.style.borderColor = '#ef5350';
-                if (passEl)  passEl.style.borderColor  = '#ef5350';
+                overlay.classList.add('hidden');
                 setTimeout(() => {
-                    if (emailEl) emailEl.style.borderColor = '';
-                    if (passEl)  passEl.style.borderColor  = '';
-                }, 2000);
+                    overlay.style.display = 'none';
+                    if (particles) particles.style.display = 'none';
+                }, 550);
+
+                initAdminDirect();
+            } else {
+                // Credenciales incorrectas ❌
+                emailEl.classList.add('error');
+                passEl.classList.add('error');
+                errorEl.classList.add('visible');
+
+                // Quitar clases de error al volver a escribir
+                const resetErr = () => {
+                    emailEl.classList.remove('error');
+                    passEl.classList.remove('error');
+                    errorEl.classList.remove('visible');
+                    emailEl.removeEventListener('input', resetErr);
+                    passEl.removeEventListener('input', resetErr);
+                };
+                emailEl.addEventListener('input', resetErr);
+                passEl.addEventListener('input', resetErr);
             }
         };
-
-        // Soporte Enter en los campos
-        setTimeout(function() {
-            const emailEl = document.getElementById('login-email');
-            const passEl  = document.getElementById('login-pass');
-            if (emailEl) emailEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') window.handleAdminLogin(); });
-            if (passEl)  passEl.addEventListener('keydown',  function(e) { if (e.key === 'Enter') window.handleAdminLogin(); });
-        }, 300);
 
         // Generar partículas flotantes decorativas
         function spawnLoginParticles() {
@@ -2847,6 +2835,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Entrar directo al panel sin login
             initAdminDirect();
         });
     </script>
