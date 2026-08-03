@@ -2803,10 +2803,9 @@
         // Secret Base32 por defecto para Corral Abierto Admin
         const TOTP_SECRET_KEY = "JBSWY3DPEHPK3PXP"; 
 
-        // Generador de OTP usando HMAC-SHA1 en JS puro
-        async function generateTOTPToken(secret, timeStep = 30) {
+        // Generador de OTP usando HMAC-SHA1 en JS puro con soporte de ventana de tiempo (offset)
+        async function generateTOTPTokenForEpoch(secret, epochSeconds) {
             try {
-                // Decodificar Base32
                 const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
                 let bits = "";
                 for (let i = 0; i < secret.length; i++) {
@@ -2815,29 +2814,24 @@
                 }
                 const bytes = new Uint8Array(bits.match(/.{1,8}/g).map(b => parseInt(b, 2)));
 
-                // Bloque de tiempo epoch de 30 segundos
-                const epoch = Math.floor(Date.now() / 1000);
-                const timeHex = Math.floor(epoch / timeStep).toString(16).padStart(16, '0');
+                const timeHex = Math.floor(epochSeconds / 30).toString(16).padStart(16, '0');
                 const timeBytes = new Uint8Array(8);
                 for (let i = 0; i < 8; i++) {
                     timeBytes[i] = parseInt(timeHex.substr(i * 2, 2), 16);
                 }
 
-                // Importar clave HMAC
-                const cryptoKey = await window.crypto.subcrypto || window.crypto.subtle.importKey(
+                const cryptoKey = await window.crypto.subtle.importKey(
                     "raw", bytes, { name: "HMAC", hash: "SHA-1" }, false, ["sign"]
                 );
                 const signature = await window.crypto.subtle.sign("HMAC", cryptoKey, timeBytes);
                 const sigBytes = new Uint8Array(signature);
 
-                // Truncamiento dinámico
                 const offset = sigBytes[sigBytes.length - 1] & 0xf;
                 const binary = ((sigBytes[offset] & 0x7f) << 24) |
                                ((sigBytes[offset + 1] & 0xff) << 16) |
                                ((sigBytes[offset + 2] & 0xff) << 8) |
                                (sigBytes[offset + 3] & 0xff);
-                const otp = (binary % 1000000).toString().padStart(6, '0');
-                return otp;
+                return (binary % 1000000).toString().padStart(6, '0');
             } catch(err) {
                 console.error("Error calculando TOTP:", err);
                 return null;
@@ -2879,10 +2873,15 @@
             const tokenEntered = inputEl.value.trim();
             if (tokenEntered.length !== 6) return;
 
-            // Calcular token esperado para la ventana actual de 30s
-            const expectedToken = await generateTOTPToken(TOTP_SECRET_KEY);
+            // Tolerancia de desfase de reloj: probar ventana anterior (-30s), actual (0s) y siguiente (+30s)
+            const now = Math.floor(Date.now() / 1000);
+            const tokenPrev = await generateTOTPTokenForEpoch(TOTP_SECRET_KEY, now - 30);
+            const tokenCurr = await generateTOTPTokenForEpoch(TOTP_SECRET_KEY, now);
+            const tokenNext = await generateTOTPTokenForEpoch(TOTP_SECRET_KEY, now + 30);
 
-            if (tokenEntered === expectedToken) {
+            const isValid = (tokenEntered === tokenCurr || tokenEntered === tokenPrev || tokenEntered === tokenNext);
+
+            if (isValid) {
                 // Token correcto ✅ -> Desbloquear panel
                 if (errorEl) errorEl.style.display = 'none';
                 sessionStorage.setItem('ca_2fa_authenticated', 'true');
