@@ -1241,10 +1241,19 @@
             document.getElementById('form-rodeo-lugar').value = r.lugar || '';
             document.getElementById('form-rodeo-asociacion').value = r.asociacion || '';
             document.getElementById('form-rodeo-activo').value = r.activo ? 'true' : 'false';
-            document.getElementById('form-rodeo-logo').value = r.logo_url || '';
+            const logoVal = r.logo_url || '';
+            document.getElementById('form-rodeo-logo').value = logoVal;
+            const previewWrap = document.getElementById('form-rodeo-logo-preview');
+            const previewImg  = document.getElementById('form-rodeo-logo-img');
+            if (previewWrap && previewImg && logoVal) {
+                previewImg.src = logoVal;
+                previewWrap.style.display = 'block';
+            } else if (previewWrap) {
+                previewWrap.style.display = 'none';
+            }
 
             document.getElementById('rodeo-modal-title').innerText = "✏️ Editar Rodeo Existente";
-            openRodeoModal();
+            openRodeoModal(true);
         };
 
         window.deleteRodeo = function(rId) {
@@ -2198,9 +2207,19 @@
         // El campo SBT ya no lanza búsqueda automática — sólo al pulsar "Consultar SNA"
 
         // FUNCIONES DE MODALES Y AÑADIR
-        window.openRodeoModal = function() {
-            document.getElementById('form-rodeo-id-old').value = '';
-            document.getElementById('rodeo-modal-title').innerText = "Agregar Nuevo Rodeo";
+        window.openRodeoModal = function(isEdit = false) {
+            if (!isEdit) {
+                document.getElementById('form-rodeo-id-old').value = '';
+                document.getElementById('form-rodeo-id').value = '';
+                document.getElementById('form-rodeo-nombre').value = '';
+                document.getElementById('form-rodeo-fecha').value = '';
+                document.getElementById('form-rodeo-lugar').value = '';
+                document.getElementById('form-rodeo-asociacion').value = '';
+                document.getElementById('form-rodeo-logo').value = '';
+                const previewWrap = document.getElementById('form-rodeo-logo-preview');
+                if (previewWrap) previewWrap.style.display = 'none';
+                document.getElementById('rodeo-modal-title').innerText = "➕ Agregar Nuevo Rodeo";
+            }
             document.getElementById('modal-rodeo-overlay').classList.add('active');
         };
         window.closeRodeoModal = function() { document.getElementById('modal-rodeo-overlay').classList.remove('active'); };
