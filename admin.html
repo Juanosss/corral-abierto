@@ -1124,7 +1124,57 @@
             renderGenealogiasTable();
             renderUsuariosTable();
             renderAdminCalendarTable();
+            populateLiveRodeoOptions();
         }
+
+        // POBLAR SELECT DE RODEOS Y COLLERAS EN LA CONSOLA EN VIVO
+        function populateLiveRodeoOptions() {
+            const selectEl = document.getElementById('admin-live-rodeo-select');
+            if (!selectEl) return;
+            selectEl.innerHTML = (rodeos || []).map(r => 
+                `<option value="${r.id}" ${r.id === activeRodeoId ? 'selected' : ''}>${r.nombre}</option>`
+            ).join('');
+            populateLiveColleraOptions();
+        }
+
+        window.onLiveRodeoSelectChange = async function(selectedRodeoId) {
+            activeRodeoId = selectedRodeoId;
+            localStorage.setItem('activeRodeoId', selectedRodeoId);
+            const titleEl = document.getElementById('active-rodeo-title');
+            const rodeoObj = (rodeos || []).find(r => r.id === selectedRodeoId);
+            if (titleEl && rodeoObj) titleEl.innerText = rodeoObj.nombre;
+
+            await loadRodeoColleras(selectedRodeoId);
+            filteredColleras = Array.isArray(rodeoData) ? [...rodeoData] : [];
+            renderCollerasTable();
+            populateLiveColleraOptions();
+        };
+
+        function populateLiveColleraOptions() {
+            const selectEl = document.getElementById('admin-live-collera-select');
+            if (!selectEl) return;
+            
+            const colleras = filteredColleras || rodeoData || [];
+            if (colleras.length === 0) {
+                selectEl.innerHTML = `<option value="">-- No hay colleras en este rodeo --</option>`;
+                return;
+            }
+
+            selectEl.innerHTML = `<option value="">-- Seleccionar Collera --</option>` + colleras.map(c => {
+                const jinetesStr = Array.isArray(c.jinetes) ? c.jinetes.join(' y ') : (c.jinetes || 'Jinetes');
+                const caballosStr = Array.isArray(c.caballos) ? c.caballos.join(' y ') : (c.caballos || 'Caballos');
+                return `<option value="${c.n}">Collera N° ${c.n} | ${jinetesStr} en ${caballosStr}</option>`;
+            }).join('');
+        }
+
+        window.onColleraSelectChange = function() {
+            const colleraVal = document.getElementById('admin-live-collera-select').value;
+            if (!colleraVal) return;
+            const colleraObj = (filteredColleras || []).find(c => String(c.n) === String(colleraVal));
+            if (colleraObj && typeof window.showToast === 'function') {
+                window.showToast(`🎯 Collera N° ${colleraObj.n} cargada en cancha.`);
+            }
+        };
 
         // CARGA DE DATOS DE RODEOS
         async function loadRodeos() {
@@ -1361,6 +1411,7 @@
                     </tr>
                 `;
             }).join('');
+            populateLiveColleraOptions();
         }
 
         function renderGenealogiasTable(dataToRender) {
