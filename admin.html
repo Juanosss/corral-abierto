@@ -239,61 +239,7 @@
 </head>
 <body style="background-color: #140c0a; color: #ffffff;">
 
-    <!-- PARTÍCULAS DE FONDO DEL LOGIN -->
-    <div class="login-particles" id="login-particles"></div>
-
-    <!-- LOGIN OVERLAY - SE MUESTRA ANTES DEL DASHBOARD -->
-    <div id="admin-login-overlay">
-        <div class="login-card">
-            <div class="login-logo">
-                <div style="width: 72px; height: 72px; margin: 0 auto 12px auto; display: flex; align-items: center; justify-content: center; filter: drop-shadow(0 6px 16px rgba(255,87,34,0.55));">
-                    <svg viewBox="0 0 200 200" style="width: 100%; height: 100%;">
-                        <defs>
-                            <linearGradient id="login-g1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#ff5722"/>
-                                <stop offset="100%" stop-color="#bf360c"/>
-                            </linearGradient>
-                            <linearGradient id="login-g2" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#ffe082"/>
-                                <stop offset="100%" stop-color="#ffb300"/>
-                            </linearGradient>
-                        </defs>
-                        <circle cx="100" cy="100" r="90" fill="url(#login-g1)" stroke="url(#login-g2)" stroke-width="5"/>
-                        <circle cx="100" cy="100" r="78" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="2" stroke-dasharray="6,4"/>
-                        <text x="100" y="66" font-family="'Playfair Display', serif" font-size="15" font-weight="900" fill="#ffe082" text-anchor="middle" letter-spacing="2">CORRAL</text>
-                        <text x="100" y="125" font-size="44" text-anchor="middle">🐴</text>
-                        <text x="100" y="152" font-family="'Inter', sans-serif" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="1.5">ABIERTO</text>
-                    </svg>
-                </div>
-                <h1>Corral Abierto</h1>
-                <span class="subtitle">Panel de Administración</span>
-            </div>
-            <div class="login-divider"></div>
-
-            <div id="admin-login-form">
-                <div class="login-field">
-                    <label for="login-email">Correo del Administrador</label>
-                    <input type="text" id="login-email" autocomplete="username" placeholder="admin@corralabierto.cl">
-                </div>
-                <div class="login-field">
-                    <label for="login-pass">Contraseña</label>
-                    <input type="password" id="login-pass" autocomplete="current-password" placeholder="Tu contraseña">
-                </div>
-
-                <div class="login-error-msg" id="login-error">
-                    ⚠️ Credenciales incorrectas. Verifica tu correo y contraseña.
-                </div>
-
-                <button type="button" class="login-btn" id="login-submit-btn" onclick="handleAdminLogin()">
-                    🔐 Ingresar al Panel
-                </button>
-            </div>
-
-            <div class="login-footer">
-                ACCESO RESTRINGIDO · SOLO PERSONAL AUTORIZADO
-            </div>
-        </div>
-    </div>
+    <!-- Login overlay removido: acceso directo al panel -->
     <div class="app-container">
         <!-- HEADER -->
         <header class="app-header">
@@ -2901,28 +2847,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Verificar si ya tiene sesión activa
-            let hasSession = false;
-            try {
-                const s = sessionStorage.getItem('ca_admin_session_v2');
-                if (s) {
-                    const p = JSON.parse(s);
-                    hasSession = p && p.authenticated === true;
-                }
-            } catch(e) {}
-
-            if (hasSession) {
-                const overlay   = document.getElementById('admin-login-overlay');
-                const particles = document.getElementById('login-particles');
-                if (overlay)   overlay.style.display = 'none';
-                if (particles) particles.style.display = 'none';
-                initAdminDirect();
-            } else {
-                // Asegurar que el overlay sea visible y funcional
-                const overlay = document.getElementById('admin-login-overlay');
-                if (overlay) overlay.style.display = 'flex';
-                spawnLoginParticles();
-            }
+            initAdminDirect();
         });
     </script>
 </body>
