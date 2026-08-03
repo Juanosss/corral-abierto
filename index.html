@@ -162,31 +162,25 @@
         async function loadProfiles() {
             let rodeos = [];
 
-            // 1. Leer primero desde localStorage — el admin escribe aquí en tiempo real
-            try {
-                const rawLocal = localStorage.getItem('rodeosData');
-                if (rawLocal) {
-                    const localData = JSON.parse(rawLocal);
-                    if (Array.isArray(localData) && localData.length > 0) {
-                        rodeos = localData;
+            // 1. Cargar siempre primero desde la nube (Supabase) para reflejar cambios globales a todo el público
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('rodeos').select('*').order('created_at', { ascending: true });
+                    if (!error && data && data.length > 0) {
+                        rodeos = data;
+                        try { localStorage.setItem('rodeosData', JSON.stringify(rodeos)); } catch(e) {}
                     }
+                } catch(e) {
+                    console.warn("Supabase rodeos error:", e);
                 }
-            } catch(e) {}
+            }
 
-            // 2. Si no hay datos locales, intentar Supabase como fallback
+            // 2. Fallback a datos locales si la red/Supabase no responde
             if (!rodeos || rodeos.length === 0) {
-                if (supabaseClient) {
-                    try {
-                        const { data, error } = await supabaseClient.from('rodeos').select('*').order('created_at', { ascending: true });
-                        if (!error && data && data.length > 0) {
-                            rodeos = data;
-                            // Guardar en localStorage para próximas cargas
-                            try { localStorage.setItem('rodeosData', JSON.stringify(rodeos)); } catch(e2) {}
-                        }
-                    } catch(e) {
-                        console.warn("Supabase rodeos table not available.", e);
-                    }
-                }
+                try {
+                    const rawLocal = localStorage.getItem('rodeosData');
+                    if (rawLocal) rodeos = JSON.parse(rawLocal);
+                } catch(e) {}
             }
 
             if (!rodeos || rodeos.length === 0) {
