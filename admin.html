@@ -1281,10 +1281,16 @@
                 rodeos.push(rodeoObj);
             }
 
+            // Siempre guardar en localStorage con el logo completo (incluyendo base64)
             try { localStorage.setItem('rodeosData', JSON.stringify(rodeos)); } catch(e) {}
 
+            // Para Supabase: si el logo es base64 (muy grande), no enviarlo
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
-                supabaseClient.from('rodeos').upsert(rodeoObj).then(()=>{}).catch(()=>{});
+                const supabaseObj = { ...rodeoObj };
+                if (supabaseObj.logo_url && supabaseObj.logo_url.startsWith('data:image')) {
+                    supabaseObj.logo_url = ''; // No guardar base64 en Supabase
+                }
+                supabaseClient.from('rodeos').upsert(supabaseObj).then(()=>{}).catch(()=>{});
             }
 
             renderRodeosTable();
