@@ -2436,6 +2436,7 @@
             }
 
             renderGenealogiasTable();
+            window.showToast(`🗑️ Caballo "${horse.nombre}" eliminado correctamente.`, 'success');
         };
 
         window.openBulkGenealogiaModal = function() { document.getElementById('modal-bulk-genealogia-overlay').classList.add('active'); };
@@ -2458,11 +2459,11 @@
             // Calcular Lugar: contar cuántas colleras existentes (excluir la que se está editando) tienen más puntos
             const currentN = parseInt(document.getElementById('form-collera-index').value || '-1');
             const rivals = (filteredColleras || []).filter(c => parseInt(c.n) !== currentN);
-            const higherCount = rivals.filter(c => {
-                const r = parseFloat(String(c.resultado || '0').replace(',', '.'));
-                return !isNaN(r) && r > total;
-            }).length;
-            const lugar = higherCount + 1;
+            let lugar = 1;
+            rivals.forEach(r => {
+                const rScore = parseFloat((r.resultado || '0').replace(',', '.'));
+                if (!isNaN(rScore) && rScore > total) lugar++;
+            });
 
             const lugarEl = document.getElementById('form-lugar');
             if (lugarEl) lugarEl.value = lugar + '°';
@@ -2513,6 +2514,7 @@
 
             renderCollerasTable();
             closeColleraModal();
+            window.showToast(`✅ Collera N° ${n} guardada correctamente.`, 'success');
         };
 
         window.saveGenealogia = function(e) {
@@ -2610,6 +2612,60 @@
 
             renderGenealogiasTable();
             closeGenealogiaModal();
+            window.showToast(`✅ Caballo "${nombre}" guardado y sincronizado correctamente.`, 'success');
+        };
+
+        // NOTIFICACIÓN TOAST FLOTANTE EN LA ESQUINA INFERIOR DERECHA
+        window.showToast = function(msg, type = 'success') {
+            let container = document.getElementById('admin-toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'admin-toast-container';
+                container.style.cssText = `
+                    position: fixed;
+                    bottom: 24px;
+                    right: 24px;
+                    z-index: 999999;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            const bg = type === 'success' ? 'linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%)' : 'linear-gradient(135deg, #b71c1c 0%, #c62828 100%)';
+            const borderColor = type === 'success' ? '#81c784' : '#ef9a9a';
+
+            toast.style.cssText = `
+                background: ${bg};
+                color: #ffffff;
+                padding: 12px 20px;
+                border-radius: 10px;
+                border: 1px solid ${borderColor};
+                font-family: 'Inter', system-ui, sans-serif;
+                font-size: 0.88rem;
+                font-weight: 700;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+                transform: translateX(120%);
+                transition: transform 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                max-width: 380px;
+            `;
+            toast.innerHTML = msg;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.transform = 'translateX(0)';
+            }, 50);
+
+            setTimeout(() => {
+                toast.style.transform = 'translateX(140%)';
+                setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 400);
+            }, 3500);
         };
 
         // CARGA MASIVA CON EXTRACCIÓN DIRECTA DESDE CABALLO Y RODEO
