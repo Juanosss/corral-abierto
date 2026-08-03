@@ -1319,6 +1319,9 @@
                 rodeos.push(rodeoObj);
             }
 
+            // Guardar en localStorage para disponibilidad inmediata en la misma computadora
+            try { localStorage.setItem('rodeosData', JSON.stringify(rodeos)); } catch(e) {}
+
             // Guardar en Supabase para sincronización global pública (todas las computadoras y celulares)
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 supabaseClient.from('rodeos').upsert(rodeoObj).then(()=>{}).catch(err => {

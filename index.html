@@ -161,26 +161,49 @@
 
         async function loadProfiles() {
             let rodeos = [];
+            let localRodeos = [];
 
-            // 1. Cargar siempre primero desde la nube (Supabase) para reflejar cambios globales a todo el público
+            // Obtener respaldo local (contiene logos en base64 y datos recién guardados)
+            try {
+                const rawLocal = localStorage.getItem('rodeosData');
+                if (rawLocal) localRodeos = JSON.parse(rawLocal);
+            } catch(e) {}
+
+            // Cargar desde Supabase
             if (supabaseClient) {
                 try {
                     const { data, error } = await supabaseClient.from('rodeos').select('*').order('created_at', { ascending: true });
                     if (!error && data && data.length > 0) {
                         rodeos = data;
-                        try { localStorage.setItem('rodeosData', JSON.stringify(rodeos)); } catch(e) {}
                     }
                 } catch(e) {
                     console.warn("Supabase rodeos error:", e);
                 }
             }
 
-            // 2. Fallback a datos locales si la red/Supabase no responde
+            // Si Supabase falló o vino vacío, usar datos locales
             if (!rodeos || rodeos.length === 0) {
-                try {
-                    const rawLocal = localStorage.getItem('rodeosData');
-                    if (rawLocal) rodeos = JSON.parse(rawLocal);
-                } catch(e) {}
+                rodeos = localRodeos;
+            } else if (localRodeos && localRodeos.length > 0) {
+                // FUSIONAR: Si la nube tiene el rodeo pero sin logo o menos reciente, complementar con el logo local
+                rodeos = rodeos.map(rRemote => {
+                    const rLocal = localRodeos.find(l => l.id === rRemote.id);
+                    if (rLocal) {
+                        return {
+                            ...rRemote,
+                            logo_url: rRemote.logo_url || rLocal.logo_url || '',
+                            nombre: rRemote.nombre || rLocal.nombre,
+                            activo: rRemote.activo !== undefined ? rRemote.activo : rLocal.activo
+                        };
+                    }
+                    return rRemote;
+                });
+                // Añadir rodeos creados localmente que aún no estén en la lista remota
+                localRodeos.forEach(rLocal => {
+                    if (!rodeos.some(r => r.id === rLocal.id)) {
+                        rodeos.push(rLocal);
+                    }
+                });
             }
 
             if (!rodeos || rodeos.length === 0) {
