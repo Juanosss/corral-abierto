@@ -1250,9 +1250,7 @@
         window.deleteRodeo = function(rId) {
             if (!confirm(`¿Seguro que deseas eliminar el rodeo ${rId}?`)) return;
             rodeos = rodeos.filter(r => r.id !== rId);
-            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
             try { localStorage.setItem('rodeosData', JSON.stringify(rodeos)); } catch(e) {}
-
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 supabaseClient.from('rodeos').delete().eq('id', rId).then(()=>{}).catch(()=>{});
             }
