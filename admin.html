@@ -270,24 +270,24 @@
             </div>
             <div class="login-divider"></div>
 
-            <form id="admin-login-form" onsubmit="handleAdminLogin(event); return false;">
+            <div id="admin-login-form">
                 <div class="login-field">
                     <label for="login-email">Correo del Administrador</label>
-                    <input type="text" id="login-email" autocomplete="username" required placeholder="admin@corralabierto.cl o admin">
+                    <input type="text" id="login-email" autocomplete="username" placeholder="admin@corralabierto.cl">
                 </div>
                 <div class="login-field">
                     <label for="login-pass">Contraseña</label>
-                    <input type="password" id="login-pass" autocomplete="current-password" required placeholder="Pinochet1973">
+                    <input type="password" id="login-pass" autocomplete="current-password" placeholder="Tu contraseña">
                 </div>
 
                 <div class="login-error-msg" id="login-error">
                     ⚠️ Credenciales incorrectas. Verifica tu correo y contraseña.
                 </div>
 
-                <button type="submit" class="login-btn" id="login-submit-btn">
+                <button type="button" class="login-btn" id="login-submit-btn" onclick="handleAdminLogin()">
                     🔐 Ingresar al Panel
                 </button>
-            </form>
+            </div>
 
             <div class="login-footer">
                 ACCESO RESTRINGIDO · SOLO PERSONAL AUTORIZADO
@@ -2821,6 +2821,7 @@
 
         window.handleAdminLogin = function(e) {
             if (e && e.preventDefault) e.preventDefault();
+
             const emailEl  = document.getElementById('login-email');
             const passEl   = document.getElementById('login-pass');
             const errorEl  = document.getElementById('login-error');
@@ -2832,15 +2833,15 @@
             const passVal  = (passEl.value || '').trim();
 
             // Reset error state
-            emailEl.classList.remove('error');
-            passEl.classList.remove('error');
+            if (emailEl.classList) emailEl.classList.remove('error');
+            if (passEl.classList) passEl.classList.remove('error');
             if (errorEl) errorEl.classList.remove('visible');
 
-            const isEmailValid = (emailVal === ADMIN_CREDS.email || emailVal === 'admin' || emailVal === 'admin@corralabierto.cl');
-            const isPassValid  = (passVal === ADMIN_CREDS.pass || passVal === 'Pinochet1973');
+            const CREDS = { email: 'admin@corralabierto.cl', pass: 'Pinochet1973' };
+            const isEmailValid = (emailVal === CREDS.email || emailVal === 'admin');
+            const isPassValid  = (passVal === CREDS.pass);
 
             if (isEmailValid && isPassValid) {
-                // Credenciales correctas ✅
                 if (btnEl) {
                     btnEl.textContent = '✅ Acceso concedido...';
                     btnEl.disabled = true;
@@ -2857,14 +2858,12 @@
                     }, 400);
                 }
 
-                initAdminDirect();
+                setTimeout(() => { initAdminDirect(); }, 50);
             } else {
-                // Credenciales incorrectas ❌
-                emailEl.classList.add('error');
-                passEl.classList.add('error');
+                if (emailEl.classList) emailEl.classList.add('error');
+                if (passEl.classList) passEl.classList.add('error');
                 if (errorEl) errorEl.classList.add('visible');
 
-                // Quitar clases de error al volver a escribir
                 const resetErr = () => {
                     emailEl.classList.remove('error');
                     passEl.classList.remove('error');
@@ -2876,6 +2875,14 @@
                 passEl.addEventListener('input', resetErr);
             }
         };
+
+        // Permitir presionar Enter en los campos para iniciar sesión
+        document.addEventListener('DOMContentLoaded', function() {
+            const emailEl = document.getElementById('login-email');
+            const passEl  = document.getElementById('login-pass');
+            if (emailEl) emailEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') window.handleAdminLogin(); });
+            if (passEl)  passEl.addEventListener('keydown',  (e) => { if (e.key === 'Enter') window.handleAdminLogin(); });
+        });
 
         // Generar partículas flotantes decorativas
         function spawnLoginParticles() {

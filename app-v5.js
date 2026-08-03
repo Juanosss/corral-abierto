@@ -1169,7 +1169,7 @@ if (supabaseClient) {
 // Inicializar interfaz y verificar permisos al cargar la página
 document.addEventListener('DOMContentLoaded', async () => {
     // Si estamos en la página de administración, no ejecutar lógica de inicialización pública
-    if (window.location.pathname.includes('admin.html')) return;
+    if (window.location.pathname.includes('admin.html') || window.location.pathname.includes('admin1.html')) return;
 
     // Guardar activamente el rodeo detectado en sessionStorage para consistencia en la raíz
     const activeRodeoId = getActiveRodeoIdFromURL();
