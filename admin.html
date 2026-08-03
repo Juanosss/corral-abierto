@@ -2819,70 +2819,66 @@
             document.getElementById('login-error').classList.remove('visible');
         };
 
-        window.handleAdminLogin = function(e) {
-            if (e && e.preventDefault) e.preventDefault();
+        window.handleAdminLogin = function() {
+            const emailEl = document.getElementById('login-email');
+            const passEl  = document.getElementById('login-pass');
+            const errorEl = document.getElementById('login-error');
+            const btnEl   = document.getElementById('login-submit-btn');
 
-            const emailEl  = document.getElementById('login-email');
-            const passEl   = document.getElementById('login-pass');
-            const errorEl  = document.getElementById('login-error');
-            const btnEl    = document.getElementById('login-submit-btn');
-
-            if (!emailEl || !passEl) return;
+            if (!emailEl || !passEl) {
+                alert('Error: no se encontraron los campos de login.');
+                return;
+            }
 
             const emailVal = (emailEl.value || '').trim().toLowerCase();
             const passVal  = (passEl.value || '').trim();
 
-            // Reset error state
-            if (emailEl.classList) emailEl.classList.remove('error');
-            if (passEl.classList) passEl.classList.remove('error');
-            if (errorEl) errorEl.classList.remove('visible');
+            if (errorEl) { errorEl.style.display = 'none'; errorEl.textContent = ''; }
 
-            const CREDS = { email: 'admin@corralabierto.cl', pass: 'Pinochet1973' };
-            const isEmailValid = (emailVal === CREDS.email || emailVal === 'admin');
-            const isPassValid  = (passVal === CREDS.pass);
+            const OK_EMAIL = ['admin@corralabierto.cl', 'admin'];
+            const OK_PASS  = 'Pinochet1973';
 
-            if (isEmailValid && isPassValid) {
-                if (btnEl) {
-                    btnEl.textContent = '✅ Acceso concedido...';
-                    btnEl.disabled = true;
-                }
-                setAdminSession();
+            const emailOk = OK_EMAIL.includes(emailVal);
+            const passOk  = passVal === OK_PASS;
 
-                const overlay = document.getElementById('admin-login-overlay');
+            if (emailOk && passOk) {
+                if (btnEl) { btnEl.textContent = '✅ Acceso concedido...'; btnEl.disabled = true; }
+
+                try { sessionStorage.setItem('ca_admin_session_v2', JSON.stringify({ authenticated: true, ts: Date.now() })); } catch(e) {}
+
+                const overlay   = document.getElementById('admin-login-overlay');
                 const particles = document.getElementById('login-particles');
-                if (overlay) {
-                    overlay.classList.add('hidden');
-                    setTimeout(() => {
-                        overlay.style.display = 'none';
-                        if (particles) particles.style.display = 'none';
-                    }, 400);
+                if (overlay)   { overlay.style.opacity = '0'; setTimeout(() => { overlay.style.display = 'none'; }, 400); }
+                if (particles) { particles.style.display = 'none'; }
+
+                try {
+                    initAdminDirect();
+                } catch(err) {
+                    console.error('initAdminDirect error:', err);
+                    if (errorEl) { errorEl.style.display = 'block'; errorEl.textContent = '⚠️ Error al iniciar panel: ' + err.message; }
+                    if (btnEl) { btnEl.textContent = '🔐 Ingresar al Panel'; btnEl.disabled = false; }
                 }
-
-                setTimeout(() => { initAdminDirect(); }, 50);
             } else {
-                if (emailEl.classList) emailEl.classList.add('error');
-                if (passEl.classList) passEl.classList.add('error');
-                if (errorEl) errorEl.classList.add('visible');
-
-                const resetErr = () => {
-                    emailEl.classList.remove('error');
-                    passEl.classList.remove('error');
-                    if (errorEl) errorEl.classList.remove('visible');
-                    emailEl.removeEventListener('input', resetErr);
-                    passEl.removeEventListener('input', resetErr);
-                };
-                emailEl.addEventListener('input', resetErr);
-                passEl.addEventListener('input', resetErr);
+                if (errorEl) {
+                    errorEl.style.display = 'block';
+                    errorEl.textContent = '⚠️ Credenciales incorrectas. Correo: admin@corralabierto.cl · Contraseña: Pinochet1973';
+                }
+                if (emailEl) emailEl.style.borderColor = '#ef5350';
+                if (passEl)  passEl.style.borderColor  = '#ef5350';
+                setTimeout(() => {
+                    if (emailEl) emailEl.style.borderColor = '';
+                    if (passEl)  passEl.style.borderColor  = '';
+                }, 2000);
             }
         };
 
-        // Permitir presionar Enter en los campos para iniciar sesión
-        document.addEventListener('DOMContentLoaded', function() {
+        // Soporte Enter en los campos
+        setTimeout(function() {
             const emailEl = document.getElementById('login-email');
             const passEl  = document.getElementById('login-pass');
-            if (emailEl) emailEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') window.handleAdminLogin(); });
-            if (passEl)  passEl.addEventListener('keydown',  (e) => { if (e.key === 'Enter') window.handleAdminLogin(); });
-        });
+            if (emailEl) emailEl.addEventListener('keydown', function(e) { if (e.key === 'Enter') window.handleAdminLogin(); });
+            if (passEl)  passEl.addEventListener('keydown',  function(e) { if (e.key === 'Enter') window.handleAdminLogin(); });
+        }, 300);
 
         // Generar partículas flotantes decorativas
         function spawnLoginParticles() {
@@ -2905,18 +2901,28 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Generar efecto de partículas en el login
-            spawnLoginParticles();
+            // Verificar si ya tiene sesión activa
+            let hasSession = false;
+            try {
+                const s = sessionStorage.getItem('ca_admin_session_v2');
+                if (s) {
+                    const p = JSON.parse(s);
+                    hasSession = p && p.authenticated === true;
+                }
+            } catch(e) {}
 
-            // Si ya tiene sesión activa, saltarse el login directamente
-            if (isAdminLoggedIn()) {
-                const overlay = document.getElementById('admin-login-overlay');
+            if (hasSession) {
+                const overlay   = document.getElementById('admin-login-overlay');
                 const particles = document.getElementById('login-particles');
-                if (overlay) overlay.style.display = 'none';
+                if (overlay)   overlay.style.display = 'none';
                 if (particles) particles.style.display = 'none';
                 initAdminDirect();
+            } else {
+                // Asegurar que el overlay sea visible y funcional
+                const overlay = document.getElementById('admin-login-overlay');
+                if (overlay) overlay.style.display = 'flex';
+                spawnLoginParticles();
             }
-            // Si no, el login overlay permanece visible hasta que el usuario ingrese sus credenciales
         });
     </script>
 </body>
