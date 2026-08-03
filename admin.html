@@ -2748,91 +2748,9 @@
         }
 
         window.adminLogout = function() {
-            if (!confirm('¿Seguro que quieres cerrar la sesión de administrador?')) return;
-            sessionStorage.removeItem(SESSION_KEY);
-            // Restaurar overlay de login
-            const overlay = document.getElementById('admin-login-overlay');
-            const particles = document.getElementById('login-particles');
-            if (overlay) { overlay.style.display = 'flex'; overlay.classList.remove('hidden'); }
-            if (particles) particles.style.display = 'block';
-            // Limpiar campos
-            const emailEl = document.getElementById('login-email');
-            const passEl  = document.getElementById('login-pass');
-            const btnEl   = document.getElementById('login-submit-btn');
-            if (emailEl) emailEl.value = '';
-            if (passEl)  passEl.value  = '';
-            if (btnEl)   { btnEl.textContent = '🔐 Ingresar al Panel'; btnEl.disabled = false; }
-            document.getElementById('login-error').classList.remove('visible');
+            // Simplemente recargar la página
+            window.location.reload();
         };
-
-        window.handleAdminLogin = function(e) {
-            e.preventDefault();
-            const emailEl  = document.getElementById('login-email');
-            const passEl   = document.getElementById('login-pass');
-            const errorEl  = document.getElementById('login-error');
-            const btnEl    = document.getElementById('login-submit-btn');
-
-            const emailVal = (emailEl.value || '').trim().toLowerCase();
-            const passVal  = (passEl.value || '').trim();
-
-            // Reset error state
-            emailEl.classList.remove('error');
-            passEl.classList.remove('error');
-            errorEl.classList.remove('visible');
-
-            if (emailVal === ADMIN_CREDS.email && passVal === ADMIN_CREDS.pass) {
-                // Credenciales correctas ✅
-                btnEl.textContent = '✅ Acceso concedido...';
-                btnEl.disabled = true;
-                setAdminSession();
-
-                const overlay = document.getElementById('admin-login-overlay');
-                const particles = document.getElementById('login-particles');
-                overlay.classList.add('hidden');
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                    if (particles) particles.style.display = 'none';
-                }, 550);
-
-                initAdminDirect();
-            } else {
-                // Credenciales incorrectas ❌
-                emailEl.classList.add('error');
-                passEl.classList.add('error');
-                errorEl.classList.add('visible');
-
-                // Quitar clases de error al volver a escribir
-                const resetErr = () => {
-                    emailEl.classList.remove('error');
-                    passEl.classList.remove('error');
-                    errorEl.classList.remove('visible');
-                    emailEl.removeEventListener('input', resetErr);
-                    passEl.removeEventListener('input', resetErr);
-                };
-                emailEl.addEventListener('input', resetErr);
-                passEl.addEventListener('input', resetErr);
-            }
-        };
-
-        // Generar partículas flotantes decorativas
-        function spawnLoginParticles() {
-            const container = document.getElementById('login-particles');
-            if (!container) return;
-            const count = 18;
-            for (let i = 0; i < count; i++) {
-                const span = document.createElement('span');
-                const size = Math.random() * 3 + 1;
-                span.style.cssText = `
-                    width: ${size}px;
-                    height: ${size}px;
-                    left: ${Math.random() * 100}%;
-                    animation-duration: ${Math.random() * 10 + 8}s;
-                    animation-delay: ${Math.random() * 8}s;
-                    opacity: ${Math.random() * 0.5 + 0.2};
-                `;
-                container.appendChild(span);
-            }
-        }
 
         document.addEventListener('DOMContentLoaded', function() {
             // Entrar directo al panel sin login
