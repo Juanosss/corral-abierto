@@ -245,15 +245,9 @@
             
             <div style="font-size: 3rem; margin-bottom: 10px;">🔐</div>
             <h2 style="font-family: 'Playfair Display', serif; color: #ff5722; margin: 0 0 6px 0; font-size: 1.6rem;">Autenticación 2FA</h2>
-            <p style="color: #bcaaa4; font-size: 0.88rem; margin: 0 0 20px 0; line-height: 1.4;">Ingresa el código dinámico de 6 dígitos desde tu app autenticadora (Google Authenticator / Authy).</p>
+            <p style="color: #bcaaa4; font-size: 0.88rem; margin: 0 0 24px 0; line-height: 1.4;">Ingresa el código dinámico de 6 dígitos desde tu app autenticadora (Google Authenticator / Authy).</p>
 
-            <!-- Pestañas Config / Verificar -->
-            <div style="display: flex; gap: 8px; justify-content: center; margin-bottom: 20px;">
-                <button type="button" id="btn-2fa-verify-tab" onclick="switch2FATab('verify')" style="padding: 6px 14px; background: #ff5722; color: #fff; border: none; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">🔑 Ingresar Token</button>
-                <button type="button" id="btn-2fa-setup-tab" onclick="switch2FATab('setup')" style="padding: 6px 14px; background: rgba(255,255,255,0.1); color: #bcaaa4; border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">📲 Escanear QR / Configurar</button>
-            </div>
-
-            <!-- VISTA 1: VERIFICAR TOKEN -->
+            <!-- VISTA: VERIFICAR TOKEN -->
             <div id="view-2fa-verify" style="display: block;">
                 <div style="margin-bottom: 20px;">
                     <input type="text" id="2fa-token-input" maxlength="6" pattern="[0-9]*" placeholder="000000" style="width: 200px; font-size: 2rem; font-weight: 900; letter-spacing: 8px; text-align: center; padding: 10px; border-radius: 10px; border: 2px solid #ff5722; background: #0c0705; color: #fff; font-family: monospace; outline: none;" oninput="this.value = this.value.replace(/[^0-9]/g, '')" onkeyup="if(this.value.length===6) verify2FAToken();">
@@ -269,22 +263,6 @@
 
                 <button type="button" onclick="verify2FAToken()" style="width: 100%; padding: 12px; background: linear-gradient(135deg, #e65100 0%, #ff5722 100%); color: #fff; border: none; border-radius: 10px; font-weight: 800; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(230,81,0,0.4);">
                     DESBLOQUEAR PANEL ADMIN
-                </button>
-            </div>
-
-            <!-- VISTA 2: CONFIGURACIÓN / ESCANEAR QR -->
-            <div id="view-2fa-setup" style="display: none;">
-                <div style="background: #ffffff; padding: 12px; border-radius: 12px; display: inline-block; margin-bottom: 12px;">
-                    <img id="2fa-qr-img" style="width: 160px; height: 160px; display: block;" alt="Código QR 2FA">
-                </div>
-                <div style="font-size: 0.78rem; color: #bcaaa4; margin-bottom: 12px;">
-                    Escanea este código QR con <strong>Google Authenticator</strong> o <strong>Authy</strong> en tu celular.
-                </div>
-                <div style="background: rgba(255,255,255,0.05); padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; color: #ffab91; word-break: break-all; margin-bottom: 16px;">
-                    Secret Key: <code id="2fa-secret-code" style="color: #fff; font-weight: 800;">---</code>
-                </div>
-                <button type="button" onclick="switch2FATab('verify')" style="width: 100%; padding: 10px; background: rgba(255,87,34,0.2); border: 1px solid #ff5722; color: #fff; border-radius: 8px; font-weight: 700; font-size: 0.88rem; cursor: pointer;">
-                    ✅ Ya lo escaneé -> Volver a Ingresar Token
                 </button>
             </div>
 
