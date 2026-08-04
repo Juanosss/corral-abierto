@@ -1038,6 +1038,1558 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="app-v5.js"></script>
-    <script src="admin.js"></script>
+    <script>
+        const ADMIN_EMAIL = "admin@corralabierto.cl";
+        
+        if (typeof rodeoData === 'undefined' || !rodeoData) {
+            rodeoData = (typeof defaultRodeoData !== 'undefined') ? defaultRodeoData : [];
+        }
+        if (typeof genealogiaData === 'undefined' || !genealogiaData) {
+            genealogiaData = (typeof defaultGenealogiaData !== 'undefined') ? defaultGenealogiaData : [];
+        }
+
+        let filteredColleras = Array.isArray(rodeoData) ? [...rodeoData] : [];
+        let filteredGenealogias = Array.isArray(genealogiaData) ? [...genealogiaData] : [];
+        let activeRodeoId = localStorage.getItem('activeRodeoId') || 'champion-chile-2026';
+        let rodeos = [];
+        let usuariosList = [];
+        let calendarEvents = [];
+        let colleraHorseTimer = {};
+
+        window.switchAdminTab = function(tabId, btnElement) {
+            const tabs = document.querySelectorAll('.admin-tab-content');
+            const btns = document.querySelectorAll('.admin-tab-btn');
+            
+            tabs.forEach(t => t.classList.remove('active'));
+            btns.forEach(b => b.classList.remove('active'));
+
+            const targetTab = document.getElementById(tabId);
+            if (targetTab) targetTab.classList.add('active');
+
+            if (btnElement) {
+                btnElement.classList.add('active');
+            } else {
+                const b = document.getElementById(`btn-${tabId}`);
+                if (b) b.classList.add('active');
+            }
+        };
+
+        async function initAdminDirect() {
+            try {
+                localStorage.setItem('currentUser', JSON.stringify({ email: ADMIN_EMAIL, active: true }));
+            } catch(e) {}
+
+            try {
+                const rawRodeos = localStorage.getItem('rodeosData');
+                if (rawRodeos) rodeos = JSON.parse(rawRodeos);
+            } catch(e) {}
+
+            if (!rodeos || rodeos.length === 0) {
+                rodeos = [
+                    { id: 'champion-chile-2026', nombre: '77° Campeonato Nacional Champion de Chile 2026', activo: true, logo_url: '', fecha: '09 - 12 ABR 2026', lugar: 'Medialuna Monumental de Rancagua', asociacion: 'O\'Higgins', tipo: 'Champion de Chile' },
+                    { id: 'clasificatorio-sur-2026', nombre: 'Rodeo Clasificatorio Zona Sur Valdivia 2026', activo: false, logo_url: '', fecha: '06 - 08 MAR 2026', lugar: 'Medialuna Parque Saval, Valdivia', asociacion: 'Valdivia', tipo: 'Clasificatorio' },
+                    { id: 'clasificatorio-centro-2026', nombre: 'Rodeo Clasificatorio Zona Centro San Clemente 2026', activo: false, logo_url: '', fecha: '13 - 15 MAR 2026', lugar: 'Medialuna de San Clemente', asociacion: 'Talca', tipo: 'Clasificatorio' },
+                    { id: 'clasificatorio-norte-2026', nombre: 'Rodeo Clasificatorio Zona Norte Petorca 2026', activo: false, logo_url: '', fecha: '20 - 22 MAR 2026', lugar: 'Medialuna El Sobrante, Petorca', asociacion: 'Petorca', tipo: 'Clasificatorio' }
+                ];
+            }
+
+            if (typeof defaultRodeoData !== 'undefined') rodeoData = defaultRodeoData;
+            filteredColleras = Array.isArray(rodeoData) ? [...rodeoData] : [];
+            filteredGenealogias = (typeof genealogiaData !== 'undefined' && Array.isArray(genealogiaData)) ? [...genealogiaData] : [];
+
+            renderRodeosTable();
+            renderCollerasTable();
+            renderGenealogiasTable();
+            populateLiveRodeoOptions();
+
+            loadRodeos().then(() => { renderRodeosTable(); populateLiveRodeoOptions(); });
+            loadRodeoColleras(activeRodeoId).then(() => { filteredColleras = [...rodeoData]; renderCollerasTable(); populateLiveColleraOptions(); });
+            loadUsuariosFromSupabase().then(() => { renderUsuariosTable(); });
+            loadCalendarEventsFromSupabase().then(() => { renderAdminCalendarTable(); });
+        }
+
+        function populateLiveRodeoOptions() {
+            const selectEl = document.getElementById('admin-live-rodeo-select');
+            if (!selectEl) return;
+            selectEl.innerHTML = (rodeos || []).map(r => 
+                `<option value="${r.id}" ${r.id === activeRodeoId ? 'selected' : ''}>${r.nombre}</option>`
+            ).join('');
+            populateLiveColleraOptions();
+        }
+
+        window.onLiveRodeoSelectChange = async function(selectedRodeoId) {
+            activeRodeoId = selectedRodeoId;
+            localStorage.setItem('activeRodeoId', selectedRodeoId);
+            const titleEl = document.getElementById('active-rodeo-title');
+            const rodeoObj = (rodeos || []).find(r => r.id === selectedRodeoId);
+            if (titleEl && rodeoObj) titleEl.innerText = rodeoObj.nombre;
+
+            await loadRodeoColleras(selectedRodeoId);
+            filteredColleras = Array.isArray(rodeoData) ? [...rodeoData] : [];
+            renderCollerasTable();
+            populateLiveColleraOptions();
+
+            let currentLiveState = null;
+            try { currentLiveState = JSON.parse(localStorage.getItem(`liveState_${selectedRodeoId}`)); } catch(e) {}
+            const estadoSelect = document.getElementById('admin-live-estado-select');
+            if (estadoSelect) {
+                estadoSelect.value = currentLiveState?.estado || 'en_vivo';
+            }
+        };
+
+        window.onLiveEstadoSelectChange = function(newEstado) {
+            let currentState = {};
+            try {
+                currentState = JSON.parse(localStorage.getItem(`liveState_${activeRodeoId}`)) || {};
+            } catch(e) {}
+
+            currentState.estado = newEstado;
+            localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(currentState));
+
+            const indicatorEl = document.getElementById('live-admin-status-indicator');
+            if (indicatorEl) {
+                if (newEstado === 'finalizado') {
+                    indicatorEl.textContent = '🏁 RODEO FINALIZADO';
+                    indicatorEl.style.background = '#d32f2f';
+                } else if (newEstado === 'pausado') {
+                    indicatorEl.textContent = '⏸️ RODEO PAUSADO';
+                    indicatorEl.style.background = '#f57c00';
+                } else {
+                    indicatorEl.textContent = '🔴 TRANSMISIÓN EN VIVO';
+                    indicatorEl.style.background = '#2e7d32';
+                }
+            }
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                const isActivo = (newEstado === 'en_vivo' || newEstado === 'pausado');
+                supabaseClient.from('rodeos').update({ 
+                    logo_url: JSON.stringify(currentState), 
+                    activo: isActivo 
+                }).eq('id', activeRodeoId).then(()=>{}).catch(()=>{});
+            }
+
+            if (typeof window.showToast === 'function') {
+                const txt = newEstado === 'finalizado' ? '🏁 Rodeo marcado como FINALIZADO.' : (newEstado === 'pausado' ? '⏸️ Rodeo PAUSADO en vivo.' : '🔴 Rodeo en TRANSMISIÓN EN VIVO.');
+                window.showToast(txt);
+            }
+        };
+
+        function populateLiveColleraOptions() {
+            const selectEl = document.getElementById('admin-live-collera-select');
+            if (!selectEl) return;
+            
+            const toroVal = document.getElementById('admin-live-toro-select')?.value || '1er Toro';
+            let allColleras = filteredColleras || rodeoData || [];
+            
+            let qualifiedColleras = allColleras;
+            if (toroVal.includes('2do')) {
+                qualifiedColleras = allColleras.filter(c => c.animal1 !== 'X' && c.animal1 !== 'N/C' && c.animal1 !== undefined && c.animal1 !== null && c.animal1 !== '');
+            } else if (toroVal.includes('3er')) {
+                qualifiedColleras = allColleras.filter(c => c.animal2 !== 'X' && c.animal2 !== 'N/C' && c.animal2 !== undefined && c.animal2 !== null && c.animal2 !== '');
+            } else if (toroVal.includes('4to')) {
+                qualifiedColleras = allColleras.filter(c => c.animal3 !== 'X' && c.animal3 !== 'N/C' && c.animal3 !== undefined && c.animal3 !== null && c.animal3 !== '');
+            } else if (toroVal.includes('Desempate')) {
+                qualifiedColleras = allColleras.filter(c => c.animal4 !== 'X' && c.animal4 !== 'N/C' && c.animal4 !== undefined && c.animal4 !== null && c.animal4 !== '');
+            }
+
+            if (qualifiedColleras.length === 0) {
+                selectEl.innerHTML = `<option value="">-- No hay colleras calificadas para ${toroVal} --</option>`;
+                return;
+            }
+
+            selectEl.innerHTML = `<option value="">-- Seleccionar Collera --</option>` + qualifiedColleras.map(c => {
+                const jinetesStr = Array.isArray(c.jinetes) ? c.jinetes.join(' y ') : (c.jinetes || 'Jinetes');
+                const caballosStr = Array.isArray(c.caballos) ? c.caballos.join(' y ') : (c.caballos || 'Caballos');
+                return `<option value="${c.n}">Collera N° ${c.n} | ${jinetesStr} en ${caballosStr}</option>`;
+            }).join('');
+        }
+
+        window.onColleraSelectChange = function() {
+            const colleraVal = document.getElementById('admin-live-collera-select').value;
+            if (!colleraVal) return;
+            const num = parseInt(colleraVal);
+            const colleraObj = (filteredColleras || []).find(c => parseInt(c.n) === num);
+            if (colleraObj) {
+                let currentState = {};
+                try { currentState = JSON.parse(localStorage.getItem(`liveState_${activeRodeoId}`)) || {}; } catch(e) {}
+                currentState.activeColleraN = num;
+                currentState.proximaColleraN = num + 1;
+                currentState.runDetails = null;
+                localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(currentState));
+
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    supabaseClient.from('rodeos').update({ logo_url: JSON.stringify(currentState) }).eq('id', activeRodeoId).then(()=>{}).catch(()=>{});
+                }
+                if (typeof window.showToast === 'function') {
+                    window.showToast(`🎯 Collera N° ${colleraObj.n} en cancha transmitida.`);
+                }
+            }
+        };
+
+        window.onToroSelectChange = function() {
+            const toroVal = document.getElementById('admin-live-toro-select').value;
+            let currentState = {};
+            try { currentState = JSON.parse(localStorage.getItem(`liveState_${activeRodeoId}`)) || {}; } catch(e) {}
+            currentState.toroActual = toroVal + ' en Curso';
+            localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(currentState));
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('rodeos').update({ logo_url: JSON.stringify(currentState) }).eq('id', activeRodeoId).then(()=>{}).catch(()=>{});
+            }
+
+            populateLiveColleraOptions();
+        };
+
+        window.transmitLivePartialProgress = function() {
+            const salida  = parseInt(document.getElementById('calc-salida').value || '0');
+            const a1      = parseInt(document.getElementById('calc-atajada1').value || '0');
+            const a2      = parseInt(document.getElementById('calc-atajada2').value || '0');
+            const a3      = parseInt(document.getElementById('calc-atajada3').value || '0');
+            const faltas  = parseInt(document.getElementById('calc-faltas').value || '0');
+            const totalToro = salida + a1 + a2 + a3 + faltas;
+
+            const totalBadge = document.getElementById('live-calc-total-badge');
+            if (totalBadge) {
+                totalBadge.textContent = `${totalToro >= 0 ? '+' + totalToro : totalToro} PUNTOS EN TORO`;
+            }
+
+            const colleraVal = document.getElementById('admin-live-collera-select').value;
+            const num = parseInt(colleraVal);
+            if (!num) return;
+
+            let currentState = {};
+            try { currentState = JSON.parse(localStorage.getItem(`liveState_${activeRodeoId}`)) || {}; } catch(e) {}
+
+            currentState.activeColleraN = num;
+            currentState.runDetails = { salida, a1, a2, a3, faltas, totalToro };
+            localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(currentState));
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('rodeos').update({ logo_url: JSON.stringify(currentState) }).eq('id', activeRodeoId).then(()=>{}).catch(()=>{});
+            }
+        };
+
+        window.guardarToroYSiguienteCollera = function() {
+            const colleraVal = document.getElementById('admin-live-collera-select').value;
+            const num = parseInt(colleraVal);
+            if (!num) {
+                alert("Por favor selecciona una collera en cancha primero.");
+                return;
+            }
+
+            const toroVal = document.getElementById('admin-live-toro-select').value;
+            const salida  = parseInt(document.getElementById('calc-salida').value || '0');
+            const a1      = parseInt(document.getElementById('calc-atajada1').value || '0');
+            const a2      = parseInt(document.getElementById('calc-atajada2').value || '0');
+            const a3      = parseInt(document.getElementById('calc-atajada3').value || '0');
+            const faltas  = parseInt(document.getElementById('calc-faltas').value || '0');
+            const ptsToro = salida + a1 + a2 + a3 + faltas;
+
+            const colleraObj = (filteredColleras || []).find(c => parseInt(c.n) === num);
+            if (!colleraObj) return;
+
+            if (toroVal.includes('1er')) colleraObj.animal1 = ptsToro;
+            else if (toroVal.includes('2do')) colleraObj.animal2 = ptsToro;
+            else if (toroVal.includes('3er')) colleraObj.animal3 = ptsToro;
+            else if (toroVal.includes('4to')) colleraObj.animal4 = ptsToro;
+
+            let sum = 0;
+            [colleraObj.animal1, colleraObj.animal2, colleraObj.animal3, colleraObj.animal4].forEach(val => {
+                const n = parseFloat(val);
+                if (!isNaN(n)) sum += n;
+            });
+            colleraObj.resultado = sum;
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('colleras').upsert(colleraObj).then(()=>{}).catch(()=>{});
+            }
+
+            const nextNum = num + 1;
+            let currentState = {};
+            try { currentState = JSON.parse(localStorage.getItem(`liveState_${activeRodeoId}`)) || {}; } catch(e) {}
+            currentState.activeColleraN = nextNum;
+            currentState.proximaColleraN = nextNum + 1;
+            currentState.runDetails = null;
+            localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(currentState));
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('rodeos').update({ logo_url: JSON.stringify(currentState) }).eq('id', activeRodeoId).then(()=>{}).catch(()=>{});
+            }
+
+            renderCollerasTable();
+            const colleraSelect = document.getElementById('admin-live-collera-select');
+            if (colleraSelect) {
+                colleraSelect.value = String(nextNum);
+            }
+        };
+
+        window.marcarNoCorreYSiguiente = function() {
+            const colleraVal = document.getElementById('admin-live-collera-select').value;
+            const num = parseInt(colleraVal);
+            if (!num) {
+                alert("Por favor selecciona una collera en cancha primero.");
+                return;
+            }
+
+            const toroVal = document.getElementById('admin-live-toro-select').value;
+            const colleraObj = (filteredColleras || []).find(c => parseInt(c.n) === num);
+            if (!colleraObj) return;
+
+            if (toroVal.includes('1er')) colleraObj.animal1 = 'N/C';
+            else if (toroVal.includes('2do')) colleraObj.animal2 = 'N/C';
+            else if (toroVal.includes('3er')) colleraObj.animal3 = 'N/C';
+            else if (toroVal.includes('4to')) colleraObj.animal4 = 'N/C';
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('colleras').upsert(colleraObj).then(()=>{}).catch(()=>{});
+            }
+
+            const nextNum = num + 1;
+            let currentState = {};
+            try { currentState = JSON.parse(localStorage.getItem(`liveState_${activeRodeoId}`)) || {}; } catch(e) {}
+            currentState.activeColleraN = nextNum;
+            currentState.proximaColleraN = nextNum + 1;
+            currentState.runDetails = null;
+            localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(currentState));
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('rodeos').update({ logo_url: JSON.stringify(currentState) }).eq('id', activeRodeoId).then(()=>{}).catch(()=>{});
+            }
+
+            renderCollerasTable();
+            const colleraSelect = document.getElementById('admin-live-collera-select');
+            if (colleraSelect) colleraSelect.value = String(nextNum);
+
+            if (typeof window.showToast === 'function') {
+                window.showToast(`🚫 Collera N° ${num} marcada como NO CORRE. Avanzando a collera N° ${nextNum}.`);
+            }
+        };
+
+        window.aplicarCorteDeAnimalPrompt = function() {
+            const toroVal = document.getElementById('admin-live-toro-select').value;
+            let currentAnimalKey = 'animal1';
+            let nextToroName = '2do Toro';
+
+            if (toroVal.includes('1er')) {
+                currentAnimalKey = 'animal1';
+                nextToroName = '2do Toro';
+            } else if (toroVal.includes('2do')) {
+                currentAnimalKey = 'animal2';
+                nextToroName = '3er Toro';
+            } else if (toroVal.includes('3er')) {
+                currentAnimalKey = 'animal3';
+                nextToroName = '4to Toro';
+            } else if (toroVal.includes('4to')) {
+                currentAnimalKey = 'animal4';
+                nextToroName = 'Desempate / Champion';
+            }
+
+            const corteInput = prompt(`✂️ Ingrese el PUNTAJE DE CORTE para avanzar al ${nextToroName} (Ejemplo: 4 pts o más):`, "4");
+            if (corteInput === null) return;
+
+            const minPts = parseFloat(corteInput);
+            if (isNaN(minPts)) {
+                alert("Por favor ingrese un número de puntaje de corte válido.");
+                return;
+            }
+
+            let clasificadasCount = 0;
+            let eliminadasCount = 0;
+
+            (filteredColleras || []).forEach(c => {
+                let totalAcum = 0;
+                [c.animal1, c.animal2, c.animal3, c.animal4].forEach(val => {
+                    if (val !== undefined && val !== null && val !== '' && val !== 'X' && val !== 'N/C') {
+                        const n = parseFloat(val);
+                        if (!isNaN(n)) totalAcum += n;
+                    }
+                });
+
+                if (totalAcum >= minPts) {
+                    clasificadasCount++;
+                } else {
+                    eliminadasCount++;
+                    if (currentAnimalKey === 'animal1') {
+                        if (!c.animal2) c.animal2 = 'X';
+                        if (!c.animal3) c.animal3 = 'X';
+                        if (!c.animal4) c.animal4 = 'X';
+                    } else if (currentAnimalKey === 'animal2') {
+                        if (!c.animal3) c.animal3 = 'X';
+                        if (!c.animal4) c.animal4 = 'X';
+                    } else if (currentAnimalKey === 'animal3') {
+                        if (!c.animal4) c.animal4 = 'X';
+                    }
+                }
+
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    supabaseClient.from('colleras').upsert(c).then(()=>{}).catch(()=>{});
+                }
+            });
+
+            const toroSelect = document.getElementById('admin-live-toro-select');
+            if (toroSelect) {
+                toroSelect.value = nextToroName;
+                window.onToroSelectChange();
+            }
+
+            renderCollerasTable();
+            populateLiveColleraOptions();
+
+            alert(`✅ Corte aplicado con éxito (+${minPts} pts):\n- ${clasificadasCount} colleras clasificaron al ${nextToroName}.\n- ${eliminadasCount} colleras no alcanzaron y se marcaron con 'X'.`);
+        };
+
+        async function loadRodeos() {
+            let localData = [];
+            try {
+                const raw = localStorage.getItem('rodeosData');
+                if (raw) localData = JSON.parse(raw);
+            } catch(e) {}
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const fetchPromise = supabaseClient.from('rodeos').select('*').order('created_at', { ascending: true });
+                    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ error: 'timeout' }), 2000));
+                    const res = await Promise.race([fetchPromise, timeoutPromise]);
+                    if (res && !res.error && res.data && res.data.length > 0) {
+                        rodeos = res.data;
+                        return;
+                    }
+                } catch(e) {}
+            }
+
+            if (localData && localData.length > 0) {
+                rodeos = localData;
+            } else {
+                rodeos = [
+                    { id: 'champion-chile-2026', nombre: '77° Campeonato Nacional Champion de Chile 2026', activo: true, logo_url: '', fecha: '09 - 12 ABR 2026', lugar: 'Medialuna Monumental de Rancagua', asociacion: 'O\'Higgins', tipo: 'Champion de Chile' },
+                    { id: 'clasificatorio-sur-2026', nombre: 'Rodeo Clasificatorio Zona Sur Valdivia 2026', activo: false, logo_url: '', fecha: '06 - 08 MAR 2026', lugar: 'Medialuna Parque Saval, Valdivia', asociacion: 'Valdivia', tipo: 'Clasificatorio' },
+                    { id: 'clasificatorio-centro-2026', nombre: 'Rodeo Clasificatorio Zona Centro San Clemente 2026', activo: false, logo_url: '', fecha: '13 - 15 MAR 2026', lugar: 'Medialuna de San Clemente', asociacion: 'Talca', tipo: 'Clasificatorio' },
+                    { id: 'clasificatorio-norte-2026', nombre: 'Rodeo Clasificatorio Zona Norte Petorca 2026', activo: false, logo_url: '', fecha: '20 - 22 MAR 2026', lugar: 'Medialuna El Sobrante, Petorca', asociacion: 'Petorca', tipo: 'Clasificatorio' }
+                ];
+            }
+        }
+
+        async function loadRodeoColleras(rodeoId) {
+            let localColleras = [];
+            try {
+                const raw = localStorage.getItem(`rodeoData_${rodeoId}`);
+                if (raw) localColleras = JSON.parse(raw);
+            } catch(e) {}
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const fetchPromise = supabaseClient.from('colleras').select('*').eq('rodeo_id', rodeoId).order('n');
+                    const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ error: 'timeout' }), 2000));
+                    const res = await Promise.race([fetchPromise, timeoutPromise]);
+                    if (res && !res.error && res.data && res.data.length > 0) {
+                        rodeoData = res.data;
+                        return;
+                    }
+                } catch(e) {}
+            }
+
+            if (localColleras && localColleras.length > 0) {
+                rodeoData = localColleras;
+            } else if (typeof defaultRodeoData !== 'undefined') {
+                rodeoData = defaultRodeoData;
+            } else {
+                rodeoData = [];
+            }
+        }
+
+        async function loadCalendarEventsFromSupabase() {
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('calendar_events').select('*').order('fecha_inicio', { ascending: true });
+                    if (!error && data && data.length > 0) {
+                        calendarEvents = data;
+                        return;
+                    }
+                } catch(e) {}
+            }
+            calendarEvents = [
+                {
+                    id: 'cal-1',
+                    nombre: '77° Campeonato Nacional Champion de Chile 2026',
+                    lugar: 'Medialuna Monumental de Rancagua',
+                    asociacion: "Zona Centro / O'Higgins",
+                    tipo: 'Champion de Chile',
+                    fecha_inicio: '2026-04-09',
+                    fecha_fin: '2026-04-12',
+                    hora_inicio: '08:00',
+                    hora_fin: '21:00',
+                    descripcion: 'Gran Final del Rodeo Chileno con Serie Criaderos, Misa Criolla, Rienda y Serie Campeones.',
+                    estado: '🔴 En Vivo',
+                    afiche_url: ''
+                },
+                {
+                    id: 'cal-2',
+                    nombre: 'Rodeo Clasificatorio Zona Sur Valdivia 2026',
+                    lugar: 'Medialuna Parque Saval, Valdivia',
+                    asociacion: 'Valdivia',
+                    tipo: 'Clasificatorio',
+                    fecha_inicio: '2026-03-06',
+                    fecha_fin: '2026-03-08',
+                    hora_inicio: '08:30',
+                    hora_fin: '20:30',
+                    descripcion: 'Clasificatorio Zona Sur rumbo al Champion de Chile.',
+                    estado: '🟢 Programado',
+                    afiche_url: ''
+                }
+            ];
+        }
+
+        async function loadUsuariosFromSupabase() {
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient.from('members').select('*').order('created_at', { ascending: false });
+                    if (!error && data && data.length > 0) {
+                        usuariosList = data;
+                        return;
+                    }
+                } catch(e) {
+                    console.error("Error leyendo socios de Supabase:", e);
+                }
+            }
+            usuariosList = [
+                { email: 'admin@corralabierto.cl', nombre: 'ADMINISTRADOR', apellido: 'PRINCIPAL', active: true, telefono: '+56 9 1234 5678' }
+            ];
+        }
+
+        function renderRodeosTable() {
+            const tbody = document.getElementById('rodeos-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = (rodeos || []).map(r => `
+                <tr>
+                    <td><code>${r.id}</code></td>
+                    <td><strong>${r.nombre}</strong></td>
+                    <td>${r.logo_url ? `<img src="${r.logo_url}" style="height: 32px; border-radius: 4px;">` : '<span style="color:#8d6e63;">Sin logo</span>'}</td>
+                    <td>📅 ${r.fecha || 'Por definir'}<br><small style="color:#bcaaa4;">📍 ${r.lugar || 'Medialuna'}</small></td>
+                    <td>${r.asociacion || 'General'} <br><small style="color:#ffab91;">🏷️ ${r.tipo || 'Oficial'}</small></td>
+                    <td><span style="color: ${r.activo ? '#4caf50' : '#f44336'}; font-weight: 700;">${r.activo ? '🔴 En Vivo' : '🏁 Finalizado / Inactivo'}</span></td>
+                    <td>
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                            <button onclick="selectRodeoForAdminDirect('${r.id}')" style="padding: 4px 8px; background: #ff5722; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🎯 Seleccionar</button>
+                            <button onclick="editRodeo('${r.id}')" style="padding: 4px 8px; background: #0288d1; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">✏️ Editar</button>
+                            <button onclick="deleteRodeo('${r.id}')" style="padding: 4px 8px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🗑️ Borrar</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        window.selectRodeoForAdminDirect = function(rId) {
+            activeRodeoId = rId;
+            localStorage.setItem('activeRodeoId', rId);
+            const titleEl = document.getElementById('active-rodeo-title');
+            const rodeoObj = rodeos.find(r => r.id === rId);
+            if (titleEl && rodeoObj) titleEl.innerText = rodeoObj.nombre;
+            loadRodeoColleras(rId).then(() => {
+                filteredColleras = [...rodeoData];
+                renderCollerasTable();
+            });
+        };
+
+        window.editRodeo = function(rId) {
+            const r = rodeos.find(item => item.id === rId);
+            if (!r) return;
+
+            document.getElementById('form-rodeo-id-old').value = r.id;
+            document.getElementById('form-rodeo-id').value = r.id;
+            document.getElementById('form-rodeo-nombre').value = r.nombre || '';
+            document.getElementById('form-rodeo-tipo').value = r.tipo || 'Champion de Chile';
+            document.getElementById('form-rodeo-fecha').value = r.fecha || '';
+            document.getElementById('form-rodeo-lugar').value = r.lugar || '';
+            document.getElementById('form-rodeo-asociacion').value = r.asociacion || '';
+            document.getElementById('form-rodeo-activo').value = r.activo ? 'true' : 'false';
+            const logoVal = r.logo_url || '';
+            document.getElementById('form-rodeo-logo').value = logoVal;
+            const previewWrap = document.getElementById('form-rodeo-logo-preview');
+            const previewImg  = document.getElementById('form-rodeo-logo-img');
+            if (previewWrap && previewImg && logoVal) {
+                previewImg.src = logoVal;
+                previewWrap.style.display = 'block';
+            } else if (previewWrap) {
+                previewWrap.style.display = 'none';
+            }
+
+            document.getElementById('rodeo-modal-title').innerText = "✏️ Editar Rodeo Existente";
+            openRodeoModal(true);
+        };
+
+        window.deleteRodeo = function(rId) {
+            if (!confirm(`¿Seguro que deseas eliminar el rodeo ${rId}?`)) return;
+            rodeos = rodeos.filter(r => r.id !== rId);
+            try { localStorage.setItem('rodeosData', JSON.stringify(rodeos)); } catch(e) {}
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('rodeos').delete().eq('id', rId).then(()=>{}).catch(()=>{});
+            }
+            renderRodeosTable();
+            if (typeof window.showToast === 'function') window.showToast(`🗑️ Rodeo eliminado correctamente.`);
+        };
+
+        window.saveRodeo = function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const oldId = document.getElementById('form-rodeo-id-old').value;
+            const id = document.getElementById('form-rodeo-id').value.trim();
+            const nombre = document.getElementById('form-rodeo-nombre').value.trim();
+            const tipo = document.getElementById('form-rodeo-tipo').value;
+            const fecha = document.getElementById('form-rodeo-fecha').value.trim();
+            const lugar = document.getElementById('form-rodeo-lugar').value.trim();
+            const asociacion = document.getElementById('form-rodeo-asociacion').value.trim();
+            const activo = document.getElementById('form-rodeo-activo').value === 'true';
+            const logo_url = document.getElementById('form-rodeo-logo').value.trim();
+
+            if (!id || !nombre) return;
+
+            const rodeoObj = { id, nombre, tipo, fecha, lugar, asociacion, activo, logo_url };
+
+            const existingIdx = rodeos.findIndex(r => r.id === (oldId || id));
+            if (existingIdx >= 0) {
+                rodeos[existingIdx] = rodeoObj;
+            } else {
+                rodeos.push(rodeoObj);
+            }
+
+            try { localStorage.setItem('rodeosData', JSON.stringify(rodeos)); } catch(e) {}
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('rodeos').upsert(rodeoObj).then(()=>{}).catch(err => {
+                    console.error("Error upserting rodeo to Supabase:", err);
+                });
+            }
+
+            renderRodeosTable();
+            closeRodeoModal();
+            if (typeof window.showToast === 'function') window.showToast(`✅ Rodeo "${nombre}" guardado y sincronizado.`);
+        };
+
+        function renderCollerasTable() {
+            const tbody = document.getElementById('colleras-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = (filteredColleras || []).map(c => {
+                const jinetesStr = Array.isArray(c.jinetes) ? c.jinetes.join(' / ') : (c.jinetes || '--');
+                const caballosStr = Array.isArray(c.caballos) ? c.caballos.join(' / ') : (c.caballos || '--');
+                return `
+                    <tr>
+                        <td><strong>${c.n || '--'}</strong></td>
+                        <td>${c.asociacion || '--'} ${c.criadero ? `<br><small style="color:#ffab91;">CRIADERO: ${c.criadero}</small>` : ''}</td>
+                        <td>${jinetesStr}</td>
+                        <td><strong>${caballosStr}</strong></td>
+                        <td>${c.animal1 !== undefined ? c.animal1 : '--'}</td>
+                        <td>${c.animal2 || '--'}</td>
+                        <td>${c.animal3 || '--'}</td>
+                        <td>${c.animal4 || '--'}</td>
+                        <td><strong>${c.resultado || '--'}</strong></td>
+                        <td style="color: #ff5722; font-weight: bold;">${c.lugar || '--'}</td>
+                        <td>
+                            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button onclick="window.editCollera(${c.n})" style="padding: 4px 8px; background: #0288d1; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">✏️ Editar</button>
+                                <button onclick="window.deleteCollera(${c.n})" style="padding: 4px 8px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🗑️ Borrar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            populateLiveColleraOptions();
+        }
+
+        function renderGenealogiasTable(dataToRender) {
+            const tbody = document.getElementById('genealogias-tbody');
+            if (!tbody) return;
+            const list = dataToRender || filteredGenealogias || [];
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color: #bcaaa4;">No se encontraron caballos registrados.</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = list.map(g => {
+                const safeId = String(g.id || (g.nacional || '').replace(/[^0-9]/g, '') || g.nombre);
+                return `
+                    <tr>
+                        <td><code style="color:#d4af37; font-weight:800;">${g.nacional || 'SBT Pendiente'}</code></td>
+                        <td><strong>${g.nombre || '--'}</strong> ${g.color ? `<br><small style="color:#bcaaa4;">${g.color}</small>` : ''}</td>
+                        <td>${g.criadero || '--'} ${g.dueno ? `<br><small style="color:#ffab91;">Criador: ${g.dueno}</small>` : ''}</td>
+                        <td>${g.fn || '--'} ${g.sexo ? `<br><small style="color:#8d6e63;">${g.sexo}</small>` : ''}</td>
+                        <td><strong>P: ${g.padre || '--'}</strong><br><small style="color:#bcaaa4;">M: ${g.madre || '--'}</small></td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button onclick="window.editGenealogia('${safeId}')" style="padding: 5px 10px; background: #0288d1; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">✏️ Editar</button>
+                                <button onclick="window.deleteGenealogia('${safeId}')" style="padding: 5px 10px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🗑️ Borrar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.filterGenealogiasTable = function(query) {
+            const q = (query || '').trim().toLowerCase();
+            if (!q) {
+                renderGenealogiasTable();
+                return;
+            }
+            const filtered = (filteredGenealogias || []).filter(g => {
+                const name = (g.nombre || '').toLowerCase();
+                const sbt = (g.nacional || '').toLowerCase();
+                const criadero = (g.criadero || '').toLowerCase();
+                return name.includes(q) || sbt.includes(q) || criadero.includes(q);
+            });
+            renderGenealogiasTable(filtered);
+        };
+
+        function renderAdminCalendarTable() {
+            const tbody = document.getElementById('calendar-admin-tbody');
+            if (!tbody) return;
+
+            if (!calendarEvents || calendarEvents.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:20px; color:#bcaaa4;">No hay eventos programados en el calendario.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = calendarEvents.map((c, idx) => {
+                const safeId = String(c.id || `cal-${idx}`);
+                return `
+                    <tr>
+                        <td>
+                            📅 <strong>${c.fecha_inicio || c.fecha || 'Por definir'} ${c.fecha_fin ? 'al ' + c.fecha_fin : ''}</strong><br>
+                            <small style="color:#ffab91;">⏰ ${c.hora_inicio || '08:00'} - ${c.hora_fin || '20:00'} h</small>
+                        </td>
+                        <td><strong>${c.nombre || c.event || 'Evento'}</strong></td>
+                        <td>📍 ${c.lugar || c.ciudad || 'Medialuna'}</td>
+                        <td>${c.asociacion || 'General'}<br><small style="color:#bcaaa4;">🏷️ ${c.tipo || 'Oficial'}</small></td>
+                        <td><div style="max-width:260px; font-size:0.8rem; color:#d7ccc8; overflow:hidden; text-overflow:ellipsis;">${c.descripcion || 'Sin programa publicado'}</div></td>
+                        <td><span style="font-weight:800; font-size:0.8rem;">${c.estado || '🟢 Programado'}</span></td>
+                        <td>
+                            <div style="display: flex; gap: 6px;">
+                                <button onclick="window.editAdminCalendarEvent('${safeId}')" style="padding: 5px 10px; background: #0288d1; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">✏️ Editar</button>
+                                <button onclick="window.deleteAdminCalendarEvent('${safeId}')" style="padding: 5px 10px; background: #c62828; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">🗑️ Borrar</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.openAdminCalendarModal = function() {
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+            setVal('form-cal-id-old', '');
+            setVal('form-cal-nombre', '');
+            setVal('form-cal-lugar', '');
+            setVal('form-cal-asociacion', '');
+            setVal('form-cal-tipo', 'Champion de Chile');
+            setVal('form-cal-estado', '🟢 Programado');
+            setVal('form-cal-fecha-inicio', '');
+            setVal('form-cal-fecha-fin', '');
+            setVal('form-cal-hora-inicio', '08:00');
+            setVal('form-cal-hora-fin', '20:00');
+            setVal('form-cal-descripcion', '');
+            setVal('form-cal-afiche', '');
+
+            const titleEl = document.getElementById('modal-cal-title');
+            if (titleEl) titleEl.innerText = "Agregar Evento al Calendario";
+            const overlay = document.getElementById('modal-cal-event-overlay');
+            if (overlay) overlay.classList.add('active');
+        };
+
+        window.closeAdminCalendarModal = function() {
+            const overlay = document.getElementById('modal-cal-event-overlay');
+            if (overlay) overlay.classList.remove('active');
+        };
+
+        window.editAdminCalendarEvent = function(id) {
+            const ev = (calendarEvents || []).find(c => String(c.id) === String(id));
+            if (!ev) return;
+
+            const setVal = (idEl, val) => { const el = document.getElementById(idEl); if (el) el.value = val || ''; };
+            setVal('form-cal-id-old', ev.id);
+            setVal('form-cal-nombre', ev.nombre || ev.event || '');
+            setVal('form-cal-lugar', ev.lugar || ev.ciudad || '');
+            setVal('form-cal-asociacion', ev.asociacion || '');
+            setVal('form-cal-tipo', ev.tipo || 'Champion de Chile');
+            setVal('form-cal-estado', ev.estado || '🟢 Programado');
+            setVal('form-cal-fecha-inicio', ev.fecha_inicio || ev.fecha || '');
+            setVal('form-cal-fecha-fin', ev.fecha_fin || ev.fecha || '');
+            setVal('form-cal-hora-inicio', ev.hora_inicio || '08:00');
+            setVal('form-cal-hora-fin', ev.hora_fin || '20:00');
+            setVal('form-cal-descripcion', ev.descripcion || '');
+            setVal('form-cal-afiche', ev.afiche_url || '');
+
+            const titleEl = document.getElementById('modal-cal-title');
+            if (titleEl) titleEl.innerText = "✏️ Editar Evento del Calendario";
+
+            const overlay = document.getElementById('modal-cal-event-overlay');
+            if (overlay) overlay.classList.add('active');
+        };
+
+        window.saveAdminCalendarEvent = async function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+            const oldId = document.getElementById('form-cal-id-old').value;
+            const id = oldId || `cal-${Date.now()}`;
+            const nombre = document.getElementById('form-cal-nombre').value.trim();
+            const lugar = document.getElementById('form-cal-lugar').value.trim();
+            const asociacion = document.getElementById('form-cal-asociacion').value.trim();
+            const tipo = document.getElementById('form-cal-tipo').value;
+            const estado = document.getElementById('form-cal-estado').value;
+            const fecha_inicio = document.getElementById('form-cal-fecha-inicio').value;
+            const fecha_fin = document.getElementById('form-cal-fecha-fin').value;
+            const hora_inicio = document.getElementById('form-cal-hora-inicio').value;
+            const hora_fin = document.getElementById('form-cal-hora-fin').value;
+            const descripcion = document.getElementById('form-cal-descripcion').value.trim();
+            const afiche_url = document.getElementById('form-cal-afiche').value.trim();
+
+            if (!nombre || !lugar) return;
+
+            const calObj = { id, nombre, lugar, asociacion, tipo, estado, fecha_inicio, fecha_fin, hora_inicio, hora_fin, descripcion, afiche_url };
+
+            const existingIdx = calendarEvents.findIndex(c => String(c.id) === String(id));
+            if (existingIdx >= 0) {
+                calendarEvents[existingIdx] = calObj;
+            } else {
+                calendarEvents.push(calObj);
+            }
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    await supabaseClient.from('calendar_events').upsert(calObj);
+                } catch(err) {}
+            }
+
+            renderAdminCalendarTable();
+            closeAdminCalendarModal();
+        };
+
+        window.deleteAdminCalendarEvent = async function(id) {
+            if (!confirm(`¿Seguro que deseas eliminar este evento del calendario?`)) return;
+            calendarEvents = calendarEvents.filter(c => String(c.id) !== String(id));
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                try {
+                    await supabaseClient.from('calendar_events').delete().eq('id', id);
+                } catch(err) {}
+            }
+
+            renderAdminCalendarTable();
+        };
+
+        function renderUsuariosTable() {
+            const tbody = document.getElementById('usuarios-tbody');
+            if (!tbody) return;
+
+            if (!usuariosList || usuariosList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:#bcaaa4;">No hay socios registrados en Supabase aún.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = usuariosList.map(u => {
+                const fullName = `${u.nombre || ''} ${u.apellido || ''}`.trim() || 'Socio Corral Abierto';
+                const isActive = u.active === true || u.active === 'true';
+                const isAdmin = (u.email || '').toLowerCase() === 'admin@corralabierto.cl';
+
+                return `
+                    <tr>
+                        <td>
+                            <strong>${fullName}</strong> ${isAdmin ? '<span style="background:#ff5722; color:#fff; font-size:0.65rem; padding:2px 6px; border-radius:4px; font-weight:800; margin-left:4px;">ADMIN</span>' : ''}
+                        </td>
+                        <td><code>${u.email}</code></td>
+                        <td>${u.telefono || '--'}</td>
+                        <td>
+                            <span style="color: ${isActive ? '#4caf50' : '#f44336'}; font-weight: 700;">
+                                ${isActive ? '🟢 Socio Activo' : '🔴 Acceso Suspendido'}
+                            </span>
+                        </td>
+                        <td>
+                            ${isAdmin ? '<span style="color:#bcaaa4; font-size:0.8rem;">Superusuario</span>' : `
+                                <button onclick="toggleUserStatus('${u.email}', ${!isActive})" style="padding: 4px 10px; background: ${isActive ? '#c62828' : '#2e7d32'}; color: #fff; border: none; border-radius: 4px; font-weight: 700; cursor: pointer;">
+                                    ${isActive ? '🔴 Suspender' : '🟢 Activar Acceso'}
+                                </button>
+                            `}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        window.toggleUserStatus = async function(email, newStatus) {
+            const u = usuariosList.find(item => item.email === email);
+            if (u) {
+                u.active = newStatus;
+
+                if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                    try {
+                        await supabaseClient.from('members').update({ active: newStatus }).eq('email', email);
+                    } catch(err) {
+                        console.error("Error actualizando socio en Supabase:", err);
+                    }
+                }
+                renderUsuariosTable();
+                if (typeof window.showToast === 'function') window.showToast(`Estado de ${email} actualizado.`);
+            }
+        };
+
+        window.openRodeoModal = function(isEdit = false) {
+            if (!isEdit) {
+                document.getElementById('form-rodeo-id-old').value = '';
+                document.getElementById('form-rodeo-id').value = '';
+                document.getElementById('form-rodeo-nombre').value = '';
+                document.getElementById('form-rodeo-fecha').value = '';
+                document.getElementById('form-rodeo-lugar').value = '';
+                document.getElementById('form-rodeo-asociacion').value = '';
+                document.getElementById('form-rodeo-logo').value = '';
+                const previewWrap = document.getElementById('form-rodeo-logo-preview');
+                if (previewWrap) previewWrap.style.display = 'none';
+                document.getElementById('rodeo-modal-title').innerText = "➕ Agregar Nuevo Rodeo";
+            }
+            document.getElementById('modal-rodeo-overlay').classList.add('active');
+        };
+        window.closeRodeoModal = function() { document.getElementById('modal-rodeo-overlay').classList.remove('active'); };
+
+        window.editCollera = function(colleraNum) {
+            const collera = (filteredColleras || []).find(c => parseInt(c.n) === parseInt(colleraNum));
+            if (!collera) return;
+
+            document.getElementById('form-collera-n').value = collera.n || '';
+            document.getElementById('form-collera-asociacion').value = collera.asociacion || '';
+            document.getElementById('form-collera-criadero').value = collera.criadero || '';
+
+            const jinetes = Array.isArray(collera.jinetes) ? collera.jinetes : (collera.jinetes ? collera.jinetes.split('/') : []);
+            document.getElementById('form-collera-j1').value = (jinetes[0] || '').trim();
+            document.getElementById('form-collera-j2').value = (jinetes[1] || '').trim();
+
+            const caballos = Array.isArray(collera.caballos) ? collera.caballos : (collera.caballos ? collera.caballos.split('/') : []);
+            document.getElementById('form-collera-c1').value = (caballos[0] || '').trim();
+            document.getElementById('form-collera-c2').value = (caballos[1] || '').trim();
+
+            document.getElementById('form-collera-a1').value = collera.animal1 !== undefined ? collera.animal1 : '';
+            document.getElementById('form-collera-a2').value = collera.animal2 !== undefined ? collera.animal2 : '';
+            document.getElementById('form-collera-a3').value = collera.animal3 !== undefined ? collera.animal3 : '';
+            document.getElementById('form-collera-a4').value = collera.animal4 !== undefined ? collera.animal4 : '';
+            document.getElementById('form-collera-lugar').value = collera.lugar || '';
+
+            document.getElementById('modal-collera-title').innerText = `✏️ Editar Collera N° ${collera.n}`;
+            document.getElementById('modal-collera-overlay').classList.add('active');
+        };
+
+        window.openColleraModal = function() {
+            document.getElementById('form-collera-n').value = (filteredColleras.length + 1);
+            document.getElementById('form-collera-asociacion').value = '';
+            document.getElementById('form-collera-criadero').value = '';
+            document.getElementById('form-collera-j1').value = '';
+            document.getElementById('form-collera-j2').value = '';
+            document.getElementById('form-collera-c1').value = '';
+            document.getElementById('form-collera-c2').value = '';
+            document.getElementById('form-collera-a1').value = '';
+            document.getElementById('form-collera-a2').value = '';
+            document.getElementById('form-collera-a3').value = '';
+            document.getElementById('form-collera-a4').value = '';
+            document.getElementById('form-collera-lugar').value = '';
+
+            document.getElementById('modal-collera-title').innerText = "➕ Agregar Nueva Collera";
+            document.getElementById('modal-collera-overlay').classList.add('active');
+        };
+
+        window.closeColleraModal = function() {
+            document.getElementById('modal-collera-overlay').classList.remove('active');
+        };
+
+        window.saveCollera = function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+
+            const n = parseInt(document.getElementById('form-collera-n').value);
+            if (!n) return;
+
+            const asociacion = document.getElementById('form-collera-asociacion').value.trim();
+            const criadero = document.getElementById('form-collera-criadero').value.trim();
+            const j1 = document.getElementById('form-collera-j1').value.trim();
+            const j2 = document.getElementById('form-collera-j2').value.trim();
+            const c1 = document.getElementById('form-collera-c1').value.trim();
+            const c2 = document.getElementById('form-collera-c2').value.trim();
+
+            const a1Raw = document.getElementById('form-collera-a1').value.trim();
+            const a2Raw = document.getElementById('form-collera-a2').value.trim();
+            const a3Raw = document.getElementById('form-collera-a3').value.trim();
+            const a4Raw = document.getElementById('form-collera-a4').value.trim();
+            const lugar = document.getElementById('form-collera-lugar').value.trim();
+
+            const parsePoints = val => {
+                if (val === '' || val === undefined) return '';
+                if (val.toUpperCase() === 'X' || val.toUpperCase() === 'N/C') return val.toUpperCase();
+                const num = parseFloat(val);
+                return isNaN(num) ? val : num;
+            };
+
+            const animal1 = parsePoints(a1Raw);
+            const animal2 = parsePoints(a2Raw);
+            const animal3 = parsePoints(a3Raw);
+            const animal4 = parsePoints(a4Raw);
+
+            let sum = 0;
+            [animal1, animal2, animal3, animal4].forEach(pts => {
+                if (typeof pts === 'number') sum += pts;
+            });
+
+            const colleraObj = {
+                n: n,
+                rodeo_id: activeRodeoId,
+                asociacion: asociacion,
+                criadero: criadero,
+                jinetes: [j1, j2].filter(Boolean),
+                caballos: [c1, c2].filter(Boolean),
+                animal1: animal1,
+                animal2: animal2,
+                animal3: animal3,
+                animal4: animal4,
+                resultado: sum,
+                lugar: lugar
+            };
+
+            const existingIdx = filteredColleras.findIndex(c => parseInt(c.n) === n);
+            if (existingIdx >= 0) {
+                filteredColleras[existingIdx] = colleraObj;
+            } else {
+                filteredColleras.push(colleraObj);
+            }
+
+            rodeoData = [...filteredColleras];
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('colleras').upsert(colleraObj).then(()=>{}).catch(()=>{});
+            }
+
+            renderCollerasTable();
+            closeColleraModal();
+            if (typeof window.showToast === 'function') window.showToast(`✅ Collera N° ${n} guardada con éxito.`);
+        };
+
+        window.deleteCollera = function(colleraNum) {
+            const num = parseInt(colleraNum);
+            if (!confirm(`¿Seguro que deseas eliminar la collera N° ${num}?`)) return;
+
+            filteredColleras = filteredColleras.filter(c => parseInt(c.n) !== num);
+            rodeoData = [...filteredColleras];
+
+            if (typeof supabaseClient !== 'undefined' && supabaseClient) {
+                supabaseClient.from('colleras').delete().eq('rodeo_id', activeRodeoId).eq('n', num).then(()=>{}).catch(()=>{});
+            }
+
+            renderCollerasTable();
+            if (typeof window.showToast === 'function') window.showToast(`🗑️ Collera N° ${num} eliminada.`);
+        };
+
+        window.openGenealogiaModal = function() {
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+            setVal('form-gen-id-old', '');
+            setVal('form-gen-nacional', '');
+            setVal('form-gen-nombre', '');
+            setVal('form-gen-color', '');
+            setVal('form-gen-sexo', 'Macho');
+            setVal('form-gen-fn', '');
+            setVal('form-gen-criadero', '');
+            setVal('form-gen-dueno', '');
+            setVal('form-gen-alzada', '');
+            setVal('form-gen-cincha', '');
+            setVal('form-gen-cana', '');
+            setVal('form-gen-padre', '');
+            setVal('form-gen-madre', '');
+            setVal('form-gen-abuelo-paterno', '');
+            setVal('form-gen-abuela-paterna', '');
+            setVal('form-gen-abuelo-materno', '');
+            setVal('form-gen-abuela-materna', '');
+            setVal('form-gen-foto', '');
+
+            const statusEl = document.getElementById('sna-status-indicator');
+            if (statusEl) statusEl.innerHTML = '';
+
+            const titleEl = document.getElementById('modal-gen-title');
+            if (titleEl) titleEl.innerText = "➕ Agregar Nuevo Caballo / Registro SNA";
+
+            const overlay = document.getElementById('modal-genealogia-overlay');
+            if (overlay) overlay.classList.add('active');
+        };
+
+        window.closeGenealogiaModal = function() {
+            const overlay = document.getElementById('modal-genealogia-overlay');
+            if (overlay) overlay.classList.remove('active');
+        };
+
+        window.editGenealogia = function(id) {
+            const g = (filteredGenealogias || []).find(item => {
+                const itemSafeId = String(item.id || (item.nacional || '').replace(/[^0-9]/g, '') || item.nombre);
+                return itemSafeId === String(id);
+            });
+
+            if (!g) return;
+
+            const setVal = (idEl, val) => { const el = document.getElementById(idEl); if (el) el.value = val || ''; };
+            setVal('form-gen-id-old', String(g.id || g.nacional || g.nombre));
+            setVal('form-gen-nacional', g.nacional || '');
+            setVal('form-gen-nombre', g.nombre || '');
+            setVal('form-gen-color', g.color || '');
+            setVal('form-gen-sexo', g.sexo || 'Macho');
+            setVal('form-gen-fn', g.fn || '');
+            setVal('form-gen-criadero', g.criadero || '');
+            setVal('form-gen-dueno', g.dueno || '');
+
+            const m = g.medidas || {};
+            setVal('form-gen-alzada', m.alzada || '');
+            setVal('form-gen-cincha', m.cincha || '');
+            setVal('form-gen-cana', m.cana || '');
+
+            const ped = g.pedigree || {};
+            setVal('form-gen-padre', ped.padre || g.padre || '');
+            setVal('form-gen-madre', ped.madre || g.madre || '');
+            setVal('form-gen-abuelo-paterno', ped.abueloPaterno || '');
+            setVal('form-gen-abuela-paterna', ped.abuelaPaterna || '');
+            setVal('form-gen-abuelo-materno', ped.abueloMaterno || '');
+            setVal('form-gen-abuela-materna', ped.abuelaMaterna || '');
+            setVal('form-gen-foto', g.foto_url || g.foto || '');
+
+            const titleEl = document.getElementById('modal-gen-title');
+            if (titleEl) titleEl.innerText = `✏️ Editar Caballo "${g.nombre}"`;
+
+            const overlay = document.getElementById('modal-genealogia-overlay');
+            if (overlay) overlay.classList.add('active');
+        };
+
+        window.saveGenealogia = async function(e) {
+            if (e && e.preventDefault) e.preventDefault();
+
+            const oldId = document.getElementById('form-gen-id-old').value;
+            const nacional = document.getElementById('form-gen-nacional').value.trim();
+            const nombre = document.getElementById('form-gen-nombre').value.trim();
+            const color = document.getElementById('form-gen-color').value.trim();
+            const sexo = document.getElementById('form-gen-sexo').value;
+            const fn = document.getElementById('form-gen-fn').value.trim();
+            const criadero = document.getElementById('form-gen-criadero').value.trim();
+            const dueno = document.getElementById('form-gen-dueno').value.trim();
+
+            const alzada = document.getElementById('form-gen-alzada').value.trim();
+            const cincha = document.getElementById('form-gen-cincha').value.trim();
+            const cana = document.getElementById('form-gen-cana').value.trim();
+
+            const padre = document.getElementById('form-gen-padre').value.trim();
+            const madre = document.getElementById('form-gen-madre').value.trim();
+            const abueloPaterno = document.getElementById('form-gen-abuelo-paterno').value.trim();
+            const abuelaPaterna = document.getElementById('form-gen-abuela-paterna').value.trim();
+            const abueloMaterno = document.getElementById('form-gen-abuelo-materno').value.trim();
+            const abuelaMaterna = document.getElementById('form-gen-abuela-materna').value.trim();
+
+            const foto_url = document.getElementById('form-gen-foto').value.trim();
+
+            if (!nombre && !nacional) {
+                alert("Por favor ingresa al menos el Nombre o el N° de Registro SBT.");
+                return;
+            }
+
+            const cleanId = oldId || (nacional ? nacional.replace(/[^0-9]/g, '') : '') || `gen-${Date.now()}`;
+
+            const genObj = {
+                id: cleanId,
+                nacional: nacional || 'SBT Pendiente',
+                nombre: nombre || 'Sin Nombre',
+                color: color,
+                sexo: sexo,
+                fn: fn,
+                criadero: criadero,
+                dueno: dueno,
+                padre: padre,
+                madre: madre,
+                foto_url: foto_url,
+                medidas: { alzada, cincha, cana },
+                pedigree: { padre, madre, abueloPaterno, abuelaPaterna, abueloMaterno, abuelaMaterna }
+            };
+
+            const existingIdx = filteredGenealogias.findIndex(g => {
+                const itemSafeId = String(g.id || (g.nacional || '').replace(/[^0-9]/g, '') || g.nombre);
+                return itemSafeId === String(cleanId);
+            });
+
+            if (existingIdx >= 0) {
+                filteredGenealogias[existingIdx] = genObj;
+            } else {
+                filteredGenealogias.unshift(genObj);
+            }
+
+            genealogiaData = [...filteredGenealogias];
+
+            if (typeof window.syncGenealogiaDataToSupabase === 'function') {
+                try {
+                    await window.syncGenealogiaDataToSupabase();
+                } catch(err) {
+                    console.error("Error sincronizando genealogías con Supabase:", err);
+                }
+            }
+
+            renderGenealogiasTable();
+            closeGenealogiaModal();
+            if (typeof window.showToast === 'function') window.showToast(`✅ Caballo "${genObj.nombre}" guardado.`);
+        };
+
+        window.deleteGenealogia = async function(id) {
+            if (!confirm(`¿Seguro que deseas eliminar este caballo de la genealogía?`)) return;
+
+            filteredGenealogias = filteredGenealogias.filter(g => {
+                const itemSafeId = String(g.id || (g.nacional || '').replace(/[^0-9]/g, '') || g.nombre);
+                return itemSafeId !== String(id);
+            });
+
+            genealogiaData = [...filteredGenealogias];
+
+            if (typeof window.syncGenealogiaDataToSupabase === 'function') {
+                try {
+                    await window.syncGenealogiaDataToSupabase();
+                } catch(err) {}
+            }
+
+            renderGenealogiasTable();
+            if (typeof window.showToast === 'function') window.showToast(`🗑️ Caballo eliminado.`);
+        };
+
+        window.consultarRegistroSNAOnline = async function() {
+            const inputEl = document.getElementById('form-gen-nacional');
+            const statusEl = document.getElementById('sna-status-indicator');
+            if (!inputEl) return;
+
+            const sbtVal = inputEl.value.trim();
+            if (!sbtVal) {
+                alert("Por favor ingresa un N° de Registro SNA / SBT primero (ejemplo: 201030 o 231456).");
+                return;
+            }
+
+            const cleanSbt = sbtVal.replace(/[^0-9]/g, '');
+
+            if (statusEl) {
+                statusEl.innerHTML = `<span style="color:#ffe082; font-weight:700;">🔍 Consultando Registro SBT N° ${cleanSbt} en Caballo y Rodeo...</span>`;
+            }
+
+            let data = null;
+
+            try {
+                const res1 = await fetch(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${cleanSbt}`);
+                if (res1.ok) {
+                    const html = await res1.text();
+                    data = parseCaballoYRodeoHTML(html, cleanSbt);
+                }
+            } catch(e1) {}
+
+            if (!data) {
+                try {
+                    const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${cleanSbt}`)}`;
+                    const res2 = await fetch(proxyUrl);
+                    if (res2.ok) {
+                        const json = await res2.json();
+                        if (json.contents) {
+                            data = parseCaballoYRodeoHTML(json.contents, cleanSbt);
+                        }
+                    }
+                } catch(e2) {}
+            }
+
+            if (data) {
+                const setVal = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+
+                setVal('form-gen-nombre', data.nombre);
+                setVal('form-gen-color', data.color);
+                setVal('form-gen-sexo', data.sexo);
+                setVal('form-gen-fn', data.fn);
+                setVal('form-gen-criadero', data.criadero);
+                setVal('form-gen-dueno', data.dueno);
+
+                if (data.medidas) {
+                    setVal('form-gen-alzada', data.medidas.alzada);
+                    setVal('form-gen-cincha', data.medidas.cincha);
+                    setVal('form-gen-cana', data.medidas.cana);
+                }
+
+                if (data.pedigree) {
+                    setVal('form-gen-padre', data.pedigree.padre);
+                    setVal('form-gen-madre', data.pedigree.madre);
+                    setVal('form-gen-abuelo-paterno', data.pedigree.abueloPaterno);
+                    setVal('form-gen-abuela-paterna', data.pedigree.abuelaPaterna);
+                    setVal('form-gen-abuelo-materno', data.pedigree.abueloMaterno);
+                    setVal('form-gen-abuela-materna', data.pedigree.abuelaMaterna);
+                }
+
+                if (data.foto) {
+                    setVal('form-gen-foto', data.foto);
+                }
+
+                if (statusEl) {
+                    statusEl.innerHTML = `<span style="color:#4caf50; font-weight:800;">✅ Datos de "${data.nombre || cleanSbt}" obtenidos y cargados automáticamente desde Caballo y Rodeo!</span>`;
+                }
+                if (typeof window.showToast === 'function') {
+                    window.showToast(`✨ Datos de ${data.nombre} cargados desde SNA / Caballo y Rodeo.`);
+                }
+            } else {
+                if (statusEl) {
+                    statusEl.innerHTML = `<span style="color:#f44336; font-weight:800;">❌ No se encontró información para el N° SBT ${cleanSbt} en Caballo y Rodeo.</span>`;
+                }
+                alert(`❌ No se encontró el N° SBT ${cleanSbt} en el SNA / Caballo y Rodeo.\n\nVerifica el número o ingresa los datos manualmente.`);
+            }
+        };
+
+        function parseCaballoYRodeoHTML(htmlStr, sbtNum) {
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(htmlStr, 'text/html');
+
+                let nombre = '';
+                const titleEl = doc.querySelector('h1, h2, .titulo, .nombre-caballo, title');
+                if (titleEl) {
+                    nombre = titleEl.textContent.replace(/Genealog[ií]a/gi, '').replace(sbtNum, '').replace(/[-:]/g, '').trim();
+                }
+
+                let color = '', sexo = 'Macho', fn = '', criadero = '', dueno = '';
+                let alzada = '', cincha = '', cana = '';
+                let padre = '', madre = '', abueloPaterno = '', abuelaPaterna = '', abueloMaterno = '', abuelaMaterna = '';
+
+                const tables = doc.querySelectorAll('table');
+                tables.forEach(table => {
+                    const text = table.textContent || '';
+                    if (text.includes('Padre') || text.includes('Madre') || text.includes('Criadero')) {
+                        const rows = table.querySelectorAll('tr');
+                        rows.forEach(r => {
+                            const cells = r.querySelectorAll('td, th');
+                            if (cells.length >= 2) {
+                                const label = cells[0].textContent.trim().toLowerCase();
+                                const val = cells[1].textContent.trim();
+
+                                if (label.includes('nombre')) nombre = val;
+                                else if (label.includes('color') || label.includes('pelaje')) color = val;
+                                else if (label.includes('sexo')) sexo = val.includes('Hembra') || val.includes('Yegua') ? 'Hembra' : (val.includes('Castrado') ? 'Castrado' : 'Macho');
+                                else if (label.includes('nacimiento') || label.includes('fecha')) fn = val;
+                                else if (label.includes('criadero')) criadero = val;
+                                else if (label.includes('propietario') || label.includes('dueño')) dueno = val;
+                                else if (label.includes('alzada')) alzada = val;
+                                else if (label.includes('cincha')) cincha = val;
+                                else if (label.includes('caña') || label.includes('cana')) cana = val;
+                                else if (label.includes('padre')) padre = val;
+                                else if (label.includes('madre')) madre = val;
+                            }
+                        });
+                    }
+                });
+
+                const links = doc.querySelectorAll('a[href*="genealogia/?id="]');
+                if (links.length >= 2) {
+                    if (!padre && links[0]) padre = links[0].textContent.trim();
+                    if (!madre && links[1]) madre = links[1].textContent.trim();
+                    if (links.length >= 6) {
+                        abueloPaterno = links[2] ? links[2].textContent.trim() : '';
+                        abuelaPaterna = links[3] ? links[3].textContent.trim() : '';
+                        abueloMaterno = links[4] ? links[4].textContent.trim() : '';
+                        abuelaMaterna = links[5] ? links[5].textContent.trim() : '';
+                    }
+                }
+
+                let foto = '';
+                const imgEl = doc.querySelector('img[src*="foto"], img[src*="genealogia"], img[src*="caballo"]');
+                if (imgEl) {
+                    let src = imgEl.getAttribute('src');
+                    if (src && !src.startsWith('http')) {
+                        src = 'https://www.caballoyrodeo.cl' + (src.startsWith('/') ? '' : '/') + src;
+                    }
+                    foto = src;
+                }
+
+                if (!nombre && !padre && !madre) return null;
+
+                return {
+                    sbt: sbtNum,
+                    nombre: nombre || `Caballo SBT ${sbtNum}`,
+                    color,
+                    sexo,
+                    fn,
+                    criadero,
+                    dueno,
+                    medidas: { alzada, cincha, cana },
+                    pedigree: { padre, madre, abueloPaterno, abuelaPaterna, abueloMaterno, abuelaMaterna },
+                    foto
+                };
+            } catch(e) {
+                return null;
+            }
+        }
+
+        window.openBulkGenealogiaModal = function() {
+            const inputEl = document.getElementById('form-bulk-sbt-list');
+            if (inputEl) inputEl.value = '';
+            const statusEl = document.getElementById('bulk-sna-status');
+            if (statusEl) statusEl.innerHTML = '';
+            const overlay = document.getElementById('modal-bulk-genealogia-overlay');
+            if (overlay) overlay.classList.add('active');
+        };
+
+        window.closeBulkGenealogiaModal = function() {
+            const overlay = document.getElementById('modal-bulk-genealogia-overlay');
+            if (overlay) overlay.classList.remove('active');
+        };
+
+        window.processBulkSnaFetch = async function() {
+            const inputEl = document.getElementById('form-bulk-sbt-list');
+            const statusEl = document.getElementById('bulk-sna-status');
+            if (!inputEl || !statusEl) return;
+
+            const textVal = inputEl.value.trim();
+            if (!textVal) {
+                alert("Por favor ingresa al menos un número de SBT.");
+                return;
+            }
+
+            const rawTokens = textVal.split(/[\n,;]+/).map(s => s.trim().replace(/[^0-9]/g, '')).filter(Boolean);
+
+            if (rawTokens.length === 0) {
+                alert("No se encontraron números SBT válidos.");
+                return;
+            }
+
+            statusEl.innerHTML = `<div style="color:#ffe082; font-weight:800; margin-bottom:8px;">⏳ Iniciando importación masiva de ${rawTokens.length} caballos...</div>`;
+
+            let successCount = 0;
+
+            for (let i = 0; i < rawTokens.length; i++) {
+                const sbt = rawTokens[i];
+                statusEl.innerHTML = `<div style="color:#ffe082; font-weight:700;">🔍 [${i+1}/${rawTokens.length}] Consultando SBT N° ${sbt}...</div>`;
+
+                let data = null;
+                try {
+                    const res1 = await fetch(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${sbt}`);
+                    if (res1.ok) {
+                        const html = await res1.text();
+                        data = parseCaballoYRodeoHTML(html, sbt);
+                    }
+                } catch(e1) {}
+
+                if (!data) {
+                    try {
+                        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(`https://www.caballoyrodeo.cl/portal_rodeo/extra/port/genealogia/?id=${sbt}`)}`;
+                        const res2 = await fetch(proxyUrl);
+                        if (res2.ok) {
+                            const json = await res2.json();
+                            if (json.contents) data = parseCaballoYRodeoHTML(json.contents, sbt);
+                        }
+                    } catch(e2) {}
+                }
+
+                if (data) {
+                    const genObj = {
+                        id: sbt,
+                        nacional: sbt,
+                        nombre: data.nombre || `Caballo ${sbt}`,
+                        color: data.color || '',
+                        sexo: data.sexo || 'Macho',
+                        fn: data.fn || '',
+                        criadero: data.criadero || '',
+                        dueno: data.dueno || '',
+                        padre: data.pedigree?.padre || '',
+                        madre: data.pedigree?.madre || '',
+                        foto_url: data.foto || '',
+                        medidas: data.medidas || {},
+                        pedigree: data.pedigree || {}
+                    };
+
+                    const existingIdx = filteredGenealogias.findIndex(g => String(g.id) === String(sbt) || String(g.nacional) === String(sbt));
+                    if (existingIdx >= 0) {
+                        filteredGenealogias[existingIdx] = genObj;
+                    } else {
+                        filteredGenealogias.unshift(genObj);
+                    }
+                    successCount++;
+                }
+            }
+
+            genealogiaData = [...filteredGenealogias];
+
+            if (typeof window.syncGenealogiaDataToSupabase === 'function') {
+                try { await window.syncGenealogiaDataToSupabase(); } catch(err) {}
+            }
+
+            renderGenealogiasTable();
+
+            statusEl.innerHTML = `<div style="color:#4caf50; font-weight:800; margin-top:10px;">🎉 Importación finalizada: ${successCount} de ${rawTokens.length} caballos importados con éxito!</div>`;
+            setTimeout(() => { closeBulkGenealogiaModal(); }, 1800);
+        };
+
+        window.exportJSONBackup = function() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                colleras: filteredColleras,
+                genealogias: filteredGenealogias,
+                usuarios: usuariosList,
+                calendario: calendarEvents
+            };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `backup_corral_abierto_${Date.now()}.json`;
+            a.click();
+        };
+
+        window.importJSONBackup = function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(evt) {
+                try {
+                    const data = JSON.parse(evt.target.result);
+                    if (data.colleras) filteredColleras = data.colleras;
+                    if (data.genealogias) filteredGenealogias = data.genealogias;
+                    if (data.usuarios) usuariosList = data.usuarios;
+                    if (data.calendario) calendarEvents = data.calendario;
+                    renderCollerasTable();
+                    renderGenealogiasTable();
+                    renderUsuariosTable();
+                    renderAdminCalendarTable();
+                    alert("¡Backup importado con éxito!");
+                } catch(err) {
+                    alert("Error leyendo archivo JSON");
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        function setupTabListeners() {
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    if (e && e.preventDefault) e.preventDefault();
+                    const targetTabId = this.id.startsWith('btn-') ? this.id.replace('btn-', '') : this.id;
+                    switchAdminTab(targetTabId, this);
+                };
+            });
+        }
+
+        function check2FAStatusAndInit() {
+            const overlay = document.getElementById('2fa-overlay');
+            if (overlay) {
+                overlay.style.display = 'none';
+                overlay.style.pointerEvents = 'none';
+            }
+            initAdminDirect();
+            setupTabListeners();
+        }
+
+        check2FAStatusAndInit();
+
+        document.addEventListener('DOMContentLoaded', function() {
+            check2FAStatusAndInit();
+        });
+        window.addEventListener('load', function() {
+            check2FAStatusAndInit();
+        });
+
+        function limpiarBloqueos() {
+            const lockScreen = document.getElementById('page-lock-screen');
+            if (lockScreen) lockScreen.remove();
+
+            const main = document.querySelector('.main-content');
+            if (main && main.style.display === 'none') {
+                main.style.display = '';
+            }
+        }
+
+        setTimeout(limpiarBloqueos, 100);
+        setTimeout(limpiarBloqueos, 500);
+        setTimeout(limpiarBloqueos, 1000);
+        setTimeout(limpiarBloqueos, 2000);
+    </script>
 </body>
 </html>
