@@ -25,17 +25,13 @@
             top: 0; left: 0; right: 0; bottom: 0;
             z-index: 99999;
             display: none;
-            pointer-events: none !important;
-            visibility: hidden;
-        }
-        .admin-modal-overlay.active {
-            display: flex !important;
-            pointer-events: auto !important;
-            visibility: visible !important;
             align-items: center;
             justify-content: center;
             background: rgba(0, 0, 0, 0.88);
             backdrop-filter: blur(10px);
+        }
+        .admin-modal-overlay.active {
+            display: flex !important;
         }
         .pedigree-card {
             background: rgba(20, 12, 10, 0.7);

@@ -2370,8 +2370,10 @@
         function setupTabListeners() {
             document.querySelectorAll('.admin-tab-btn').forEach(btn => {
                 btn.onclick = function(e) {
-                    const id = this.id.replace('btn-', '');
-                    switchAdminTab(id, this);
+                    if (e && e.preventDefault) e.preventDefault();
+                    // El id del botón es 'btn-tab-rodeos', la pestaña es 'tab-rodeos'
+                    const targetTabId = this.id.startsWith('btn-') ? this.id.replace('btn-', '') : this.id;
+                    switchAdminTab(targetTabId, this);
                 };
             });
         }
