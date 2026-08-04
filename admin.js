@@ -2383,25 +2383,31 @@
             });
         }
 
+        window.addEventListener('error', function(e) {
+            console.warn("Autocapturado error en Admin:", e.message);
+        });
+
         function check2FAStatusAndInit() {
-            const overlay = document.getElementById('2fa-overlay');
-            if (overlay) {
-                overlay.style.display = 'none';
-                overlay.style.pointerEvents = 'none';
+            try {
+                const overlay = document.getElementById('2fa-overlay');
+                if (overlay) {
+                    overlay.style.display = 'none';
+                    overlay.style.pointerEvents = 'none';
+                }
+                initAdminDirect();
+                setupTabListeners();
+            } catch(err) {
+                console.error("Error inicializando admin:", err);
             }
-            initAdminDirect();
-            setupTabListeners();
         }
 
         // Ejecución síncrona inmediata + eventos DOM
-        check2FAStatusAndInit();
-
-        document.addEventListener('DOMContentLoaded', function() {
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', check2FAStatusAndInit);
+        } else {
             check2FAStatusAndInit();
-        });
-        window.addEventListener('load', function() {
-            check2FAStatusAndInit();
-        });
+        }
+        window.addEventListener('load', check2FAStatusAndInit);
 
         // DEFENSA ABSOLUTA: eliminar cualquier pantalla de bloqueo o overlays que no sean del admin
         function limpiarBloqueos() {
