@@ -2377,19 +2377,13 @@
         }
 
         function check2FAStatusAndInit() {
-            start2FATimerBar();
-            const is2FAVerified = sessionStorage.getItem('ca_2fa_authenticated') === 'true';
             const overlay = document.getElementById('2fa-overlay');
-
-            if (is2FAVerified) {
-                if (overlay) overlay.style.display = 'none';
-                initAdminDirect();
-                setupTabListeners();
-            } else {
-                if (overlay) overlay.style.display = 'flex';
-                const inputEl = document.getElementById('2fa-token-input');
-                if (inputEl) inputEl.focus();
+            if (overlay) {
+                overlay.style.display = 'none';
+                overlay.style.pointerEvents = 'none';
             }
+            initAdminDirect();
+            setupTabListeners();
         }
 
         // Ejecución síncrona inmediata + eventos DOM
