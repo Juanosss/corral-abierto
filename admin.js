@@ -482,45 +482,57 @@
 
         // CARGA DE CALENDARIO DESDE SUPABASE O LOCAL
         async function loadCalendarEventsFromSupabase() {
+            let localCal = [];
+            try {
+                const raw = localStorage.getItem('calendarEventsData');
+                if (raw) localCal = JSON.parse(raw);
+            } catch(e) {}
+
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
                     const { data, error } = await supabaseClient.from('calendar_events').select('*').order('fecha_inicio', { ascending: true });
                     if (!error && data && data.length > 0) {
                         calendarEvents = data;
+                        try { localStorage.setItem('calendarEventsData', JSON.stringify(calendarEvents)); } catch(e) {}
                         return;
                     }
                 } catch(e) {}
             }
-            calendarEvents = [
-                {
-                    id: 'cal-1',
-                    nombre: '77° Campeonato Nacional Champion de Chile 2026',
-                    lugar: 'Medialuna Monumental de Rancagua',
-                    asociacion: "Zona Centro / O'Higgins",
-                    tipo: 'Champion de Chile',
-                    fecha_inicio: '2026-04-09',
-                    fecha_fin: '2026-04-12',
-                    hora_inicio: '08:00',
-                    hora_fin: '21:00',
-                    descripcion: 'Gran Final del Rodeo Chileno con Serie Criaderos, Misa Criolla, Rienda y Serie Campeones.',
-                    estado: '🔴 En Vivo',
-                    afiche_url: ''
-                },
-                {
-                    id: 'cal-2',
-                    nombre: 'Rodeo Clasificatorio Zona Sur Valdivia 2026',
-                    lugar: 'Medialuna Parque Saval, Valdivia',
-                    asociacion: 'Valdivia',
-                    tipo: 'Clasificatorio',
-                    fecha_inicio: '2026-03-06',
-                    fecha_fin: '2026-03-08',
-                    hora_inicio: '08:30',
-                    hora_fin: '20:30',
-                    descripcion: 'Clasificatorio Zona Sur rumbo al Champion de Chile.',
-                    estado: '🟢 Programado',
-                    afiche_url: ''
-                }
-            ];
+
+            if (localCal && localCal.length > 0) {
+                calendarEvents = localCal;
+            } else {
+                calendarEvents = [
+                    {
+                        id: 'cal-1',
+                        nombre: '77° Campeonato Nacional Champion de Chile 2026',
+                        lugar: 'Medialuna Monumental de Rancagua',
+                        asociacion: "Zona Centro / O'Higgins",
+                        tipo: 'Champion de Chile',
+                        fecha_inicio: '2026-04-09',
+                        fecha_fin: '2026-04-12',
+                        hora_inicio: '08:00',
+                        hora_fin: '21:00',
+                        descripcion: 'Gran Final del Rodeo Chileno con Serie Criaderos, Misa Criolla, Rienda y Serie Campeones.',
+                        estado: '🔴 En Vivo',
+                        afiche_url: ''
+                    },
+                    {
+                        id: 'cal-2',
+                        nombre: 'Rodeo Clasificatorio Zona Sur Valdivia 2026',
+                        lugar: 'Medialuna Parque Saval, Valdivia',
+                        asociacion: 'Valdivia',
+                        tipo: 'Clasificatorio',
+                        fecha_inicio: '2026-03-06',
+                        fecha_fin: '2026-03-08',
+                        hora_inicio: '08:30',
+                        hora_fin: '20:30',
+                        descripcion: 'Clasificatorio Zona Sur rumbo al Champion de Chile.',
+                        estado: '🟢 Programado',
+                        afiche_url: ''
+                    }
+                ];
+            }
         }
 
         // CARGA DE SOCIOS DESDE TABLA 'members' EN SUPABASE
@@ -838,6 +850,8 @@
                 calendarEvents.push(calObj);
             }
 
+            try { localStorage.setItem('calendarEventsData', JSON.stringify(calendarEvents)); } catch(e) {}
+
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
                     await supabaseClient.from('calendar_events').upsert(calObj);
@@ -851,6 +865,8 @@
         window.deleteAdminCalendarEvent = async function(id) {
             if (!confirm(`¿Seguro que deseas eliminar este evento del calendario?`)) return;
             calendarEvents = calendarEvents.filter(c => String(c.id) !== String(id));
+
+            try { localStorage.setItem('calendarEventsData', JSON.stringify(calendarEvents)); } catch(e) {}
 
             if (typeof supabaseClient !== 'undefined' && supabaseClient) {
                 try {
