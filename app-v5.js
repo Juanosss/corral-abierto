@@ -737,6 +737,17 @@ async function initRodeoData() {
             } else {
                 loadBackupLocalRodeoData();
             }
+
+            // Sincronizar el estado del liveState (almacenado en logo_url de la tabla rodeos)
+            const { data: rodeoRecord } = await supabaseClient.from('rodeos').select('*').eq('id', activeRodeoId).single();
+            if (rodeoRecord && rodeoRecord.logo_url) {
+                try {
+                    const parsedState = JSON.parse(rodeoRecord.logo_url);
+                    if (parsedState && parsedState.estado) {
+                        localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(parsedState));
+                    }
+                } catch(e) {}
+            }
         } catch(err) {
             console.error("Error al cargar colleras de Supabase:", err);
             loadBackupLocalRodeoData();
@@ -774,15 +785,40 @@ function renderLiveDashboard(data) {
         liveState = JSON.parse(localStorage.getItem(`liveState_${activeRodeoId}`));
     } catch(e) {}
 
+    const liveStatusPill = document.querySelector('.live-status-pill');
+    
     // SI EL EVENTO HA FINALIZADO O NO TIENE TRANSMISIÓN ACTIVA
     if (liveState && liveState.estado === 'finalizado') {
         if (envivoSection) {
-            envivoSection.style.display = 'none';
+            envivoSection.style.display = 'block';
         }
-        return;
+        if (liveStatusPill) {
+            liveStatusPill.innerHTML = `<span style="width:8px; height:8px; background:#ef5350; border-radius:50%; display:inline-block;"></span><span>RODEO FINALIZADO</span>`;
+            liveStatusPill.style.background = 'rgba(239,83,80,0.15)';
+            liveStatusPill.style.border = '1px solid rgba(239,83,80,0.4)';
+            liveStatusPill.style.color = '#ef9a9a';
+        }
+        const toroTagEl = document.getElementById('live-toro-tag');
+        if (toroTagEl) toroTagEl.textContent = 'Serie Finalizada — Ver Resultados Abajo';
+    } else if (liveState && liveState.estado === 'pausado') {
+        if (envivoSection) {
+            envivoSection.style.display = 'block';
+        }
+        if (liveStatusPill) {
+            liveStatusPill.innerHTML = `<span style="width:8px; height:8px; background:#ffb74d; border-radius:50%; display:inline-block;"></span><span>TRANSMISIÓN EN PAUSA</span>`;
+            liveStatusPill.style.background = 'rgba(255,183,77,0.15)';
+            liveStatusPill.style.border = '1px solid rgba(255,183,77,0.4)';
+            liveStatusPill.style.color = '#ffe082';
+        }
     } else {
         if (envivoSection) {
             envivoSection.style.display = 'block';
+        }
+        if (liveStatusPill) {
+            liveStatusPill.innerHTML = `<span class="live-dot-pulsing"></span><span>EN VIVO EN CANCHA</span>`;
+            liveStatusPill.style.background = '';
+            liveStatusPill.style.border = '';
+            liveStatusPill.style.color = '';
         }
     }
 
@@ -833,11 +869,19 @@ function renderLiveDashboard(data) {
     const carreraBadgeEl = document.getElementById('live-carrera-pts-badge');
 
     if (scoreNumEl) {
-        const acumPrevio = currentCollera.sub2 || currentCollera.sub1 || currentCollera.animal1 || 0;
+        // Calcular la suma real de toros anteriores ya completados (animal1, animal2, animal3, animal4)
+        let acumPrevio = 0;
+        [currentCollera.animal1, currentCollera.animal2, currentCollera.animal3, currentCollera.animal4].forEach(val => {
+            if (val !== undefined && val !== null && val !== '' && val !== 'X') {
+                const n = typeof val === 'number' ? val : parseFloat(val);
+                if (!isNaN(n)) acumPrevio += n;
+            }
+        });
+
         const details = liveState?.runDetails;
         const ptsCarrera = details && typeof details.totalToro === 'number' ? details.totalToro : 0;
 
-        const totalAcumulado = (typeof acumPrevio === 'number' ? acumPrevio : 0) + ptsCarrera;
+        const totalAcumulado = acumPrevio + ptsCarrera;
         scoreNumEl.textContent = totalAcumulado >= 0 ? `+${totalAcumulado}` : totalAcumulado;
 
         if (scoreLblEl) {
@@ -854,10 +898,44 @@ function renderLiveDashboard(data) {
         }
     }
 
-    // Próxima Collera
+    // Próximas colleras (Se prepara, Puerta, Al aguaite)
+    let puertaCollera = null;
+    let aguaiteCollera = null;
+
+    if (currentCollera && data && data.length > 0) {
+        const currIdx = data.findIndex(c => c.n === currentCollera.n);
+        if (currIdx !== -1) {
+            nextCollera = data[currIdx + 1] || null;
+            puertaCollera = data[currIdx + 2] || null;
+            aguaiteCollera = data[currIdx + 3] || null;
+        }
+    }
+
     const proximaEl = document.getElementById('live-proxima-txt');
-    if (proximaEl && nextCollera) {
-        proximaEl.textContent = `#${nextCollera.n} ${nextCollera.jinetes[0]} & ${nextCollera.jinetes[1]} (${nextCollera.caballos[0]} & ${nextCollera.caballos[1]}) — ${nextCollera.asociacion}`;
+    if (proximaEl) {
+        if (nextCollera) {
+            proximaEl.textContent = `#${nextCollera.n} ${nextCollera.jinetes[0]} & ${nextCollera.jinetes[1]} (${nextCollera.caballos[0]} & ${nextCollera.caballos[1]})`;
+        } else {
+            proximaEl.textContent = 'Fin de la serie / Sin colleras pendientes';
+        }
+    }
+
+    const puertaEl = document.getElementById('live-puerta-txt');
+    if (puertaEl) {
+        if (puertaCollera) {
+            puertaEl.textContent = `#${puertaCollera.n} ${puertaCollera.jinetes[0]} & ${puertaCollera.jinetes[1]} (${puertaCollera.caballos[0]} & ${puertaCollera.caballos[1]})`;
+        } else {
+            puertaEl.textContent = '--';
+        }
+    }
+
+    const aguaiteEl = document.getElementById('live-aguaite-txt');
+    if (aguaiteEl) {
+        if (aguaiteCollera) {
+            aguaiteEl.textContent = `#${aguaiteCollera.n} ${aguaiteCollera.jinetes[0]} & ${aguaiteCollera.jinetes[1]} (${aguaiteCollera.caballos[0]} & ${aguaiteCollera.caballos[1]})`;
+        } else {
+            aguaiteEl.textContent = '--';
+        }
     }
 
     // Marcador Visual de Atajadas en Vivo (Live Run Grid - Estilo Tarjetas Genealogía)
@@ -931,6 +1009,18 @@ window.toggleYouTubeStream = function() {
     }
 };
 
+// Toggle Desplegable para Próximas Colleras (Puerta / Al aguaite)
+window.toggleProximaColleras = function() {
+    const details = document.getElementById('live-proxima-details');
+    const icon = document.getElementById('proxima-chevron-icon');
+    if (!details) return;
+    const isHidden = details.style.display === 'none' || details.style.display === '';
+    details.style.display = isHidden ? 'flex' : 'none';
+    if (icon) {
+        icon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+};
+
 // Función centralizada para actualizar la pantalla del espectador en tiempo real
 function triggerSpectatorLiveUpdate() {
     const activeRodeoId = getActiveRodeoIdFromURL();
@@ -962,14 +1052,17 @@ function subscribeSupabaseRealtime() {
             })
             .on('postgres_changes', { event: '*', schema: 'public', table: 'rodeos' }, async (payload) => {
                 console.log('⚡ Actualización en tiempo real recibida para rodeos:', payload);
-                if (payload.new && payload.new.id === activeRodeoId && payload.new.logo_url) {
-                    try {
-                        const state = JSON.parse(payload.new.logo_url);
-                        if (state) {
-                            localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(state));
-                            triggerSpectatorLiveUpdate();
-                        }
-                    } catch(e) {}
+                if (payload.new && payload.new.id === activeRodeoId) {
+                    if (payload.new.logo_url) {
+                        try {
+                            const state = JSON.parse(payload.new.logo_url);
+                            if (state && typeof state === 'object') {
+                                localStorage.setItem(`liveState_${activeRodeoId}`, JSON.stringify(state));
+                            }
+                        } catch(e) {}
+                    }
+                    await initRodeoData();
+                    triggerSpectatorLiveUpdate();
                 }
             })
             .subscribe();
@@ -1169,7 +1262,7 @@ if (supabaseClient) {
 // Inicializar interfaz y verificar permisos al cargar la página
 document.addEventListener('DOMContentLoaded', async () => {
     // Si estamos en la página de administración, no ejecutar lógica de inicialización pública
-    if (window.location.pathname.includes('admin.html')) return;
+    if (window.location.pathname.includes('admin') || window.location.href.includes('admin')) return;
 
     // Guardar activamente el rodeo detectado en sessionStorage para consistencia en la raíz
     const activeRodeoId = getActiveRodeoIdFromURL();
@@ -1483,7 +1576,9 @@ async function checkPageAccess() {
     const page = path.substring(path.lastIndexOf('/') + 1);
 
     // Permitir index.html y admin.html libremente (admin tiene su propia clave)
-    if (page === '' || page === 'index.html' || page === 'admin.html') {
+    // Verificar también href completo para cubrir cualquier variante de ruta
+    if (page === '' || page === 'index.html' || page === 'admin.html' ||
+        path.includes('admin') || window.location.href.includes('admin')) {
         return;
     }
 

@@ -98,9 +98,24 @@
                             </div>
                         </div>
 
-                        <div class="live-proxima-bar">
-                            <span class="live-proxima-label">PRÓXIMA COLLERA EN TURNO:</span>
-                            <span id="live-proxima-txt" class="live-proxima-data">Cargando próxima collera...</span>
+                        <div class="live-proxima-bar-container">
+                            <div class="live-proxima-header" onclick="toggleProximaColleras()" style="cursor: pointer;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span class="live-proxima-label">SE PREPARA:</span>
+                                    <span id="live-proxima-txt" class="live-proxima-data">Cargando próxima collera...</span>
+                                </div>
+                                <span id="proxima-chevron-icon" style="transition: transform 0.3s ease; font-size: 0.85rem; color: #ffab91;">▼</span>
+                            </div>
+                            <div id="live-proxima-details" class="live-proxima-details" style="display: none;">
+                                <div class="live-proxima-row">
+                                    <span class="proxima-tag puerta-tag">PUERTA:</span>
+                                    <span id="live-puerta-txt" class="proxima-val">--</span>
+                                </div>
+                                <div class="live-proxima-row">
+                                    <span class="proxima-tag aguaite-tag">AL AGUAITE:</span>
+                                    <span id="live-aguaite-txt" class="proxima-val">--</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
