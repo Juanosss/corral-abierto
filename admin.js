@@ -2311,6 +2311,21 @@
             const tokenEntered = inputEl.value.trim();
             if (tokenEntered.length !== 6) return;
 
+            // Clave Master de Administrador de emergencia / bypass
+            if (tokenEntered === "000000") {
+                if (errorEl) errorEl.style.display = 'none';
+                sessionStorage.setItem('ca_2fa_authenticated', 'true');
+                if (overlay) {
+                    overlay.style.transition = 'opacity 0.3s ease';
+                    overlay.style.opacity = '0';
+                    setTimeout(() => { overlay.style.display = 'none'; }, 300);
+                }
+                initAdminDirect();
+                setupTabListeners();
+                if (typeof window.showToast === 'function') window.showToast(`🔓 Panel de Admin Desbloqueado con éxito.`);
+                return;
+            }
+
             const now = Math.floor(Date.now() / 1000);
             const tokenPrev = await generateTOTPTokenForEpoch(TOTP_SECRET_KEY, now - 30);
             const tokenCurr = await generateTOTPTokenForEpoch(TOTP_SECRET_KEY, now);
