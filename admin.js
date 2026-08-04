@@ -1456,6 +1456,11 @@
         };
 
         window.lookupHorseBySBT = async function() {
+        };
+        window.consultarRegistroSNAOnline = function() {
+            return window.lookupHorseBySBT();
+        };
+        window.lookupHorseBySBT = async function() {
             const sbtInput = document.getElementById('form-gen-sbt');
             if (!sbtInput) return;
 
