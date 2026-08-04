@@ -2250,15 +2250,6 @@ window.adminLogout = function() {
     window.location.reload();
 };
 
-// Asignación directa de listeners a las pestañas
-function setupTabListeners() {
-    document.querySelectorAll('.admin-tab-btn').forEach(btn => {
-        btn.onclick = function(e) {
-            const id = this.id.replace('btn-', '');
-            switchAdminTab(id, this);
-        };
-    });
-}
 // ================================================================
 // SISTEMA DE AUTENTICACIÓN 2FA DINÁMICA (TOTP 30 SEG)
 // ================================================================
