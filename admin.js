@@ -2295,7 +2295,39 @@ if (document.readyState === 'loading') {
 }
 window.addEventListener('load', check2FAStatusAndInit);
 
-// DEFENSA ABSOLUTA: eliminar cualquier pantalla de bloqueo o overlays que no sean del admin
+// BOTÓN DE EMERGENCIA Y REPARACIÓN FORZADA
+window.forzarDesbloqueoAdmin = function() {
+    console.log("⚡ Ejecutando Desbloqueo y RE-Inicialización de Emergencia...");
+    
+    // 1. Eliminar pantallas de bloqueo flotantes
+    const lockScreen = document.getElementById('page-lock-screen');
+    if (lockScreen) lockScreen.remove();
+
+    const overlay2fa = document.getElementById('2fa-overlay');
+    if (overlay2fa) {
+        overlay2fa.style.display = 'none';
+        overlay2fa.style.pointerEvents = 'none';
+    }
+
+    // 2. Restaurar visibilidad del contenedor principal
+    const main = document.querySelector('.main-content');
+    if (main) main.style.display = 'block';
+
+    const dash = document.getElementById('admin-dashboard');
+    if (dash) dash.style.display = 'block';
+
+    // 3. Forzar activación de la primera pestaña
+    switchAdminTab('tab-rodeos');
+
+    // 4. Re-inicializar datos y listeners
+    check2FAStatusAndInit();
+
+    // 5. Cerrar cualquier overlay de modal abierto
+    document.querySelectorAll('.admin-modal-overlay').forEach(el => el.classList.remove('active'));
+
+    alert("✅ Panel de Admin Reparado y Recargado con éxito.");
+};
+
 function limpiarBloqueos() {
     // Eliminar pantalla de bloqueo de socios si existe
     const lockScreen = document.getElementById('page-lock-screen');
