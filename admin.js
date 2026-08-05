@@ -18,14 +18,21 @@ let colleraHorseTimer = {};
 
 // CAMBIADOR DE PESTAÑAS 100% GARANTIZADO
 window.switchAdminTab = function(tabId, btnElement) {
+    console.log("Cambiando pestaña a:", tabId);
     const tabs = document.querySelectorAll('.admin-tab-content');
     const btns = document.querySelectorAll('.admin-tab-btn');
     
-    tabs.forEach(t => t.classList.remove('active'));
+    tabs.forEach(t => {
+        t.classList.remove('active');
+        t.style.display = 'none';
+    });
     btns.forEach(b => b.classList.remove('active'));
 
     const targetTab = document.getElementById(tabId);
-    if (targetTab) targetTab.classList.add('active');
+    if (targetTab) {
+        targetTab.classList.add('active');
+        targetTab.style.display = 'block';
+    }
 
     if (btnElement) {
         btnElement.classList.add('active');
