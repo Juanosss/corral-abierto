@@ -2408,11 +2408,11 @@ function check2FAStatusAndInit() {
     }
 }
 
-// Ejecución síncrona inmediata + eventos DOM
+// Ejecución síncrona inmediata sin esperas
+check2FAStatusAndInit();
+
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', check2FAStatusAndInit);
-} else {
-    check2FAStatusAndInit();
 }
 window.addEventListener('load', check2FAStatusAndInit);
 
