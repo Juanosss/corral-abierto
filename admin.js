@@ -756,46 +756,49 @@ window.goToHorseInGenealogia = function(horseName) {
     const tabBtn = document.getElementById('btn-tab-genealogias');
     switchAdminTab('tab-genealogias', tabBtn);
 
-    // 2. Colocar el nombre en el buscador de la tabla
+    // 2. Colocar el nombre en el buscador de la tabla y filtrar
     const searchInput = document.getElementById('genealogia-quick-search') || document.getElementById('genealogia-search');
     if (searchInput) {
         searchInput.value = targetRaw;
     }
-
-    // 3. Renderizar la tabla con el filtro aplicado
     filterGenealogiasTable(targetRaw);
 
-    // 4. Si el filtro de tabla deja filas, destacar y hacer scroll
-    const highlightAndScroll = () => {
-        const rows = document.querySelectorAll('#genealogias-tbody tr');
-        let matchedRow = null;
+    // 3. Buscar el objeto del caballo en el listado de genealogías
+    const foundHorse = (filteredGenealogias || []).find(g => {
+        const n = (g.nombre || '').toLowerCase().trim();
+        const sbt = (g.nacional || '').replace(/[^0-9]/g, '');
+        const targetClean = targetName.replace(/[^0-9]/g, '');
+        return n.includes(targetName) || targetName.includes(n) || (targetClean && sbt === targetClean);
+    });
 
+    if (foundHorse) {
+        // Abrir directamente la Ficha / Editar del Caballo de frente
+        const safeId = String(foundHorse.id || (foundHorse.nacional || '').replace(/[^0-9]/g, '') || foundHorse.nombre);
+        editGenealogia(safeId);
+        if (typeof window.showToast === 'function') {
+            window.showToast(`🐴 Abriendo Ficha de Morfología: ${foundHorse.nombre}`, 'info');
+        }
+    } else {
+        // Si no está registrado en la BD local, abrir el modal de nuevo caballo con el nombre cargado
+        openGenealogiaModal();
+        const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+        setVal('form-gen-nombre', targetRaw);
+        setVal('form-gen-sbt', targetRaw);
+        const statusEl = document.getElementById('sbt-lookup-status');
+        if (statusEl) statusEl.innerHTML = `<span style="color:#ffab91; font-weight:700;">🐴 Presiona "Consultar SNA" para extraer los datos de "${targetRaw}".</span>`;
+    }
+
+    // 4. Asegurar scroll a la tabla también
+    setTimeout(() => {
+        const rows = document.querySelectorAll('#genealogias-tbody tr');
         rows.forEach(r => {
-            r.classList.remove('row-highlight-horse');
             const hName = (r.getAttribute('data-horse-name') || '').toLowerCase();
-            const hSbt = (r.getAttribute('data-horse-sbt') || '').toLowerCase();
-            const rText = (r.innerText || '').toLowerCase();
-            if (hName.includes(targetName) || targetName.includes(hName) || (hSbt && targetName.includes(hSbt)) || rText.includes(targetName)) {
-                matchedRow = r;
+            if (hName.includes(targetName) || targetName.includes(hName)) {
+                r.classList.add('row-highlight-horse');
+                r.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
         });
-
-        if (matchedRow) {
-            matchedRow.classList.add('row-highlight-horse');
-            matchedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        } else {
-            // Si el caballo no está en la base de datos local de genealogías, abrir modal para registrarlo o consultarlo en el SNA directamente con su nombre prediligenciado
-            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-            setVal('form-gen-nombre', targetRaw);
-            const statusEl = document.getElementById('sbt-lookup-status');
-            if (statusEl) statusEl.innerHTML = `<span style="color:#ffab91; font-weight:700;">🐴 Nombre "${targetRaw}" listo para consultar o registrar.</span>`;
-            if (typeof window.openGenealogiaModal === 'function') {
-                window.openGenealogiaModal();
-            }
-        }
-    };
-
-    setTimeout(highlightAndScroll, 100);
+    }, 100);
 };
 
 window.filterGenealogiasTable = function(query) {
