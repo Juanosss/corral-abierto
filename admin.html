@@ -222,6 +222,15 @@
             cursor: pointer !important;
             pointer-events: auto !important;
         }
+        @keyframes highlightOrangePulse {
+            0% { background-color: rgba(255, 87, 34, 0.45); box-shadow: inset 4px 0 0 #ff5722, 0 0 15px rgba(255, 87, 34, 0.4); }
+            50% { background-color: rgba(255, 87, 34, 0.25); box-shadow: inset 4px 0 0 #ff5722; }
+            100% { background-color: rgba(255, 87, 34, 0.08); box-shadow: inset 3px 0 0 #ff5722; }
+        }
+        .row-highlight-horse {
+            animation: highlightOrangePulse 1.2s ease-in-out forwards;
+            border-left: 4px solid #ff5722 !important;
+        }
     </style>
 </head>
 <body style="background-color: #140c0a; color: #ffffff;">
@@ -1054,7 +1063,7 @@
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app-v5.js?v=15.0"></script>
-    <script src="admin.js?v=15.0"></script>
+    <script src="app-v5.js?v=16.0"></script>
+    <script src="admin.js?v=16.0"></script>
 </body>
 </html>

@@ -676,13 +676,23 @@ function renderCollerasTable() {
     if (!tbody) return;
     tbody.innerHTML = (filteredColleras || []).map(c => {
         const jinetesStr = Array.isArray(c.jinetes) ? c.jinetes.join(' / ') : (c.jinetes || '--');
-        const caballosStr = Array.isArray(c.caballos) ? c.caballos.join(' / ') : (c.caballos || '--');
+        let caballosHtml = '--';
+        if (Array.isArray(c.caballos) && c.caballos.length > 0) {
+            caballosHtml = c.caballos.map(h => {
+                const name = String(h).trim();
+                return `<a href="javascript:void(0)" onclick="window.goToHorseInGenealogia('${name.replace(/'/g, "\\'")}')" style="color: #ffab91; text-decoration: underline; font-weight: 700; cursor: pointer;" title="Ver en Genealogía & Morfología">🐴 ${name}</a>`;
+            }).join(' / ');
+        } else if (c.caballos) {
+            const name = String(c.caballos).trim();
+            caballosHtml = `<a href="javascript:void(0)" onclick="window.goToHorseInGenealogia('${name.replace(/'/g, "\\'")}')" style="color: #ffab91; text-decoration: underline; font-weight: 700; cursor: pointer;" title="Ver en Genealogía & Morfología">🐴 ${name}</a>`;
+        }
+
         return `
             <tr>
                 <td><strong>${c.n || '--'}</strong></td>
                 <td>${c.asociacion || '--'} ${c.criadero ? `<br><small style="color:#ffab91;">CRIADERO: ${c.criadero}</small>` : ''}</td>
                 <td>${jinetesStr}</td>
-                <td><strong>${caballosStr}</strong></td>
+                <td><strong>${caballosHtml}</strong></td>
                 <td>${c.animal1 !== undefined ? c.animal1 : '--'}</td>
                 <td>${c.animal2 || '--'}</td>
                 <td>${c.animal3 || '--'}</td>
@@ -711,8 +721,10 @@ function renderGenealogiasTable(dataToRender) {
     }
     tbody.innerHTML = list.map(g => {
         const safeId = String(g.id || (g.nacional || '').replace(/[^0-9]/g, '') || g.nombre);
+        const nameAttr = String(g.nombre || '').toLowerCase().trim();
+        const sbtAttr = String(g.nacional || '').toLowerCase().trim();
         return `
-            <tr>
+            <tr id="genealogia-row-${safeId}" data-horse-name="${nameAttr}" data-horse-sbt="${sbtAttr}">
                 <td><code style="color:#d4af37; font-weight:800;">${g.nacional || 'SBT Pendiente'}</code></td>
                 <td><strong>${g.nombre || '--'}</strong> ${g.color ? `<br><small style="color:#bcaaa4;">${g.color}</small>` : ''}</td>
                 <td>${g.criadero || '--'} ${g.dueno ? `<br><small style="color:#ffab91;">Criador: ${g.dueno}</small>` : ''}</td>
@@ -728,6 +740,46 @@ function renderGenealogiasTable(dataToRender) {
         `;
     }).join('');
 }
+
+window.goToHorseInGenealogia = function(horseName) {
+    if (!horseName) return;
+    const targetName = String(horseName).trim().toLowerCase();
+
+    // 1. Cambiar a la pestaña de Genealogía & Morfología
+    const tabBtn = document.getElementById('btn-tab-genealogias');
+    switchAdminTab('tab-genealogias', tabBtn);
+
+    // 2. Colocar el nombre en el buscador de la tabla
+    const searchInput = document.getElementById('genealogia-search');
+    if (searchInput) {
+        searchInput.value = horseName;
+    }
+    filterGenealogiasTable(horseName);
+
+    // 3. Buscar y destacar la fila coincidente
+    setTimeout(() => {
+        const rows = document.querySelectorAll('#genealogias-tbody tr');
+        let matchedRow = null;
+
+        rows.forEach(r => {
+            r.classList.remove('row-highlight-horse');
+            const hName = (r.getAttribute('data-horse-name') || '').toLowerCase();
+            const hSbt = (r.getAttribute('data-horse-sbt') || '').toLowerCase();
+            if (hName.includes(targetName) || targetName.includes(hName) || (hSbt && targetName.includes(hSbt))) {
+                matchedRow = r;
+            }
+        });
+
+        if (matchedRow) {
+            matchedRow.classList.add('row-highlight-horse');
+            matchedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            if (typeof window.showToast === 'function') {
+                window.showToast(`🔍 Mostrando resultados para "${horseName}"`, 'info');
+            }
+        }
+    }, 150);
+};
 
 window.filterGenealogiasTable = function(query) {
     const q = (query || '').trim().toLowerCase();
