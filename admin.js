@@ -779,12 +779,15 @@ window.goToHorseInGenealogia = function(horseName) {
             window.showToast(`🐴 Abriendo Ficha de Morfología: ${foundHorse.nombre}`, 'info');
         }
     } else {
-        // Si no está registrado en la BD local, abrir el modal de nuevo caballo y ejecutar la consulta directa al SNA / Caballo y Rodeo
+        // Si no está registrado en la BD local, abrir el modal de nuevo caballo precompletado
         openGenealogiaModal();
         const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
         setVal('form-gen-sbt', targetRaw);
         setVal('form-gen-nombre', targetRaw);
-        if (typeof window.lookupHorseBySBT === 'function') {
+        const statusEl = document.getElementById('sbt-lookup-status');
+        if (statusEl) statusEl.innerHTML = `<span style="color:#ffab91; font-weight:700;">🐴 Ingresa el N° SBT oficial de "${targetRaw}" o presiona "Consultar SNA".</span>`;
+        const hasNumber = /\d{4,}/.test(targetRaw);
+        if (hasNumber && typeof window.lookupHorseBySBT === 'function') {
             window.lookupHorseBySBT();
         }
     }
