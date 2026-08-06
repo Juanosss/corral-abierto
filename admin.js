@@ -756,14 +756,16 @@ window.goToHorseInGenealogia = function(horseName) {
     switchAdminTab('tab-genealogias', tabBtn);
 
     // 2. Colocar el nombre en el buscador de la tabla
-    const searchInput = document.getElementById('genealogia-search');
+    const searchInput = document.getElementById('genealogia-quick-search') || document.getElementById('genealogia-search');
     if (searchInput) {
         searchInput.value = horseName;
     }
+
+    // 3. Renderizar la tabla con el filtro aplicado
     filterGenealogiasTable(horseName);
 
-    // 3. Buscar y destacar la fila coincidente
-    setTimeout(() => {
+    // 4. Buscar y destacar la fila coincidente (probar inmediato y con delay por render)
+    const highlightAndScroll = () => {
         const rows = document.querySelectorAll('#genealogias-tbody tr');
         let matchedRow = null;
 
@@ -771,7 +773,8 @@ window.goToHorseInGenealogia = function(horseName) {
             r.classList.remove('row-highlight-horse');
             const hName = (r.getAttribute('data-horse-name') || '').toLowerCase();
             const hSbt = (r.getAttribute('data-horse-sbt') || '').toLowerCase();
-            if (hName.includes(targetName) || targetName.includes(hName) || (hSbt && targetName.includes(hSbt))) {
+            const rText = (r.innerText || '').toLowerCase();
+            if (hName.includes(targetName) || targetName.includes(hName) || (hSbt && targetName.includes(hSbt)) || rText.includes(targetName)) {
                 matchedRow = r;
             }
         });
@@ -779,12 +782,11 @@ window.goToHorseInGenealogia = function(horseName) {
         if (matchedRow) {
             matchedRow.classList.add('row-highlight-horse');
             matchedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        } else {
-            if (typeof window.showToast === 'function') {
-                window.showToast(`🔍 Mostrando resultados para "${horseName}"`, 'info');
-            }
         }
-    }, 150);
+    };
+
+    setTimeout(highlightAndScroll, 50);
+    setTimeout(highlightAndScroll, 200);
 };
 
 window.filterGenealogiasTable = function(query) {
