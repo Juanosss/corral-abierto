@@ -1807,8 +1807,16 @@ window.deleteGenealogia = async function(idOrSbt) {
     window.showToast(`🗑️ Caballo "${horse.nombre}" eliminado correctamente.`, 'success');
 };
 
-window.openBulkGenealogiaModal = function() { document.getElementById('modal-bulk-genealogia-overlay').classList.add('active'); };
-window.closeBulkGenealogiaModal = function() { document.getElementById('modal-bulk-genealogia-overlay').classList.remove('active'); };
+window.openBulkGenealogiaModal = function() { 
+    const el = document.getElementById('bulk-sbt-input');
+    if (el) el.value = '';
+    const modal = document.getElementById('modal-bulk-genealogia-overlay');
+    if (modal) modal.classList.add('active'); 
+};
+window.closeBulkGenealogiaModal = function() { 
+    const modal = document.getElementById('modal-bulk-genealogia-overlay');
+    if (modal) modal.classList.remove('active'); 
+};
 
 // AUTO-CÁLCULO: TOTAL Y LUGAR
 window.recalcColleraScore = function() {
