@@ -855,12 +855,20 @@ window.openAdminCalendarModal = function() {
     const titleEl = document.getElementById('modal-cal-title');
     if (titleEl) titleEl.innerText = "Agregar Evento al Calendario";
     const overlay = document.getElementById('modal-cal-event-overlay');
-    if (overlay) overlay.classList.add('active');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.style.opacity = '1';
+        overlay.style.pointerEvents = 'auto';
+        overlay.classList.add('active');
+    }
 };
 
 window.closeAdminCalendarModal = function() {
     const overlay = document.getElementById('modal-cal-event-overlay');
-    if (overlay) overlay.classList.remove('active');
+    if (overlay) {
+        overlay.style.display = 'none';
+        overlay.classList.remove('active');
+    }
 };
 
 window.editAdminCalendarEvent = function(id) {
@@ -990,11 +998,13 @@ window.openUsuarioModal = function() {
     document.getElementById('form-user-telefono').value = '';
     document.getElementById('form-user-active').value = 'true';
     document.getElementById('modal-usuario-title').innerText = "Agregar Nuevo Socio";
-    document.getElementById('modal-usuario-overlay').classList.add('active');
+    const modal = document.getElementById('modal-usuario-overlay');
+    if (modal) { modal.style.display = 'flex'; modal.style.opacity = '1'; modal.style.pointerEvents = 'auto'; modal.classList.add('active'); }
 };
 
 window.closeUsuarioModal = function() {
-    document.getElementById('modal-usuario-overlay').classList.remove('active');
+    const modal = document.getElementById('modal-usuario-overlay');
+    if (modal) { modal.style.display = 'none'; modal.classList.remove('active'); }
 };
 
 window.editUsuario = function(email) {
@@ -1657,9 +1667,13 @@ window.openRodeoModal = function(isEdit = false) {
         if (previewWrap) previewWrap.style.display = 'none';
         document.getElementById('rodeo-modal-title').innerText = "➕ Agregar Nuevo Rodeo";
     }
-    document.getElementById('modal-rodeo-overlay').classList.add('active');
+    const modal = document.getElementById('modal-rodeo-overlay');
+    if (modal) { modal.style.display = 'flex'; modal.style.opacity = '1'; modal.style.pointerEvents = 'auto'; modal.classList.add('active'); }
 };
-window.closeRodeoModal = function() { document.getElementById('modal-rodeo-overlay').classList.remove('active'); };
+window.closeRodeoModal = function() { 
+    const modal = document.getElementById('modal-rodeo-overlay');
+    if (modal) { modal.style.display = 'none'; modal.classList.remove('active'); }
+};
 
 window.editCollera = function(colleraNum) {
     const collera = (filteredColleras || []).find(c => parseInt(c.n) === parseInt(colleraNum));
@@ -1685,7 +1699,6 @@ window.editCollera = function(colleraNum) {
     setVal('form-toro2', collera.animal2 || '');
     setVal('form-toro3', collera.animal3 || '');
     setVal('form-toro4', collera.animal4 || '');
-    // Recalculate automatically; readonly fields update via recalcColleraScore
     setTimeout(recalcColleraScore, 0);
 
     const s1 = document.getElementById('collera-horse1-status');
@@ -1696,7 +1709,8 @@ window.editCollera = function(colleraNum) {
     const titleEl = document.getElementById('modal-collera-title');
     if (titleEl) titleEl.innerText = `✏️ Editar Collera N° ${collera.n}`;
 
-    document.getElementById('modal-collera-overlay').classList.add('active');
+    const modal = document.getElementById('modal-collera-overlay');
+    if (modal) { modal.style.display = 'flex'; modal.style.opacity = '1'; modal.style.pointerEvents = 'auto'; modal.classList.add('active'); }
 };
 
 window.openColleraModal = function() {
@@ -1729,9 +1743,13 @@ window.openColleraModal = function() {
     const titleEl = document.getElementById('modal-collera-title');
     if (titleEl) titleEl.innerText = "➕ Agregar Nueva Collera";
 
-    document.getElementById('modal-collera-overlay').classList.add('active');
+    const modal = document.getElementById('modal-collera-overlay');
+    if (modal) { modal.style.display = 'flex'; modal.style.opacity = '1'; modal.style.pointerEvents = 'auto'; modal.classList.add('active'); }
 };
-window.closeColleraModal = function() { document.getElementById('modal-collera-overlay').classList.remove('active'); };
+window.closeColleraModal = function() { 
+    const modal = document.getElementById('modal-collera-overlay');
+    if (modal) { modal.style.display = 'none'; modal.classList.remove('active'); }
+};
 
 window.openGenealogiaModal = function() {
     currentExtractedPedigree = null;
@@ -1762,11 +1780,13 @@ window.openGenealogiaModal = function() {
     const statusEl = document.getElementById('sbt-lookup-status');
     if (statusEl) statusEl.innerText = "Ingresa el número de registro para sincronizar automáticamente el pedigree oficial de Caballo y Rodeo.";
 
-    document.getElementById('modal-genealogia-overlay').classList.add('active');
+    const modal = document.getElementById('modal-genealogia-overlay');
+    if (modal) { modal.style.display = 'flex'; modal.style.opacity = '1'; modal.style.pointerEvents = 'auto'; modal.classList.add('active'); }
 };
 window.closeGenealogiaModal = function() { 
     currentExtractedPedigree = null;
-    document.getElementById('modal-genealogia-overlay').classList.remove('active'); 
+    const modal = document.getElementById('modal-genealogia-overlay');
+    if (modal) { modal.style.display = 'none'; modal.classList.remove('active'); }
 };
 
 window.editGenealogia = function(idOrSbt) {
@@ -1869,11 +1889,19 @@ window.openBulkGenealogiaModal = function() {
     const el = document.getElementById('bulk-sbt-input');
     if (el) el.value = '';
     const modal = document.getElementById('modal-bulk-genealogia-overlay');
-    if (modal) modal.classList.add('active'); 
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.style.opacity = '1';
+        modal.style.pointerEvents = 'auto';
+        modal.classList.add('active'); 
+    }
 };
 window.closeBulkGenealogiaModal = function() { 
     const modal = document.getElementById('modal-bulk-genealogia-overlay');
-    if (modal) modal.classList.remove('active'); 
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active'); 
+    }
 };
 
 // AUTO-CÁLCULO: TOTAL Y LUGAR
