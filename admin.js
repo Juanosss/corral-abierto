@@ -2336,9 +2336,19 @@ window.addEventListener('error', function(e) {
 function check2FAStatusAndInit() {
     try {
         const overlay = document.getElementById('2fa-overlay');
-        if (overlay) {
-            overlay.style.display = 'none';
-            overlay.style.pointerEvents = 'none';
+        const isAuth = sessionStorage.getItem('ca_2fa_authenticated') === 'true';
+        if (isAuth) {
+            if (overlay) {
+                overlay.style.display = 'none';
+                overlay.style.pointerEvents = 'none';
+            }
+        } else {
+            if (overlay) {
+                overlay.style.display = 'flex';
+                overlay.style.pointerEvents = 'auto';
+                overlay.style.opacity = '1';
+            }
+            start2FATimerBar();
         }
         initAdminDirect();
         setupTabListeners();
