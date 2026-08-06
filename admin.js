@@ -2375,6 +2375,7 @@ function check2FAStatusAndInit() {
             if (overlay) {
                 overlay.style.display = 'none';
                 overlay.style.pointerEvents = 'none';
+                overlay.style.visibility = 'hidden';
             }
         } else {
             if (overlay) {
@@ -2402,6 +2403,7 @@ window.addEventListener('load', check2FAStatusAndInit);
 // BOTÓN DE EMERGENCIA Y REPARACIÓN FORZADA
 window.forzarDesbloqueoAdmin = function() {
     console.log("⚡ Ejecutando Desbloqueo y RE-Inicialización de Emergencia...");
+    sessionStorage.setItem('ca_2fa_authenticated', 'true');
     
     // 1. Eliminar pantallas de bloqueo flotantes
     const lockScreen = document.getElementById('page-lock-screen');
@@ -2411,6 +2413,7 @@ window.forzarDesbloqueoAdmin = function() {
     if (overlay2fa) {
         overlay2fa.style.display = 'none';
         overlay2fa.style.pointerEvents = 'none';
+        overlay2fa.style.visibility = 'hidden';
     }
 
     // 2. Restaurar visibilidad del contenedor principal
