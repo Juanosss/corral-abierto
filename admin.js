@@ -749,7 +749,8 @@ function renderGenealogiasTable(dataToRender) {
 
 window.goToHorseInGenealogia = function(horseName) {
     if (!horseName) return;
-    const targetName = String(horseName).trim().toLowerCase();
+    const targetRaw = String(horseName).trim();
+    const targetName = targetRaw.toLowerCase();
 
     // 1. Cambiar a la pestaña de Genealogía & Morfología
     const tabBtn = document.getElementById('btn-tab-genealogias');
@@ -758,13 +759,13 @@ window.goToHorseInGenealogia = function(horseName) {
     // 2. Colocar el nombre en el buscador de la tabla
     const searchInput = document.getElementById('genealogia-quick-search') || document.getElementById('genealogia-search');
     if (searchInput) {
-        searchInput.value = horseName;
+        searchInput.value = targetRaw;
     }
 
     // 3. Renderizar la tabla con el filtro aplicado
-    filterGenealogiasTable(horseName);
+    filterGenealogiasTable(targetRaw);
 
-    // 4. Buscar y destacar la fila coincidente (probar inmediato y con delay por render)
+    // 4. Si el filtro de tabla deja filas, destacar y hacer scroll
     const highlightAndScroll = () => {
         const rows = document.querySelectorAll('#genealogias-tbody tr');
         let matchedRow = null;
@@ -782,11 +783,19 @@ window.goToHorseInGenealogia = function(horseName) {
         if (matchedRow) {
             matchedRow.classList.add('row-highlight-horse');
             matchedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            // Si el caballo no está en la base de datos local de genealogías, abrir modal para registrarlo o consultarlo en el SNA directamente con su nombre prediligenciado
+            const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+            setVal('form-gen-nombre', targetRaw);
+            const statusEl = document.getElementById('sbt-lookup-status');
+            if (statusEl) statusEl.innerHTML = `<span style="color:#ffab91; font-weight:700;">🐴 Nombre "${targetRaw}" listo para consultar o registrar.</span>`;
+            if (typeof window.openGenealogiaModal === 'function') {
+                window.openGenealogiaModal();
+            }
         }
     };
 
-    setTimeout(highlightAndScroll, 50);
-    setTimeout(highlightAndScroll, 200);
+    setTimeout(highlightAndScroll, 100);
 };
 
 window.filterGenealogiasTable = function(query) {
