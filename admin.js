@@ -1853,7 +1853,12 @@ window.editGenealogia = function(idOrSbt) {
     if (titleEl) titleEl.innerText = "✏️ Editar Ficha de Caballo";
 
     const overlay = document.getElementById('modal-genealogia-overlay');
-    if (overlay) overlay.classList.add('active');
+    if (overlay) {
+        overlay.style.display = 'flex';
+        overlay.style.opacity = '1';
+        overlay.style.pointerEvents = 'auto';
+        overlay.classList.add('active');
+    }
 };
 
 window.deleteGenealogia = async function(idOrSbt) {
