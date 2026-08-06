@@ -568,7 +568,7 @@ function renderRodeosTable() {
         <tr>
             <td><code>${r.id}</code></td>
             <td><strong>${r.nombre}</strong></td>
-            <td>${r.logo_url ? `<img src="${r.logo_url}" style="height: 32px; border-radius: 4px;">` : '<span style="color:#8d6e63;">Sin logo</span>'}</td>
+            <td>${r.logo_url ? `<img src="${r.logo_url}" onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='inline';" style="height: 32px; max-width: 48px; object-fit: contain; border-radius: 4px; vertical-align: middle;"><span style="display:none; color:#ff8a65; font-size:0.78rem;">⚠️ Imagen rota</span>` : '<span style="color:#8d6e63;">Sin logo</span>'}</td>
             <td>📅 ${r.fecha || 'Por definir'}<br><small style="color:#bcaaa4;">📍 ${r.lugar || 'Medialuna'}</small></td>
             <td>${r.asociacion || 'General'} <br><small style="color:#ffab91;">🏷️ ${r.tipo || 'Oficial'}</small></td>
             <td><span style="color: ${r.activo ? '#4caf50' : '#f44336'}; font-weight: 700;">${r.activo ? '🔴 En Vivo' : '🏁 Finalizado / Inactivo'}</span></td>
@@ -612,6 +612,12 @@ window.editRodeo = function(rId) {
     const previewWrap = document.getElementById('form-rodeo-logo-preview');
     const previewImg  = document.getElementById('form-rodeo-logo-img');
     if (previewWrap && previewImg && logoVal) {
+        previewImg.onerror = function() {
+            this.style.display = 'none';
+        };
+        previewImg.onload = function() {
+            this.style.display = 'block';
+        };
         previewImg.src = logoVal;
         previewWrap.style.display = 'block';
     } else if (previewWrap) {
